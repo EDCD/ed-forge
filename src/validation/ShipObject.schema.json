@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json",
+    "title": "ShipObject",
+    "description": "This schema describes a part of ship builds as returned from the Journal API in Elite: Dangerous",
+    "type": "object",
+    "properties": {
+        "Ship": {
+            "description": "The type of the ship, e.g. cutter.",
+            "type": "string"
+        },
+        "ShipName": {
+            "description": "The player chosen ship name.",
+            "type": "string"
+        },
+        "ShipIdent": {
+            "description": "The ship's id which is modifiable by the player.",
+            "type": "string"
+        },
+        "Modules": {
+            "description": "All modules installed on this ship.",
+            "type": "array",
+            "items": {
+                "$ref": "https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        }
+    },
+    "required": [
+        "Ship",
+        "ShipName",
+        "ShipIdent",
+        "Modules"
+    ]
+}
