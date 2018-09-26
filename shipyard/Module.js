@@ -44,7 +44,7 @@ export default class Module {
      */
 
      /** @type {ModuleObject} */
-    object = {};
+    _object = {};
 
     /**
      * @param {string} property

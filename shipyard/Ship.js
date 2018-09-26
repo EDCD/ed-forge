@@ -2,7 +2,7 @@
 import Module from './Module';
 
 /**
- * @typedef {Slot} Slot
+ * @typedef {(number|string)} Slot
  */
 
 export default class Ship {
@@ -16,7 +16,7 @@ export default class Ship {
      */
 
     /** @type {ShipObject} */
-    object = {};
+    _object = {};
 
     /**
      * @typedef {Object} DistributorSettingObject
