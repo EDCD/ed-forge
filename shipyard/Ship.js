@@ -263,3 +263,9 @@ export default class Ship {
      */
     compress() {}
 }
+
+/**
+ * @param {Object} json
+ * @return {string}
+ */
+export function compressShipJson(json) {}
