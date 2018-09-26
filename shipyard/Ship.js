@@ -1,6 +1,10 @@
 
 import Module from './Module';
 
+/**
+ * @typedef {Slot} Slot
+ */
+
 export default class Ship {
 
     /**
@@ -51,9 +55,32 @@ export default class Ship {
     constructor(buildFrom) {}
 
     /**
+     * @param {Slot} slot
+     */
+    getModule(slot) {}
+
+    /**
+     *
+     * @param {Slot} slot
+     * @param {Module} module
+     */
+    setModule(slot, module) {}
+
+    /**
      * @return {Module[]}
      */
     getCoreModules() {}
+
+    /**
+     * @param {Module[]} modules
+     */
+    setCoreModules(modules) {}
+
+    /**
+     * @param {Slot} slot
+     * @param {Module} module
+     */
+    setCoreModule(slot, module) {}
 
     /**
      * @return {Module}
@@ -61,9 +88,16 @@ export default class Ship {
     getAlloys() {}
 
     /**
+     * @param {Module} module
+     */
+    setAlloys(module) {}
+
+    /**
      * @return {Module}
      */
     getPowerPlant() {}
+
+    setPowerPlant(module) {}
 
     /**
      * @return {Module}
@@ -71,9 +105,19 @@ export default class Ship {
     getThruster() {}
 
     /**
+     * @param {Module} module
+     */
+    setThrusters(module) {}
+
+    /**
      * @return {Module}
      */
     getFSD() {}
+
+    /**
+     * @param {Module} module
+     */
+    setFSD(module) {}
 
     /**
      * @return {Module}
@@ -81,9 +125,19 @@ export default class Ship {
     getLifeSupport() {}
 
     /**
+     * @param {Module} module
+     */
+    setLifeSupport(module) {}
+
+    /**
      * @return {Module}
      */
     getPowerDistributor() {}
+
+    /**
+     * @param {Module} module
+     */
+    setPowerDistributor(module) {}
 
     /**
      * @return {Module}
@@ -91,9 +145,19 @@ export default class Ship {
     getSensors() {}
 
     /**
+     * @param {Module} module
+     */
+    setSensors(module) {}
+
+    /**
      * @return {Module}
      */
     getCoreFuelTank() {}
+
+    /**
+     * @param {Module} module
+     */
+    setCoreFuelTank(module) {}
 
     /**
      * @param {string} [type]
@@ -103,11 +167,33 @@ export default class Ship {
     getInternals(type, includeEmpty) {}
 
     /**
+     * @param {Module[]} modules
+     */
+    setInternals(modules) {}
+
+    /**
+     * @param {Slot} slot
+     * @param {Module} module
+     */
+    setInternal(slot, module) {}
+
+    /**
      * @param {string} [type]
      * @param {boolean} [includeEmpty=false]
      * @return {Module[]}
      */
     getHardpoints(type, includeEmpty) {}
+
+    /**
+     * @param {Module[]} modules
+     */
+    setHardpoints(modules) {}
+
+    /**
+     * @param {Slot} slot
+     * @param {Module} module
+     */
+    setHardpoint(slot, module) {}
 
     /**
      * @param {string} [type]
@@ -117,11 +203,42 @@ export default class Ship {
     getUtilities(type, includeEmpty) {}
 
     /**
+     * @param {Module[]} modules
+     */
+    setUtilities(modules) {}
+
+    /**
+     * @param {Slot} slot
+     * @param {Module} module
+     */
+    setUtility(slot, module) {}
+
+    /**
      * @param {(string|ShipProperties.ShipStatCalculator)} property
      * @param {boolean} [modified=true]
      * @return {number}
      */
     get(property, modified = true) {}
+
+    /**
+     * @return {string}
+     */
+    getShipName() {}
+
+    /**
+     * @param {string} name
+     */
+    setShipName(name) {}
+
+    /**
+     * @return {string}
+     */
+    getShipID() {}
+
+    /**
+     * @param {string} id
+     */
+    setShipID(id) {}
 
     /**
      * @param {string} property
