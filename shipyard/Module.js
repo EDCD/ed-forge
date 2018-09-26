@@ -7,6 +7,18 @@ export default class Module {
     constructor(buildFrom) {}
 
     /**
+     * @param {string} property
+     * @return {*}
+     */
+    read(property) {}
+
+    /**
+     * @param {string} property
+     * @param {*} value
+     */
+    write(property, value) {}
+
+    /**
      * @typedef {Object} ModifierObject
      * @property {string} Label
      * @property {number} Value

@@ -55,6 +55,25 @@ export default class Ship {
     constructor(buildFrom) {}
 
     /**
+     * Read an arbitrary object property of this ship's corresponding json.
+     * @param {string} property
+     * @return {*}
+     */
+    read(property) {}
+
+    /**
+     * Write an arbitrary value to an arbitrary object property of this ship's
+     * corresponding json. Fields that are required to be set on valid builds
+     * are protected and can only be written by invoking the corresponding
+     * method, e.g. to alter the ship's name you can't invoke
+     * `ship.write('ShipName', 'Normandy')` but must invoke
+     * `ship.setShipName('Normandy')`.
+     * @param {string} property
+     * @param {*} value
+     */
+    write(property, value) {}
+
+    /**
      * @param {Slot} slot
      */
     getModule(slot) {}
