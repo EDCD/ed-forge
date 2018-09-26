@@ -66,30 +66,30 @@ export default class Ship {
     getCoreFuelTank() {}
 
     /**
-     * @param {string} type
-     * @param {boolean} includeEmpty
+     * @param {string} [type]
+     * @param {boolean} [includeEmpty=false]
      * @return {Module[]}
      */
     getInternals(type, includeEmpty) {}
 
     /**
-     * @param {string} type
-     * @param {boolean} includeEmpty
+     * @param {string} [type]
+     * @param {boolean} [includeEmpty=false]
      * @return {Module[]}
      */
     getHardpoints(type, includeEmpty) {}
 
     /**
-     * @param {string} type
-     * @param {boolean} includeEmpty
+     * @param {string} [type]
+     * @param {boolean} [includeEmpty=false]
      * @param {Module[]}
      */
     getUtilities(type, includeEmpty) {}
 
     /**
-     * @param {(string|ShipStats.ShipStatCalculator)} property
-     * @param {boolean} modified
+     * @param {(string|ShipProperties.ShipStatCalculator)} property
+     * @param {boolean} [modified=true]
      * @return {number}
      */
-    get(property, modified) {}
+    get(property, modified = true) {}
 }

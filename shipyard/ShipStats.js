@@ -8,7 +8,7 @@ const PASS = (ship, modified) => {};
  * @name ShipStatCalculator
  * @function
  * @param {Ship} ship
- * @param {boolean} modified
+ * @param {boolean} [modified=true]
  * @return {number}
  */
 

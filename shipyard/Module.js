@@ -31,18 +31,18 @@ export default class Module {
 
     /**
      * @param {string} property
-     * @param {boolean} modified
+     * @param {boolean} [modified=true]
      * @return {number}
      */
-    get(property, modified) {}
+    get(property, modified = true) {}
 
     /**
      * @param {string} property
-     * @param {boolean} modified
-     * @param {number} value
+     * @param {boolean} [modified=true]
+     * @param {number} [value]
      * @return {string}
      */
-    getFormatted(property, modified, value) {}
+    getFormatted(property, modified = true, value) {}
 
     /**
      * @param {string} property
@@ -51,10 +51,10 @@ export default class Module {
 
     /**
      * @param {string} name
-     * @param {number} grade
-     * @param {number} progress
+     * @param {number} [grade=1]
+     * @param {number} [progress=0]
      */
-    setBlueprint(name, grade, progress) {}
+    setBlueprint(name, grade = 1, progress = 0) {}
 
     /**
      * @param {string} name
