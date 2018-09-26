@@ -44,10 +44,11 @@ export default class Module {
     /**
      * @param {string} property
      * @param {boolean} [modified=true]
+     * @param {string} [unit]
      * @param {number} [value]
      * @return {string}
      */
-    getFormatted(property, modified = true, value) {}
+    getFormatted(property, modified = true, unit, value) {}
 
     /**
      * @param {string} property

@@ -243,9 +243,10 @@ export default class Ship {
     /**
      * @param {string} property
      * @param {boolean} [modified=true]
+     * @param {string} [unit]
      * @param {number} [value]
      */
-    getFormatted(property, modified = true, value) {}
+    getFormatted(property, modified = true, unit, value) {}
 
     /**
      * @param {string} statistics
