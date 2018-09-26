@@ -44,7 +44,7 @@ export default class Module {
     /**
      * @param {string} property
      * @param {boolean} [modified=true]
-     * @param {string} [unit]
+     * @param {i18n.FormatOptions.SiUnit} [unit]
      * @param {number} [value]
      * @return {string}
      */

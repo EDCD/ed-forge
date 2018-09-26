@@ -11,3 +11,19 @@
   * specific module/ship properties are to be formatted.
   */
 export const PROPERTY_FORMATTING = {};
+
+/**
+ * Any string that is a concatenation of {@link SI_PREFIXES} and {@link UNITS}
+ * or just a value in {@link UNITS}.
+ * @typedef {string} SiUnit
+ */
+
+/**
+ * @enum {string}
+ */
+export const UNITS = {};
+
+/**
+ * @enum {string}
+ */
+export const SI_PREFIXES = {};
