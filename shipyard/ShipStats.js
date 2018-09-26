@@ -12,7 +12,22 @@ const PASS = (ship, modified) => {};
  * @return {number}
  */
 
-export default {
+/** @type {ShipStatisticsCalculator} */
+const PASS_STATISTICS = (ship, modified) => {};
+
+/**
+ * @typedef {Object} ShipStatisticsObject
+ */
+
+/**
+ * @name ShipStatisticsCalculator
+ * @function
+ * @param {Ship} ship
+ * @param {boolean} [modified=true]
+ * @return {ShipStatisticsObject}
+ */
+
+export const SHIP_PROPERTIES = {
     /** @type {ShipPropertyCalculator} */
     SPEED: PASS,
     /** @type {ShipPropertyCalculator} */
@@ -47,4 +62,13 @@ export default {
     ARMOUR_EXPL_RES: PASS,
     /** @type {ShipPropertyCalculator} */
     ARMOUR_CAUS_RES: PASS,
+};
+
+export const SHIP_STATISTICS = {
+    /** @type {ShipStatisticsCalculator} */
+    SHIELD_METRICS: PASS_STATISTICS,
+    /** @type {ShipStatisticsCalculator} */
+    ARMOUR_METRICS: PASS_STATISTICS,
+    /** @type {ShipStatisticsCalculator} */
+    OFFENCE_METRICS: PASS_STATISTICS,
 };

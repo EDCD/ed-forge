@@ -92,4 +92,10 @@ export default class Ship {
      * @return {number}
      */
     get(property, modified = true) {}
+
+    /**
+     * @param {string} statistics
+     * @param {boolean} [modified=true]
+     */
+    getStatistics(statistics, modified = true) {}
 }
