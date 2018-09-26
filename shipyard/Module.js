@@ -2,6 +2,11 @@
 export default class Module {
 
     /**
+     * @param {(string|object)} buildFrom
+     */
+    constructor(buildFrom) {}
+
+    /**
      * @typedef {Object} ModifierObject
      * @property {string} Label
      * @property {number} Value
@@ -60,4 +65,14 @@ export default class Module {
      * @param {string} name
      */
     setSpecial(name) {}
+
+    /**
+     * @return {Object}
+     */
+    toJSON() {}
+
+    /**
+     * @return {string}
+     */
+    compress() {}
 }

@@ -45,7 +45,10 @@ export default class Ship {
         Fuel: 1,
     };
 
-    constructor() {}
+    /**
+     * @param {(string|Object)} buildFrom
+     */
+    constructor(buildFrom) {}
 
     getCoreModules() {}
 
@@ -105,4 +108,14 @@ export default class Ship {
      * @param {boolean} [modified=true]
      */
     getStatistics(statistics, modified = true) {}
+
+    /**
+     * @return {Object}
+     */
+    toJSON() {}
+
+    /**
+     * @return {string}
+     */
+    compress() {}
 }
