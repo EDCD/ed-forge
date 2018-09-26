@@ -1,11 +1,11 @@
 
 import Ship from './Ship';
 
-/** @type {ShipStatCalculator} */
+/** @type {ShipPropertyCalculator} */
 const PASS = (ship, modified) => {};
 
 /**
- * @name ShipStatCalculator
+ * @name ShipPropertyCalculator
  * @function
  * @param {Ship} ship
  * @param {boolean} [modified=true]
@@ -13,38 +13,38 @@ const PASS = (ship, modified) => {};
  */
 
 export default {
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     SPEED: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     BOOST_SPEED: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     LADEN_RANGE: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     UNLADEN_RANGE: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     LADEN_RANGE: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     PITCH: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     YAW: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     ROLL: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     SHIELD_STRENGTH: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     SHIELD_KIN_RES: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     SHIELD_THERM_RES: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     SHIELD_EXPL_RES: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     ARMOUR: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     ARMOUR_KIN_RES: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     ARMOUR_THERM_RES: PASS,
-    /** @type {ShipStatCalculator} */
+    /** @type {ShipPropertyCalculator} */
     ARMOUR_EXPL_RES: PASS,
-    /** @type {ShipStatCalculator} */
-    ARMOUR_CAUS_RES: PASS
+    /** @type {ShipPropertyCalculator} */
+    ARMOUR_CAUS_RES: PASS,
 };
