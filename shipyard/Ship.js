@@ -50,22 +50,49 @@ export default class Ship {
      */
     constructor(buildFrom) {}
 
+    /**
+     * @return {Module[]}
+     */
     getCoreModules() {}
 
+    /**
+     * @return {Module}
+     */
     getAlloys() {}
 
+    /**
+     * @return {Module}
+     */
     getPowerPlant() {}
 
+    /**
+     * @return {Module}
+     */
     getThruster() {}
 
+    /**
+     * @return {Module}
+     */
     getFSD() {}
 
+    /**
+     * @return {Module}
+     */
     getLifeSupport() {}
 
+    /**
+     * @return {Module}
+     */
     getPowerDistributor() {}
 
+    /**
+     * @return {Module}
+     */
     getSensors() {}
 
+    /**
+     * @return {Module}
+     */
     getCoreFuelTank() {}
 
     /**
