@@ -1,0 +1,87 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json",
+    "title": "ModuleObject",
+    "description": "A module installed in a ship in Elite: Dangerous. Specification follows Journal API",
+    "type": "object",
+    "properties": {
+        "Slot": {
+            "description": "Identifier of the slot the module is installed in",
+            "type": "string"
+        },
+        "On": {
+            "description": "Flag whether this module is powered",
+            "type": "boolean"
+        },
+        "Item": {
+            "description": "Type of the module",
+            "type": "string"
+        },
+        "Priority": {
+            "description": "Power group of the module",
+            "type": "integer"
+        },
+        "Engineering": {
+            "description": "Description of the engineering work done on this module",
+            "type": "object",
+            "properties": {
+                "Engineer": {
+                    "description": "Engineer who did this blueprint",
+                    "type": "string"
+                },
+                "BlueprintName": {
+                    "description": "name of the blueprint applied to this module",
+                    "type": "string"
+                },
+                "Level": {
+                    "description": "Grade of the blueprint applied to this module",
+                    "type": "integer"
+                },
+                "Quality": {
+                    "description": "TODO: Progress of this blueprint",
+                    "type": "number"
+                },
+                "Modifiers": {
+                    "description": "All modifiers in effect",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "Label": {
+                                "description": "Name of the property modified",
+                                "type": "string"
+                            },
+                            "Value": {
+                                "description": "New value of the property modified",
+                                "type": "number"
+                            },
+                            "LessIsGood": {
+                                "description": "Flag whether lowering this property's value has positive effects on the module's performance",
+                                "type": "number",
+                                "enum": [ 0, 1 ]
+                            }
+                        },
+                        "required": [
+                            "Label",
+                            "Value",
+                            "LessIsGood"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "Engineer",
+                "BlueprintName",
+                "Level",
+                "Quality",
+                "Modifiers"
+            ]
+        }
+    },
+    "required": [
+        "Slot",
+        "On",
+        "Item",
+        "Priority"
+    ]
+}
