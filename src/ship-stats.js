@@ -1,12 +1,11 @@
 
-import Ship from './Ship';
+/** @module ed-forge/ship-stats */
 
 /** @type {ShipPropertyCalculator} */
 const PASS = (ship, modified) => {};
 
 /**
- * @name ShipPropertyCalculator
- * @function
+ * @callback ShipPropertyCalculator
  * @param {Ship} ship
  * @param {boolean} [modified=true]
  * @return {number}
@@ -20,8 +19,7 @@ const PASS_STATISTICS = (ship, modified) => {};
  */
 
 /**
- * @name ShipStatisticsCalculator
- * @function
+ * @callback ShipStatisticsCalculator
  * @param {Ship} ship
  * @param {boolean} [modified=true]
  * @return {ShipStatisticsObject}

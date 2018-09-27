@@ -1,4 +1,6 @@
 
+/** @module ed-forge/i18n */
+
 /**
  * @typedef {Object} FormattingObject
  * @property {string} format
@@ -19,11 +21,11 @@ export const PROPERTY_FORMATTING = {};
  */
 
 /**
- * @enum {string}
+ * Holds all units available.
  */
 export const UNITS = {};
 
 /**
- * @enum {string}
+ * Holds all si prefixes available.
  */
 export const SI_PREFIXES = {};

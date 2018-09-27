@@ -1,5 +1,36 @@
 
-export default class Module {
+/** @module ed-forge */
+export default Module;
+
+/**
+ * @typedef {Object} ModifierObject
+ * @property {string} Label
+ * @property {number} Value
+ * @property {string} LessIsGood
+ */
+
+/**
+ * @typedef {Object} BlueprintObject
+ * @property {string} Engineer
+ * @property {string} BlueprintName
+ * @property {number} Level
+ * @property {number} Quality
+ * @property {ModifierObject[]} Modifiers
+ */
+
+/**
+ * @typedef {Object} ModuleObject
+ * @property {string} Slot
+ * @property {boolean} On
+ * @property {string} Item
+ * @property {number} Priority
+ * @property {BlueprintObject[]} Engineering
+ */
+
+/**
+ * A module that belongs to a {@link Ship}.
+ */
+class Module {
 
     /**
      * @param {(string|object)} buildFrom
@@ -18,32 +49,7 @@ export default class Module {
      */
     write(property, value) {}
 
-    /**
-     * @typedef {Object} ModifierObject
-     * @property {string} Label
-     * @property {number} Value
-     * @property {string} LessIsGood
-     */
-
-    /**
-     * @typedef {Object} BlueprintObject
-     * @property {string} Engineer
-     * @property {string} BlueprintName
-     * @property {number} Level
-     * @property {number} Quality
-     * @property {ModifierObject[]} Modifiers
-     */
-
-    /**
-     * @typedef {Object} ModuleObject
-     * @property {string} Slot
-     * @property {boolean} On
-     * @property {string} Item
-     * @property {number} Priority
-     * @property {BlueprintObject[]}
-     */
-
-     /** @type {ModuleObject} */
+    /** @type {ModuleObject} */
     _object = {};
 
     /**

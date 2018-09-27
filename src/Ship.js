@@ -1,11 +1,15 @@
 
-import Module from './Module';
+/** @module ed-forge */
+export default Ship;
 
 /**
  * @typedef {(number|string)} Slot
  */
 
-export default class Ship {
+/**
+ * An Elite: Dangerous ship build.
+ */
+class Ship {
 
     /**
      * @typedef {Object} ShipObject
@@ -233,7 +237,7 @@ export default class Ship {
     setUtility(slot, module) {}
 
     /**
-     * @param {(string|ShipProperties.ShipStatCalculator)} property
+     * @param {(string|ShipPropertyCalculator)} property
      * @param {boolean} [modified=true]
      * @return {number}
      */
@@ -288,4 +292,4 @@ export default class Ship {
  * @param {Object} json
  * @return {string}
  */
-export function compressShipJson(json) {}
+export function compressJson(json) {}
