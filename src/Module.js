@@ -1,4 +1,11 @@
 
+import { VALIDATOR, decompress } from './Ship';
+import { cloneDeep } from 'lodash';
+
+_MODULE_VALIDATOR = VALIDATOR.compile(
+    require('./validation/ModuleObject.schema')
+);
+
 /** @module ed-forge */
 export default Module;
 
@@ -35,7 +42,18 @@ class Module {
     /**
      * @param {(string|object)} buildFrom
      */
-    constructor(buildFrom) {}
+    constructor(buildFrom) {
+        if (typeof buildFrom === 'string') {
+            buildFrom = decompress(buildFrom);
+        }
+
+        if (!_MODULE_VALIDATOR(buildFrom)) {
+            // TODO: Exception handling
+            return;
+        }
+
+        this._object = cloneDeep(buildFrom);
+    }
 
     /**
      * @param {string} property

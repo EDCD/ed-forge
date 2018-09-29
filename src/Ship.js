@@ -1,4 +1,12 @@
 
+import Ajv from 'ajv';
+import { cloneDeep, map } from 'lodash';
+
+export const VALIDATOR = new Ajv();
+_SHIP_VALIDATOR = VALIDATOR.compile(
+    require('./validation/ShipObject.schema')
+);
+
 /** @module ed-forge */
 export default Ship;
 
@@ -56,7 +64,22 @@ class Ship {
     /**
      * @param {(string|Object)} buildFrom
      */
-    constructor(buildFrom) {}
+    constructor(buildFrom) {
+        if (typeof buildFrom === 'string') {
+            buildFrom = decompress(buildFrom);
+        }
+
+        if (!_SHIP_VALIDATOR(buildFrom)) {
+            // TODO: exception handling
+            return;
+        }
+
+        this._object = cloneDeep(buildFrom);
+        this._object.Modules = map(
+            this._object.Modules,
+            moduleObject => new Module(moduleObject)
+        );
+    }
 
     /**
      * Read an arbitrary object property of this ship's corresponding json.
@@ -293,3 +316,9 @@ class Ship {
  * @return {string}
  */
 export function compressJson(json) {}
+
+/**
+ * @param {string} compressedBuild
+ * @return {object}
+ */
+export function decompress(compressedBuild) {}
