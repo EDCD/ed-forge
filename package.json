@@ -1,0 +1,11 @@
+{
+  "name": "ed-forge",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:felixlinker/ed-forge.git",
+  "author": "willyb321 <wbwilliam7@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "pako": "^1.0.6"
+  }
+}
