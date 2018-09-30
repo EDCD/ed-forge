@@ -1,7 +1,8 @@
 
-import { cloneDeep } from 'lodash';
+import { cloneDeep, pick, assign } from 'lodash';
 import { MODULE_VALIDATOR } from './validation/util';
 import { compress, decompress } from './compression';
+import { getModuleProperty, moduleFitsSlot } from './data';
 
 /** @module ed-forge */
 export default Module;
@@ -35,6 +36,28 @@ export default Module;
  */
 
 /**
+ * Clones a given module.
+ * @param {ModuleLike} module Module to clone
+ * @return {ModuleObject} Cloned module object
+ */
+function cloneModuleToJSON(module) {
+    if (module instanceof Module) {
+        module = module.toJSON();
+    } else {
+        if (typeof module === 'string') {
+            module = decompress(module);
+        }
+        module = cloneDeep(module);
+
+        if (!MODULE_VALIDATOR(module)) {
+            return null;
+        }
+    }
+
+    return module;
+}
+
+/**
  * A module that belongs to a {@link Ship}.
  */
 class Module {
@@ -43,24 +66,20 @@ class Module {
      * @param {ModuleLike} buildFrom
      */
     constructor(buildFrom) {
-        // TODO: handle instance of class Module
-        if (typeof buildFrom === 'string') {
-            buildFrom = decompress(buildFrom);
-        }
-
-        if (!MODULE_VALIDATOR(buildFrom)) {
-            // TODO: Exception handling
-            return;
-        }
-
-        this._object = cloneDeep(buildFrom);
+        this._object = cloneModuleToJSON(buildFrom);
     }
 
     /**
      * @param {ModuleLike} buildFrom
      * @param {string[]} keep
      */
-    update(buildFrom, keep) {}
+    update(buildFrom, keep) {
+        let old = this._object;
+        this._object = cloneModuleToJSON(buildFrom);
+        if (keep) {
+            assign(this._object, pick(old, keep));
+        }
+    }
 
     /**
      * @param {string} property
@@ -80,9 +99,28 @@ class Module {
     /**
      * @param {string} property
      * @param {boolean} [modified=true]
-     * @return {number}
+     * @return {(number|undefined)}
      */
-    get(property, modified = true) {}
+    get(property, modified = true) {
+        let modifierIndex = this._findModifier(property);
+        if (modified && modifierIndex) {
+            return this._object.Engineering.Modifiers[modifierIndex].value;
+        }
+        return getModuleProperty(this._object.Item, property);
+    }
+
+    /**
+     * @param {string} property
+     */
+    _findModifier(property) {
+        if (!this._object.Engineering) {
+            return undefined;
+        }
+
+        return this._object.Engineering.Modifiers.find(
+            modifier => modifier.Label === property
+        );
+    }
 
     /**
      * @param {string} property
@@ -95,8 +133,27 @@ class Module {
 
     /**
      * @param {string} property
+     * @param {number} value
+     * @return {boolean}
      */
-    set(property) {}
+    set(property, value) {
+        if (!this._object.Engineering) {
+            // Can only set values when a blueprint is applied
+            return false;
+        }
+
+        let modifierIndex = this._findModifier(property);
+        if (modifierIndex) {
+            this._object.Engineering.Modifiers[modifierIndex].Value = value;
+        } else {
+            this._object.Engineering.Modifiers.push({
+                Label: property,
+                Value: value
+            });
+        }
+
+        return true;
+    }
 
     /**
      * @param {string} name
@@ -144,7 +201,23 @@ class Module {
         }
     }
 
-    setSlot(slot) {}
+    /**
+     * @param {string} slot
+     * @return {boolean}
+     */
+    fitsSlot(slot) {
+        return moduleFitsSlot(this, slot);
+    }
+
+    /**
+     * @param {string} slot
+     */
+    setSlot(slot) {
+        if (this._object.Item && !moduleFitsSlot(this, slot)) {
+            return;
+        }
+        this._object.Slot = slot;
+    }
 
     /**
      * Turns this module into an empty one.
@@ -156,6 +229,13 @@ class Module {
      */
     isEmpty() {
         return this._object.Item !== '';
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isAssigned() {
+        return this._object.Slot !== '';
     }
 
     /**
