@@ -32,14 +32,19 @@ export default Module;
  */
 
 /**
+ * @typedef {(string|Module|ModuleObject)} ModuleLike
+ */
+
+/**
  * A module that belongs to a {@link Ship}.
  */
 class Module {
 
     /**
-     * @param {(string|object)} buildFrom
+     * @param {ModuleLike} buildFrom
      */
     constructor(buildFrom) {
+        // TODO: handle instance of class Module
         if (typeof buildFrom === 'string') {
             buildFrom = decompress(buildFrom);
         }
@@ -103,10 +108,73 @@ class Module {
     /**
      * @return {Object}
      */
-    toJSON() {}
+    toJSON() {
+        return cloneDeep(this._object);
+    }
 
     /**
      * @return {string}
      */
-    compress() {}
+    compress() {
+        return compress(this._object);
+    }
+
+    /**
+     * Checks whether this module is on a matching slot.
+     * @param {Slot} slot   Slot to check; if string exact match is required, if
+     *                      RegExp only a simple match is required.
+     * @return {(boolean|null)} True if the module is on the given slot or the
+     *                          RegExp matches, false if none of this holds;
+     *                          null if the slot is on no module at all.
+     */
+    isOnSlot(slot) {
+        if (this._object.Slot) {
+            if (typeof slot === 'string') {
+                return this._object.Slot === slot;
+            } else { // RegExp
+                return this._object.Slot.match(slot) !== null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    setSlot(slot) {}
+
+    /**
+     * Turns this module into an empty one.
+     */
+    clear() {}
+
+    /**
+     * @return {boolean}
+     */
+    isEmpty() {
+        return this._object.Item !== '';
+    }
+
+    /**
+     * @return {number}
+     */
+    getClass() {}
+
+    /**
+     * @return {boolean}
+     */
+    isHardpoint() {}
+
+    /**
+     * @return {boolean}
+     */
+    isUtility() {}
+
+    /**
+     * @return {boolean}
+     */
+    isInternal() {}
+
+    /**
+     * @return {boolean}
+     */
+    isCore() {}
 }
