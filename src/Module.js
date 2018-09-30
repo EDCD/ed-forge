@@ -10,7 +10,6 @@ export default Module;
  * @typedef {Object} ModifierObject
  * @property {string} Label
  * @property {number} Value
- * @property {string} LessIsGood
  */
 
 /**
@@ -28,7 +27,7 @@ export default Module;
  * @property {boolean} On
  * @property {string} Item
  * @property {number} Priority
- * @property {BlueprintObject[]} Engineering
+ * @property {BlueprintObject} [Engineering]
  */
 
 /**
