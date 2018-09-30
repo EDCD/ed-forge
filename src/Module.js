@@ -76,7 +76,7 @@ class Module {
     write(property, value) {}
 
     /** @type {ModuleObject} */
-    _object = {};
+    _object = null;
 
     /**
      * @param {string} property

@@ -54,7 +54,7 @@ class Ship {
      */
 
     /** @type {ShipObject} */
-    _object = {};
+    _object = null;
 
     /**
      * @typedef {Object} DistributorSettingObject
