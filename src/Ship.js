@@ -144,21 +144,22 @@ class Ship {
     /**
      * Sets given module on the first matching slot. Cf. {@see Ship.getModule}
      * for what a "matching slot" is. This function will copy the given module.
-     * @param {Slot} slot Slot to set the module on.
+     * @param {(Slot|Module)} slot Slot to set the module on.
      * @param {ModuleLike} module Module to set.
-     * @return {(Module|undefined)} Returns the old module or undefined if no
-     *                              matching slot was found.
+     * @return {boolean} Returns whether an update took place.
      */
     setModule(slot, module) {
-        for (let i in this._object.Modules) {
-            let old = this._object.Modules[i];
-            if (old.isOnSlot(slot)) {
-                let m = new Module(module);
-                m.setSlot(old._object.Slot);
-                this._object.Modules[i] = m;
-                return old;
+        if (slot instanceof Module) {
+            slot.update(module, ['Slot']);
+            return true;
+        } else {
+            let old = this.getModule(slot);
+            if (old) {
+                return this.setModule(old, module);
             }
         }
+
+        return false;
     }
 
     /**
@@ -206,27 +207,29 @@ class Ship {
     /**
      * Sets all modules given that are core modules replacing old ones.
      * @param {ModuleLike[]} modules Core modules to set.
-     * @return {Module[]} Modules that have been removed from the build.
+     * @return {boolean[]}  Array of boolean whether the corresponding
+     *                      {@link ModuleLike} was set.
      */
     setCoreModules(modules) {
-        return map(modules, module => new Module(module))
-            .forEach(module => {
-                let slot = chain(CORE_MODULES)
-                    .filter(i_slot => module._object.Item.match(i_slot))
-                    .head();
-                if (slot) {
-                    return this.setModule(slot, module);
-                }
-            })
-            .filter();
+        return map(modules, module => this.setCoreModules([module]));
     }
 
     /**
      * Sets a given core module to this build.
      * @param {Module} module Core module to set.
+     * @return {boolean} Returns whether an update has taken place.
      */
-    setCoreModule(module) {
-        this.setCoreModules([module]);
+     setCoreModule(module) {
+        if (!module instanceof Module) {
+            module = new Module(module);
+        }
+        let slot = chain(CORE_MODULES)
+            .filter(i_slot => module._object.Item.match(i_slot))
+            .head();
+        if (slot) {
+            return this.setModule(slot, module);
+        }
+        return false;
     }
 
     /**
@@ -312,13 +315,12 @@ class Ship {
     }
 
     /**
-     * Sets a module to an internal slot. If slot is a number then slot is
-     * interpreted as a zero based index to all internal modules with the first
-     * module being that of the highest class (as returned by
-     * {@link Ship.getInternals} when empty modules are included).
+     * Sets a module to an internal slot. If `slot` is a number then `slot` is
+     * interpreted as a zero based index to all internal modules as returned by
+     * {@link Ship.getInternals} with empty modules included.
      * @param {NumberedSlot} slot Slot to place the module in.
      * @param {ModuleLike} module Module to add to the ship.
-     * @return {Module} Module that was removed from the build.
+     * @return {boolean} Returns whether an update has taken place.
      */
     setInternal(slot, module) {
         if (typeof slot === 'number') {

@@ -58,6 +58,12 @@ class Module {
     }
 
     /**
+     * @param {ModuleLike} buildFrom
+     * @param {string[]} keep
+     */
+    update(buildFrom, keep) {}
+
+    /**
      * @param {string} property
      * @return {*}
      */
