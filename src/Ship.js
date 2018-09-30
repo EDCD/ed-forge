@@ -351,33 +351,49 @@ class Ship {
     }
 
     /**
-     * @param {Module[]} modules
+     * Sets a module to a hardpoint slot. If `slot` is a number then `slot` is
+     * interpreted as a zero based index to all hardpoint modules as returned by
+     * {@link Ship.getHardpoints} with empty modules included.
+     * @param {NumberedSlot} slot Slot to set the module to
+     * @param {ModuleLike} module Module to set
+     * @return {boolean} Returns whether an update has taken place.
      */
-    setHardpoints(modules) {}
+    setHardpoint(slot, module) {
+        if (typeof slot === 'number') {
+            let hardpoints = this.getHardpoints(undefined, true);
+            slot = hardpoints[slot]._object.Slot;
+        }
+        return this.setModule(slot, module);
+    }
 
     /**
-     * @param {NumberedSlot} slot
-     * @param {Module} module
+     * Returns all utility module in a fixed order (as ingame).
+     * @param {string} [type] Type to filter modules by.
+     * @param {boolean} [includeEmpty=false]    If true, also empty modules will
+     *                                          be returned, i.e. which are just
+     *                                          a slot.
+     * @return {Module[]} Utility modules
      */
-    setHardpoint(slot, module) {}
+    getUtilities(type, includeEmpty) {
+        let utilities = this.getModules(REG_UTILITY, type, includeEmpty);
+        return sortModules(utilities);
+    }
 
     /**
-     * @param {string} [type]
-     * @param {boolean} [includeEmpty=false]
-     * @param {Module[]}
+     * Sets a module to a utility slot. If `slot` is a number then `slot` is
+     * interpreted as a zero based index to all utility modules as returned by
+     * {@link Ship.getUtilities} with empty modules included.
+     * @param {NumberedSlot} slot Slot to set the module to
+     * @param {ModuleLike} module Module to set
+     * @return {boolean} Returns whether an update has taken place.
      */
-    getUtilities(type, includeEmpty) {}
-
-    /**
-     * @param {Module[]} modules
-     */
-    setUtilities(modules) {}
-
-    /**
-     * @param {NumberedSlot} slot
-     * @param {Module} module
-     */
-    setUtility(slot, module) {}
+    setUtility(slot, module) {
+        if (typeof slot === 'number') {
+            let utilities = this.getUtilities(undefined, true);
+            slot = utilities[slot]._object.Slot;
+        }
+        return this.setModule(slot, module)
+    }
 
     /**
      * @param {(string|ShipPropertyCalculator)} property
