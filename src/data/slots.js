@@ -1,5 +1,5 @@
 
-import { coriolis } from 'coriolis-data';
+import coriolis from 'coriolis-data';
 
 export const SLOT_TYPES = {
     ARMOUR: 'armour',
