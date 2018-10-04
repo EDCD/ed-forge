@@ -21,11 +21,11 @@ const CORIOLIS_CORE_INDEX_MAP = [SLOT_TYPES.POWER_PLANT, SLOT_TYPES.THRUSTERS,
     SLOT_TYPES.FSD, SLOT_TYPES.LIFE_SUPPORT, SLOT_TYPES.POWER_DISTRIBUTOR,
     SLOT_TYPES.SENSORS, SLOT_TYPES.FUEL_TANK];
 
-const REG_CORE_SLOT = /(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)/i;
-const REG_INTERNAL_SLOT = /Slot(\d{2})_Size(\d)/i;
-const REG_MILITARY_SLOT = /Military(\d{2})/i;
-const REG_HARDPOINT_SLOT = /(Small|Medium|Large|Huge)Hardpoint/i;
-const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
+export const REG_CORE_SLOT = /(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)/i;
+export const REG_INTERNAL_SLOT = /Slot(\d{2})_Size(\d)/i;
+export const REG_MILITARY_SLOT = /Military(\d{2})/i;
+export const REG_HARDPOINT_SLOT = /(Small|Medium|Large|Huge)Hardpoint/i;
+export const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
 
 const HARDPOINT_ORDER = ['small', 'medium', 'large', 'huge'];
 export function hardpointSizeToIndex(size) {

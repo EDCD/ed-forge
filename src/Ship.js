@@ -3,27 +3,8 @@ import { clone, cloneDeep, map, chain, keys, sortBy } from 'lodash';
 import { SHIP_VALIDATOR } from './validation/util';
 import { compress, decompress } from './compression';
 import Module, { ModuleLike } from './Module';
-
-const CORE_MODULE_MAP = {
-    'Armour': /_Armour_/,
-    'PowerPlant': /Int_Powerplant_/,
-    'MainEngines': /Int_Engine/,
-    'FrameShiftDrive': /Int_Hyperdrive/,
-    'LifeSupport': /Int_LifeSupport/,
-    'PowerDistributor': /Int_PowerDistributor/,
-    'Radar': /Int_Sensors/,
-    'FuelTank': /Int_FuelTank/,
-};
-const CORE_MODULES = keys(CORE_MODULE_MAP);
-
-const REG_INTERNAL = /Slot/;
-const REG_MILITARY = /Military/;
-const REG_HARDPOINT = /(Small|Medium|Large|Huge)Hardpoint/;
-const REG_HARDPOINT_SMALL = /SmallHardpoint/;
-const REG_HARDPOINT_MEDIUM = /MediumHardpoint/;
-const REG_HARDPOINT_LARGE = /LargeHardpoint/;
-const REG_HARDPOINT_HUGE = /HugeHardpoint/;
-const REG_UTILITY = /TinyHardpoint/;
+import { REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
+    REG_UTILITY_SLOT } from './data/slots';
 
 /** @module ed-forge */
 export default Ship;
@@ -171,7 +152,7 @@ class Ship {
      * @param {(Slot|Slot[])} slots Slots of the modules to get.
      * @return {Module[]} All matching modules. Possibly empty.
      */
-    getModules(slots, type, includeEmpty) {
+    getModules(slots, type, includeEmpty, sort) {
         let ms;
         if (typeof slots !== 'object') { // not an array
             let m = this.getModule(slot);
@@ -193,6 +174,9 @@ class Ship {
         if (!includeEmpty) {
             ms = ms.filter(m => !m.isEmpty());
         }
+        if (sort) {
+            ms = ms.sortBy();
+        }
 
         return ms.uniq().value();
     }
@@ -201,7 +185,16 @@ class Ship {
      * @return {Module[]}
      */
     getCoreModules() {
-        return this.getModules(CORE_MODULES);
+        return [
+            this.getAlloys(),
+            this.getPowerPlant(),
+            this.getThrusters(),
+            this.getFSD(),
+            this.getLifeSupport(),
+            this.getPowerDistributor(),
+            this.getSensors(),
+            this.getCoreFuelTank()
+        ];
     }
 
     /**
@@ -309,9 +302,9 @@ class Ship {
      * @return {Module[]} Array of internal modules. Possibly empty.
      */
     getInternals(type, includeEmpty) {
-        let ms = this.getModules(REG_INTERNAL, type, includeEmpty);
-        let militaryMs = this.getModules(REG_MILITARY, type, includeEmpty);
-        return sortModules(ms).concat(sortModules(militaryMs));
+        let ms = this.getModules(REG_INTERNAL_SLOT, type, includeEmpty, true);
+        let militaryMs = this.getModules(REG_MILITARY_SLOT, type, includeEmpty, true);
+        return ms.concat(militaryMs);
     }
 
     /**
@@ -340,14 +333,7 @@ class Ship {
      * @return {Module[]} Hardpoint modules
      */
     getHardpoints(type, includeEmpty) {
-        let smallHs = this.getModules(REG_HARDPOINT_SMALL, type, includeEmpty);
-        let mediumHs = this.getModules(REG_HARDPOINT_MEDIUM, type, includeEmpty);
-        let largeHs = this.getModules(REG_HARDPOINT_LARGE, type, includeEmpty);
-        let hugeHs = this.getModules(REG_HARDPOINT_HUGE, type, includeEmpty);
-        return sortModules(hugeHs)
-            .concat(sortModules(largeHs))
-            .concat(sortModules(mediumHs))
-            .concat(sortModules(smallHs));
+        return this.getModules(REG_HARDPOINT_SLOT, type, includeEmpty, true);
     }
 
     /**
@@ -375,8 +361,7 @@ class Ship {
      * @return {Module[]} Utility modules
      */
     getUtilities(type, includeEmpty) {
-        let utilities = this.getModules(REG_UTILITY, type, includeEmpty);
-        return sortModules(utilities);
+        return this.getModules(REG_UTILITY_SLOT, type, includeEmpty, true);
     }
 
     /**

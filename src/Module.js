@@ -2,7 +2,9 @@
 import { cloneDeep, pick, assign } from 'lodash';
 import { MODULE_VALIDATOR } from './validation/util';
 import { compress, decompress } from './compression';
-import { getModuleProperty, moduleFitsSlot } from './data';
+import { itemFitsSlot, getItemInfo, getCoreItemInfo, getInternalItemInfo,
+    getHardpointItemInfo, getUtilityItemInfo } from './data/items';
+import { getModuleProperty } from './data';
 
 /** @module ed-forge */
 export default Module;
@@ -64,9 +66,18 @@ class Module {
 
     /**
      * @param {ModuleLike} buildFrom
+     * @param {Ship} ship
      */
-    constructor(buildFrom) {
-        this._object = cloneModuleToJSON(buildFrom);
+    constructor(buildFrom, ship) {
+        if (!buildFrom) {
+            this.clear();
+        } else {
+            this._object = cloneModuleToJSON(buildFrom);
+        }
+
+        if (ship) {
+            this._ship = ship;
+        }
     }
 
     /**
@@ -95,6 +106,9 @@ class Module {
 
     /** @type {ModuleObject} */
     _object = null;
+
+    /** @type {Ship} */
+    _ship = null;
 
     /**
      * @param {string} property
@@ -206,14 +220,16 @@ class Module {
      * @return {boolean}
      */
     fitsSlot(slot) {
-        return moduleFitsSlot(this, slot);
+        return itemFitsSlot(this._object.Item, this._ship._object.Ship, slot);
     }
 
     /**
      * @param {string} slot
      */
     setSlot(slot) {
-        if (this._object.Item && !moduleFitsSlot(this, slot)) {
+        if (this._object.Item ||
+            !itemFitsSlot(this._object.Item, this._ship._object.Ship, slot)) {
+            // TODO: throw
             return;
         }
         this._object.Slot = slot;
@@ -222,7 +238,9 @@ class Module {
     /**
      * Turns this module into an empty one.
      */
-    clear() {}
+    clear() {
+        this._object = { Item: '', Slot: '', On: true, Priority: 1 };
+    }
 
     /**
      * @return {boolean}
@@ -241,25 +259,36 @@ class Module {
     /**
      * @return {number}
      */
-    getClass() {}
+    getClass() {
+        let [ clazz ] = getItemInfo(this._object.Item);
+        return clazz;
+    }
 
     /**
      * @return {boolean}
      */
-    isHardpoint() {}
+    isHardpoint() {
+        return !!(getHardpointItemInfo(this._object.Item)[0]);
+    }
 
     /**
      * @return {boolean}
      */
-    isUtility() {}
+    isUtility() {
+        return !!(getUtilityItemInfo(this._object.Item)[0]);
+    }
 
     /**
      * @return {boolean}
      */
-    isInternal() {}
+    isInternal() {
+        return !!(getInternalItemInfo(this._object.Item)[0]);
+    }
 
     /**
      * @return {boolean}
      */
-    isCore() {}
+    isCore() {
+        return !!(getCoreItemInfo(this._object.Item)[0]);
+    }
 }
