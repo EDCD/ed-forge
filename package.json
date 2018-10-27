@@ -6,11 +6,15 @@
   "author": "felixlinker <linkerfelix@gmail.com>",
   "license": "MIT",
   "watch": {
-    "build": "src/**/*.js"
+    "build_light": {
+      "patterns": [ "src/**/*.js" ],
+      "runOnChangeOnly": true
+    }
   },
   "scripts": {
-    "build": "babel src -d lib --copy-files --source-maps",
-    "watch": "npm-watch build"
+    "build": "node coriolis_mapper.js && npm run build_light",
+    "build_light": "babel src -d lib --copy-files --source-maps",
+    "watch": "npm run build && npm-watch build_light"
   },
   "dependencies": {
     "ajv": "^6.5.4",

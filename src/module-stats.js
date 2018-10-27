@@ -1,6 +1,7 @@
 
 export const MODULE_STATS = {
     'ammo': {},
+    'absdamage': {},
     'boot': {},
     'brokenregen': {},
     'burst': {},
@@ -16,6 +17,7 @@ export const MODULE_STATS = {
     'engcap': {},
     'engrate': {},
     'eps': {},
+    'expldamage': {},
     'explres': {},
     'facinglimit': {},
     'falloff': {},
@@ -25,6 +27,7 @@ export const MODULE_STATS = {
     'hullreinforcement': {},
     'integrity': {},
     'jitter': {},
+    'kindamage': {},
     'kinres': {},
     'mass': {},
     'maxfuel': {},
@@ -51,6 +54,7 @@ export const MODULE_STATS = {
     'spinup': {},
     'syscap': {},
     'sysrate': {},
+    'thermdamage': {},
     'thermload': {},
     'thermres': {},
     'wepcap': {},
