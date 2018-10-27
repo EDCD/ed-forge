@@ -1,23 +1,22 @@
 
-import coriolis from 'coriolis-data/dist';
-import { keys, pick, values } from 'lodash';
-import { MODULE_STATS } from '../module-stats';
+import Ship from '../Ship';
+import Module from '../Module';
+import { assertValidModule } from './items';
+import { assertValidShip } from './slots';
 
-const MODULE_STATS_KEYS = keys(MODULE_STATS);
-const MODULES = {};
+const MODULES = require('./modules.json');
+const SHIPS = require('./ships.json');
 
-for (const group in coriolis.Modules) {
-    for (const module in values(coriolis.Modules[group])) {
-        MODULES[module.symbol] = pick(module, MODULE_STATS_KEYS);
+export default class Factory {
+    static newModule(type) {
+        assertValidModule(type);
+        // We don't clone the prototype because this is done in Module
+        return new Module(MODULES[type].proto);
+    }
+
+    static newShip(type) {
+        assertValidShip(type);
+        // We don't clone the prototype because this is done in Ship
+        return new Ship(SHIPS[type].proto);
     }
 }
-
-export function newModule(identifier) {
-    return { Slot: '', On: true, Item: identifier, Priority: 1 };
-}
-
-export function getModuleProperty(identifier, property) {
-    return MODULES[identifier][property];
-}
-
-export function newBlueprint(name, level, progress) {}

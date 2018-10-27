@@ -3,9 +3,9 @@ import { cloneDeep, pick, assign } from 'lodash';
 import autoBind from 'auto-bind';
 import { validateModuleJson, moduleVarIsSpecified } from './validation';
 import { compress, decompress } from './compression';
-import { itemFitsSlot, getItemInfo, getCoreItemInfo, getInternalItemInfo,
-    getHardpointItemInfo, getUtilityItemInfo } from './data/items';
 import { getModuleProperty } from './data';
+import { itemFitsSlot, getClass, getRating } from './data/items';
+import { getSlotSize } from './data/slots';
 
 /**
  * @typedef {Object} ModifierObject
@@ -275,36 +275,30 @@ class Module {
      * @return {number}
      */
     getClass() {
-        let [ clazz ] = getItemInfo(this._object.Item);
-        return clazz;
+        if (!this._object.Item) {
+            return null;
+        }
+        return getClass(this._object.Item);
     }
 
     /**
-     * @return {boolean}
+     * @return {String}
      */
-    isHardpoint() {
-        return !!(getHardpointItemInfo(this._object.Item)[0]);
+    getRating() {
+        if (!this._object.Item) {
+            return null;
+        }
+        return getRating(this._object.Item);
     }
 
     /**
-     * @return {boolean}
+     * @return {number}
      */
-    isUtility() {
-        return !!(getUtilityItemInfo(this._object.Item)[0]);
-    }
-
-    /**
-     * @return {boolean}
-     */
-    isInternal() {
-        return !!(getInternalItemInfo(this._object.Item)[0]);
-    }
-
-    /**
-     * @return {boolean}
-     */
-    isCore() {
-        return !!(getCoreItemInfo(this._object.Item)[0]);
+    getSize() {
+        if (!this._ship || !this._object.Slot) {
+            return null;
+        }
+        return getSlotSize(this._ship._object.Ship, this._object.Slot);
     }
 }
 

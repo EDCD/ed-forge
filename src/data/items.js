@@ -1,108 +1,97 @@
 
-import { hardpointSizeToIndex, SLOT_TYPES, getSlotInfo } from './slots';
+import { getSlotSize, isPassengerSlot, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
+    REG_HARDPOINT_SLOT, REG_UTILITY_SLOT
+} from './slots';
+import { UnknownRestrictedError } from '../errors';
+import { matchesAny } from '../helper';
 
-const REG_CLASS = /_Size(\d)/i;
-const REG_CORE = /(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)/i;
-const REG_INTERNAL_CORE = /Int_/i;
-const REG_HARDPOINT = /Hpt_.*?_(Small|Medium|Large|Huge)/i;
-const REG_UTILITY_HARDPOINT = /Hpt_/i;
+const MODULES = require('./modules.json');
 
-const REG_PAS = /Int_PlanetApproachSuite/i;
-const REG_FT = /Int_FuelTank/i;
-
-function parseClass(item) {
-    let m = item.match(REG_CLASS);
-    if (m) {
-        return Number(m[1]);
+export function assertValidModule(type) {
+    if (!MODULES[type]) {
+        throw new UnknownRestrictedError(`Don't know module ${item}`);
     }
-    // Not all modules have a size but if they don't they fit every slot
-    return 1;
 }
 
-export function getCoreItemInfo(item) {
-    if (item) {
-        let m = item.match(REG_CORE);
-        if (m) {
-            let type = m[1].toLowerCase();
-            // Match hyperdrive and sensors to their slot naming convention;
-            // for all other core modules the module naming convention aligns
-            // with the slot naming convention.
-            switch (type) {
-                case 'hyperdrive': type = SLOT_TYPES.FSD; break;
-                case 'sensors': type = SLOT_TYPES.SENSORS; break;
-            }
-            // Map type to array and check for fuel tank because that can also
-            // go into internal slots
-            type = [type];
-            if (item.match(REG_FT)) {
-                type.push(SLOT_TYPES.INTERNAL);
-            }
-            return [parseClass(item), type];
+export function getClass(item) {
+    assertValidModule(type);
+    return MODULES[item].meta.class;
+}
+
+export function getRating(item) {
+    assertValidModule(type);
+    return MODULES[item].meta.rating;
+}
+
+function getItemInfo(item) {
+    assertValidModule(type);
+    let info = {
+        Slots: [],
+        passenger: false,
+    };
+    if (item.match(/_Armour_/i)) {
+        info.Slots = [ /Armour/i ];
+    } else if (item.match(/Int_PowerPlant/i)) {
+        info.Slots = [ /PowerPlant/i ];
+    } else if (item.match(/Int_Engine/i)) {
+        info.Slots = [ /MainEngine/i ];
+    } else if (item.match(/Int_HyperDrive/i)) {
+        info.Slots = [ /FrameShiftDrive/i ];
+    } else if (item.match(/Int_LifeSupport/i)) {
+        info.Slots = [ /LifeSupport/i ];
+    } else if (item.match(/Int_PowerDistributor/i)) {
+        info.Slots = [ /PowerDistributor/i ];
+    } else if (item.match(/Int_Sensors/i)) {
+        info.Slots = [ /Radar/i ];
+    } else if (item.match(/Int_FuelTank/i)) {
+        info.Slots = [ /FuelTank/i, REG_INTERNAL_SLOT ];
+    } else if (item.match(/Hpt_/i)) {
+        if (item.match(/size0/i) || item.match(/tiny/i)) {
+            info.Slots = [ REG_UTILITY_SLOT ];
+        } else {
+            info.Slots = [ REG_HARDPOINT_SLOT ];
         }
-    }
-    return [null, []];
-}
-
-export function getInternalItemInfo(item) {
-    if (!item) {
-        return [null, []];
-    }
-
-    let m = item.match(REG_INTERNAL_CORE);
-    // if internal and not planetary approach suite...
-    if (m && item.match(REG_PAS)) {
-        let size = parseClass(item);
-        // Ignore core internals
-        if (item.match(REG_CORE)) {
-            if (item.match(REG_FT)) {
-                // Fuel tank is core but can also go into internal
-                return [size, [SLOT_TYPES.FUEL_TANK, SLOT_TYPES.INTERNAL]];
-            }
-            return [null, []];
+    } else if (item.match(/Int_/i)) {
+        info.Slots = [ REG_INTERNAL_SLOT ];
+        if (item.match(/HullReinforcement/i) ||
+            item.match(/ModuleReinforcement/i) ||
+            item.match(/ShieldReinforcement/i) ||
+            item.match(/ShieldCellBank/i)
+        ) {
+            info.Slots.push(REG_MILITARY_SLOT);
         }
 
-        // TODO: check military/passenger
-        return [size, [SLOT_TYPES.INTERNAL]];
-    }
-
-    return [null, []];
-}
-
-export function getHardpointItemInfo(item) {
-    if (item) {
-        let m = item.match(REG_HARDPOINT);
-        if (m) {
-            return [hardpointSizeToIndex(m[1]), [SLOT_TYPES.HARDPOINT]];
+        if (item.match(/CargoRack/i) ||
+            item.match(/PassengerCabin/i) ||
+            item.match(/HullReinforcement/i) ||
+            item.match(/ModuleReinforcement/i)
+        ) {
+            info.passenger = true;
         }
+    } else {
+        // TODO: throw exception
     }
-    return [null, []];
-}
-
-export function getUtilityItemInfo(item) {
-    if (item) {
-        let m = item.match(REG_UTILITY_HARDPOINT);
-        if (m && !m.match(REG_HARDPOINT)) {
-            return [1, [SLOT_TYPES.UTILITY]];
-        }
-    }
-    return [null, []];
-}
-
-export function getItemInfo(item) {
-    // Loop over all item info getters and start with the computationally least
-    // expensive ones
-    for (const f of [getUtilityItemInfo, getHardpointItemInfo, getCoreItemInfo,
-        getInternalItemInfo]) {
-            let info = f(item);
-            if (info) {
-                return info;
-            }
-    }
-    return [null, []];
+    return info;
 }
 
 export function itemFitsSlot(item, ship, slot) {
-    let [itemSize, itemTypes] = getItemInfo(item);
-    let [slotSize, slotType] = getSlotInfo(ship, slot);
-    return Boolean(itemTypes.find(x => x === slotType) && itemSize <= slotSize);
+    assertValidModule(type);
+    slot = slot.toLowerCase();
+
+    let itemClass = getClass(item);
+    let itemInfo = getItemInfo(item);
+
+    // Does the item fit on this type of slot?
+    if (!matchesAny(itemClass, ...itemInfo.Slots)) {
+        return false;
+    }
+
+    // Does the item fit on this slot?
+    let slotSize = getSlotSize(ship, slot);
+    if (slotSize < itemClass) {
+        return false;
+    }
+
+    // At last, we must check whether this slot is for passenger modules only
+    return !isPassengerSlot(ship, slot) || itemInfo.passenger;
 }
