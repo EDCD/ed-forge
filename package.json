@@ -6,6 +6,10 @@
   "author": "felixlinker <linkerfelix@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "ajv": "^6.5.4",
+    "auto-bind": "^1.2.1",
+    "coriolis-data": "file:coriolis-data",
+    "lodash": "^4.17.11",
     "pako": "^1.0.6"
   }
 }
