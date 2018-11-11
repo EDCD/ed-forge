@@ -86,20 +86,9 @@ class Module {
     }
 
     /**
-     * @param {ModuleLike} buildFrom
-     * @param {string[]} keep
-     */
-    update(buildFrom, keep) {
-        let old = this._object;
-        this._object = cloneModuleToJSON(buildFrom);
-        if (keep) {
-            assign(this._object, pick(old, keep));
-        }
-    }
-
-    /**
-     * @param {string} property
-     * @return {*}
+     * Read an arbitrary object property of this module's corresponding json.
+     * @param {string} property Property name
+     * @return {*} Property value
      */
     read(property) {
         return this._object[property];
@@ -157,7 +146,6 @@ class Module {
     /**
      * @param {string} property
      * @param {number} value
-     * @return {boolean}
      * @throws {IllegalStateError} When no blueprint is applied.
      */
     set(property, value) {
@@ -176,8 +164,6 @@ class Module {
                 Value: value
             });
         }
-
-        return true;
     }
 
     /**
@@ -258,21 +244,6 @@ class Module {
     }
 
     /**
-     * @param {String} slot
-     * @param {(String|Ship)} ship
-     * @return {(boolean|null)}
-     */
-    fitsSlotOn(slot, ship) {
-        if (!this._object.Item) {
-            return null;
-        }
-        if (ship instanceof Ship) {
-            ship = ship._object.Ship;
-        }
-        return itemFitsSlot(this._object.Item, ship, slot);
-    }
-
-    /**
      * @param {string} slot
      * @throws {IllegalStateError}  If no ship has been set or slot already has
      *                              been assigned.
@@ -297,7 +268,16 @@ class Module {
         this._object.Slot = slot;
     }
 
+    /**
+     * Sets the ship of this module. A ship can only be assigned once to prevent
+     * bad states.
+     * @param {(string|Ship)} ship
+     */
     setShip(ship) {
+        if (ship instanceof Ship) {
+            ship = ship._object.Ship;
+        }
+
         if (this._ship !== null) {
             throw new IllegalStateError('Cannot reassign ship in Module');
         }
