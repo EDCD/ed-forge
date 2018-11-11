@@ -1,7 +1,7 @@
 {
   "name": "ed-forge",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "repository": "git@github.com:felixlinker/ed-forge.git",
   "author": "felixlinker <linkerfelix@gmail.com>",
   "license": "MIT",
@@ -16,18 +16,24 @@
   "scripts": {
     "build": "node coriolis_mapper.js && npm run build_light",
     "build_light": "babel src -d lib --copy-files --source-maps",
+    "prepublish": "npm run build",
+    "release": "np",
     "watch": "npm run build && npm-watch build_light"
   },
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "ajv": "^6.5.4",
     "auto-bind": "^1.2.1",
-    "coriolis-data": "file:coriolis-data",
+    "coriolis-data": "github:edcd/coriolis-data",
     "lodash": "^4.17.11",
     "pako": "^1.0.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
+    "np": "*",
     "@babel/preset-env": "^7.1.0",
     "npm-watch": "^0.4.0"
   }
