@@ -424,7 +424,10 @@ function consumeShip(entry) {
                 ),
             ],
         },
-        props: _.pickBy(ship.properties, modulePropsPicker),
+        props: _.mapKeys(
+            _.pickBy(ship.properties, modulePropsPicker),
+            (v, k) => k.toLowerCase()
+        ),
         meta: _.pick(ship, META_KEYS),
     };
     _.assign(j.meta, _.pick(ship.properties, META_KEYS));

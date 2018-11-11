@@ -1,20 +1,13 @@
 
 import { UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
-
-const SHIPS = require('./ships.json');
+import { getShipInfo } from './ships';
 
 export const REG_CORE_SLOT = /(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)/i;
 export const REG_INTERNAL_SLOT = /Slot(\d{2})_Size(\d)/i;
 export const REG_MILITARY_SLOT = /Military(\d{2})/i;
 export const REG_HARDPOINT_SLOT = /(Small|Medium|Large|Huge)Hardpoint/i;
 export const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
-
-export function assertValidShip(ship) {
-    if (!SHIPS[ship]) {
-        throw new UnknownRestrictedError(`Don't know ship ${ship}`);
-    }
-}
 
 export function assertValidSlot(slot) {
     if (!matchesAny(slot, REG_CORE_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_HARDPOINT_SLOT, REG_UTILITY_SLOT)) {
@@ -23,21 +16,18 @@ export function assertValidSlot(slot) {
 }
 
 export function getCoreSlotSize(ship, slot) {
-    assertValidShip(ship);
     assertValidSlot(slot);
-    return SHIPS[ship].meta.coreSizes[slot];
+    return getShipInfo(ship).meta.coreSizes[slot];
 }
 
 export function getMilitarySlotSize(ship, slot) {
-    assertValidShip(ship);
     assertValidSlot(slot);
-    return SHIPS[ship].meta.militarySizes[slot];
+    return getShipInfo(ship).meta.militarySizes[slot];
 }
 
 export function isPassengerSlot(ship, slot) {
-    assertValidShip(ship);
     assertValidSlot(slot);
-    return SHIPS[ship].meta.passengerSlots[slot];
+    return getShipInfo(ship).meta.passengerSlots[slot];
 }
 
 export function getInternalSlotSize(slot) {

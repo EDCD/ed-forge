@@ -13,14 +13,17 @@ export function assertValidModule(type) {
     }
 }
 
+export function getModuleInfo(item) {
+    assertValidModule(item);
+    return MODULES[item];
+}
+
 export function getClass(item) {
-    assertValidModule(type);
-    return MODULES[item].meta.class;
+    return getModuleInfo(item).meta.class;
 }
 
 export function getRating(item) {
-    assertValidModule(type);
-    return MODULES[item].meta.rating;
+    return getModuleInfo(item).meta.rating;
 }
 
 function getItemInfo(item) {
@@ -97,6 +100,5 @@ export function itemFitsSlot(item, ship, slot) {
 }
 
 export function getModuleProperty(item, property) {
-    assertValidModule(item);
-    return MODULES[item].props[property];
+    return getModuleInfo(item).props[property];
 }

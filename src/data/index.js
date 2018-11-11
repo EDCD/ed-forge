@@ -1,13 +1,11 @@
 
 import Ship from '../Ship';
 import Module from '../Module';
-import { assertValidModule } from './items';
-import { assertValidShip } from './slots';
+import { getModuleInfo } from './items';
+import { getShipInfo } from './ships';
 import { UnknownRestrictedError } from '../errors';
 
-const MODULES = require('./modules.json');
 const MODULE_CACHE = require('./module_cache.json');
-const SHIPS = require('./ships.json');
 
 function readModuleCache(type, clazz='', rating='') {
     let cache = MODULE_CACHE[type];
@@ -31,14 +29,12 @@ export default class Factory {
             return this.newModule(item);
         }
 
-        assertValidModule(type);
         // We don't clone the prototype because this is done in Module
-        return new Module(MODULES[type].proto);
+        return new Module(getModuleInfo(type).proto);
     }
 
     static newShip(type) {
-        assertValidShip(type);
         // We don't clone the prototype because this is done in Ship
-        return new Ship(SHIPS[type].proto);
+        return new Ship(getShipInfo(type).proto);
     }
 }

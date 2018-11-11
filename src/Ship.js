@@ -7,6 +7,7 @@ import Module from './Module';
 import { REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
     REG_UTILITY_SLOT } from './data/slots';
 import { ImportExportError, IllegalStateError } from './errors';
+import { getShipProperty } from './data/ships';
 
 /**
  * @typedef {(string|RegExp)} Slot
@@ -278,7 +279,9 @@ class Ship {
      * @param {boolean} [modified=true]
      * @return {number}
      */
-    get(property, modified = true) {}
+    get(property, modified = true) {
+        return getShipProperty(this._object.Ship, property);
+    }
 
     /**
      * @return {string}
