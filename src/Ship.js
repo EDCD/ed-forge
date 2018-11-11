@@ -1,9 +1,9 @@
 
-import { clone, cloneDeep, map, chain, sortBy } from 'lodash';
+import { clone, map, chain } from 'lodash';
 import autoBind from 'auto-bind';
 import { validateShipJson, shipVarIsSpecified } from './validation';
 import { compress, decompress } from './compression';
-import Module, { ModuleLike } from './Module';
+import Module from './Module';
 import { REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
     REG_UTILITY_SLOT } from './data/slots';
 import { ImportExportError, IllegalStateError } from './errors';
@@ -11,14 +11,6 @@ import { ImportExportError, IllegalStateError } from './errors';
 /**
  * @typedef {(string|RegExp)} Slot
  */
-
-/**
- * @typedef {(Slot|number)} NumberedSlot
- */
-
-function sortModules(modules) {
-    return sortBy(modules, m => m._object.Slot);
-}
 
 /**
  * An Elite: Dangerous ship build.
@@ -80,9 +72,9 @@ class Ship {
             throw new ImportExportError('Ship build is not valid');
         }
 
-        this._object = cloneDeep(buildFrom);
+        this._object = clone(buildFrom);
         this._object.Modules = map(
-            this._object.Modules,
+            buildFrom.Modules,
             moduleObject => new Module(moduleObject, this)
         );
     }
@@ -131,27 +123,6 @@ class Ship {
     }
 
     /**
-     * Sets given module on the first matching slot. Cf. {@see Ship.getModule}
-     * for what a "matching slot" is. This function will copy the given module.
-     * @param {(Slot|Module)} slot Slot to set the module on.
-     * @param {ModuleLike} module Module to set.
-     * @return {boolean} Returns whether an update took place.
-     */
-    setModule(slot, module) {
-        if (slot instanceof Module) {
-            slot.update(module, ['Slot']);
-            return true;
-        } else {
-            let old = this.getModule(slot);
-            if (old) {
-                return this.setModule(old, module);
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Gets a list of matching modules. Cf. {@see Ship.getModule} for what a
      * "matching module" is. Order of returned modules is not guaranteed unless
      * `slots` is an array then it is guaranteed for any slot with index i that
@@ -171,10 +142,10 @@ class Ship {
             ms = ms.filter(m => !m.isEmpty());
         }
         if (sort) {
-            ms = ms.sortBy();
+            ms = ms.sortBy(m => m._object.Slot);
         }
 
-        return ms.uniq().value();
+        return ms.value();
     }
 
     /**
@@ -191,35 +162,6 @@ class Ship {
             this.getSensors(),
             this.getCoreFuelTank()
         ];
-    }
-
-    /**
-     * Sets all modules given that are core modules replacing old ones.
-     * @param {ModuleLike[]} modules Core modules to set.
-     * @return {boolean[]}  Array of boolean whether the corresponding
-     *                      {@link ModuleLike} was set.
-     */
-    setCoreModules(modules) {
-        return map(modules, module => this.setCoreModules([module]));
-    }
-
-    /**
-     * Sets a given core module to this build.
-     * @param {Module} module Core module to set.
-     * @return {boolean} Returns whether an update has taken place.
-     */
-     setCoreModule(module) {
-        if (!module instanceof Module) {
-            module = new Module(module);
-        }
-        let slot = chain(CORE_MODULES)
-            .filter(i_slot => module._object.Item.match(i_slot))
-            .head()
-            .value();
-        if (slot) {
-            return this.setModule(slot, module);
-        }
-        return false;
     }
 
     /**
@@ -300,24 +242,10 @@ class Ship {
      */
     getInternals(type, includeEmpty) {
         let ms = this.getModules(REG_INTERNAL_SLOT, type, includeEmpty, true);
-        let militaryMs = this.getModules(REG_MILITARY_SLOT, type, includeEmpty, true);
+        let militaryMs = this.getModules(
+            REG_MILITARY_SLOT, type, includeEmpty, true
+        );
         return ms.concat(militaryMs);
-    }
-
-    /**
-     * Sets a module to an internal slot. If `slot` is a number then `slot` is
-     * interpreted as a zero based index to all internal modules as returned by
-     * {@link Ship.getInternals} with empty modules included.
-     * @param {NumberedSlot} slot Slot to place the module in.
-     * @param {ModuleLike} module Module to add to the ship.
-     * @return {boolean} Returns whether an update has taken place.
-     */
-    setInternal(slot, module) {
-        if (typeof slot === 'number') {
-            let internals = this.getInternals(undefined, true);
-            slot = internals[slot]._object.Slot;
-        }
-        return this.setModule(slot, module);
     }
 
     /**
@@ -334,22 +262,6 @@ class Ship {
     }
 
     /**
-     * Sets a module to a hardpoint slot. If `slot` is a number then `slot` is
-     * interpreted as a zero based index to all hardpoint modules as returned by
-     * {@link Ship.getHardpoints} with empty modules included.
-     * @param {NumberedSlot} slot Slot to set the module to
-     * @param {ModuleLike} module Module to set
-     * @return {boolean} Returns whether an update has taken place.
-     */
-    setHardpoint(slot, module) {
-        if (typeof slot === 'number') {
-            let hardpoints = this.getHardpoints(undefined, true);
-            slot = hardpoints[slot]._object.Slot;
-        }
-        return this.setModule(slot, module);
-    }
-
-    /**
      * Returns all utility module in a fixed order (as ingame).
      * @param {string} [type] Type to filter modules by.
      * @param {boolean} [includeEmpty=false]    If true, also empty modules will
@@ -359,22 +271,6 @@ class Ship {
      */
     getUtilities(type, includeEmpty) {
         return this.getModules(REG_UTILITY_SLOT, type, includeEmpty, true);
-    }
-
-    /**
-     * Sets a module to a utility slot. If `slot` is a number then `slot` is
-     * interpreted as a zero based index to all utility modules as returned by
-     * {@link Ship.getUtilities} with empty modules included.
-     * @param {NumberedSlot} slot Slot to set the module to
-     * @param {ModuleLike} module Module to set
-     * @return {boolean} Returns whether an update has taken place.
-     */
-    setUtility(slot, module) {
-        if (typeof slot === 'number') {
-            let utilities = this.getUtilities(undefined, true);
-            slot = utilities[slot]._object.Slot;
-        }
-        return this.setModule(slot, module)
     }
 
     /**
