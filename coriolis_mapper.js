@@ -295,7 +295,7 @@ function consumeModule(module) {
             Priority: 1
         },
         props: _.pickBy(module, modulePropsPicker),
-        meta: _.pick(module, META_KEYS),
+        meta: _.defaults(_.pick(module, META_KEYS), { 'class': 0 }),
     };
 
     let dist = module.damagedist;
@@ -433,7 +433,7 @@ function consumeShip(entry) {
     _.assign(j.meta, _.pick(ship.properties, META_KEYS));
 
     // Save the size of the core slots as meta data
-    j.meta.coreSizes = {};
+    j.meta.coreSizes = { armour: 0, };
     j.meta.militarySizes = {};
     j.meta.passengerSlots = {};
 
