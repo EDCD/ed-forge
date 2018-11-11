@@ -3,8 +3,8 @@ import { cloneDeep, pick, assign } from 'lodash';
 import autoBind from 'auto-bind';
 import { validateModuleJson, moduleVarIsSpecified } from './validation';
 import { compress, decompress } from './compression';
-import { getModuleProperty } from './data';
-import { itemFitsSlot, getClass, getRating } from './data/items';
+import Factory from './data';
+import { itemFitsSlot, getClass, getModuleProperty, getRating } from './data/items';
 import { getSlotSize } from './data/slots';
 import { IllegalStateError, ImportExportError } from './errors';
 import Ship from './Ship';
@@ -72,13 +72,11 @@ class Module {
     constructor(buildFrom, ship) {
         autoBind(this);
         /** @type {ModuleObject} */
-        this._object = null;
+        this._object = { Item: '', Slot: '', On: true, Priority: 1 };
         /** @type {Ship} */
         this._ship = null;
 
-        if (!buildFrom) {
-            this.clear();
-        } else {
+        if (buildFrom) {
             this._object = cloneModuleToJSON(buildFrom);
         }
 
@@ -209,6 +207,28 @@ class Module {
     }
 
     /**
+     * Set the item of this module.
+     * @param {String} item Item to set.
+     * @throws {IllegalStateError}  When the given item does not fit the slot
+     *                              (if present).
+     */
+    setItem(item, clazz='', rating='') {
+        if (clazz && rating) {
+            item = Factory.getModuleId(item, clazz, rating);
+        }
+
+        if (this._ship && this._object.Slot &&
+            !itemFitsSlot(item, this._ship._object.Ship, this._object.Slot)
+        ) {
+            throw new IllegalStateError(
+                `Item ${item} does not fit ${this._object.Slot}`
+            );
+        }
+
+        this._object.Item = item;
+    }
+
+    /**
      * Checks whether this module is on a matching slot.
      * @param {(Slot|Slot[])} slot  Slot to check; if string exact match is
      *                              required, if RegExp only a simple match is
@@ -219,11 +239,14 @@ class Module {
      *                          null if the slot is on no module at all.
      */
     isOnSlot(slot) {
-        if (this._object.Slot) {
+        if (!this._object.Slot) {
+            return null;
+        }
+
             if (typeof slot === 'string') {
                 return this._object.Slot === slot;
             } else if (slot instanceof RegExp) {
-                return this._object.Slot.match(slot) !== null;
+            return Boolean(this._object.Slot.match(slot));
             } else { // Array
                 for (let s of slot) {
                     if (this.isOnSlot(s)) {
@@ -232,9 +255,6 @@ class Module {
                 }
                 return false;
             }
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -268,18 +288,21 @@ class Module {
             throw new IllegalStateError(`Can't reassign slot to ${slot}`);
         }
 
-        if (!this._object.Item ||
-            itemFitsSlot(this._object.Item, this._ship._object.Ship, slot)) {
+        if (this._object.Item && itemFitsSlot(this._object.Item, this._ship._object.Ship, slot)) {
+            throw new IllegalStateError(
+                `Can't assign slot current item ${this._object.Item} does not fit on ${slot}`
+            );
+        }
+
         this._object.Slot = slot;
-    }
     }
 
     setShip(ship) {
-        if (this._ship === null) {
-            this._ship = ship;
-        } else {
+        if (this._ship !== null) {
             throw new IllegalStateError('Cannot reassign ship in Module');
         }
+
+        this._ship = ship;
     }
 
     /**
@@ -293,7 +316,7 @@ class Module {
      * @return {boolean}
      */
     isAssigned() {
-        return this._object.Slot !== '';
+        return this._ship && this._object.Slot !== '';
     }
 
     /**

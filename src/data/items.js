@@ -95,3 +95,8 @@ export function itemFitsSlot(item, ship, slot) {
     // At last, we must check whether this slot is for passenger modules only
     return !isPassengerSlot(ship, slot) || itemInfo.passenger;
 }
+
+export function getModuleProperty(item, property) {
+    assertValidModule(item);
+    return MODULES[item].props[property];
+}
