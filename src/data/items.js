@@ -2,7 +2,7 @@
 import { getSlotSize, isPassengerSlot, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
     REG_HARDPOINT_SLOT, REG_UTILITY_SLOT
 } from './slots';
-import { UnknownRestrictedError, UnknownRestrictedError } from '../errors';
+import { UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
 
 /**
