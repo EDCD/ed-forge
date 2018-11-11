@@ -69,7 +69,7 @@ function getItemInfo(item) {
             info.passenger = true;
         }
     } else {
-        // TODO: throw exception
+        throw new UnknownRestrictedError(`Don't know module ${item}`);
     }
     return info;
 }

@@ -6,6 +6,7 @@ import { compress, decompress } from './compression';
 import Module, { ModuleLike } from './Module';
 import { REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
     REG_UTILITY_SLOT } from './data/slots';
+import { ImportExportError, IllegalStateError } from './errors';
 
 /**
  * @typedef {(string|RegExp)} Slot
@@ -54,6 +55,7 @@ class Ship {
 
     /**
      * @param {(string|Object)} buildFrom
+     * @throws {ImportExportError} On invalid ship json.
      */
     constructor(buildFrom) {
         autoBind(this);
@@ -75,8 +77,7 @@ class Ship {
         }
 
         if (!validateShipJson(buildFrom)) {
-            // TODO: exception handling
-            return;
+            throw new ImportExportError('Ship build is not valid');
         }
 
         this._object = cloneDeep(buildFrom);
@@ -102,13 +103,13 @@ class Ship {
      * method, e.g. to alter the ship's name you can't invoke
      * `ship.write('ShipName', 'Normandy')` but must invoke
      * `ship.setShipName('Normandy')`.
-     * @param {string} property
-     * @param {*} value
+     * @throws {IllegalStateError} On an attempt to write a protected property.
      */
     write(property, value) {
         if (shipVarIsSpecified(property)) {
-            // TODO: Throw error
-            return;
+            throw new IllegalStateError(
+                `Can't write protected property ${property}`
+            );
         }
         this._object[property] = value;
     }

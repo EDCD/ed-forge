@@ -6,6 +6,8 @@ import { compress, decompress } from './compression';
 import { getModuleProperty } from './data';
 import { itemFitsSlot, getClass, getRating } from './data/items';
 import { getSlotSize } from './data/slots';
+import { IllegalStateError, ImportExportError } from './errors';
+import Ship from './Ship';
 
 /**
  * @typedef {Object} ModifierObject
@@ -39,6 +41,7 @@ import { getSlotSize } from './data/slots';
  * Clones a given module.
  * @param {ModuleLike} module Module to clone
  * @return {ModuleObject} Cloned module object
+ * @throws {ImportExportError} On invalid module json.
  */
 function cloneModuleToJSON(module) {
     if (module instanceof Module) {
@@ -50,7 +53,7 @@ function cloneModuleToJSON(module) {
         module = cloneDeep(module);
 
         if (!validateModuleJson(module)) {
-            return null;
+            throw new ImportExportError('Module is not valid');
         }
     }
 
@@ -110,9 +113,11 @@ class Module {
      */
     write(property, value) {
         if (moduleVarIsSpecified(property)) {
-            // TODO: Throw error
-            return;
+            throw new IllegalStateError(
+                `Can't write protected property ${property}`
+            );
         }
+
         this._object[property] = value;
     }
 
@@ -155,11 +160,13 @@ class Module {
      * @param {string} property
      * @param {number} value
      * @return {boolean}
+     * @throws {IllegalStateError} When no blueprint is applied.
      */
     set(property, value) {
         if (!this._object.Engineering) {
-            // Can only set values when a blueprint is applied
-            return false;
+            throw new IllegalStateError(
+                `Can't set property ${property} - no blueprint applied`
+            );
         }
 
         let modifierIndex = this._findModifier(property);
@@ -231,30 +238,48 @@ class Module {
     }
 
     /**
-     * @param {string} slot
-     * @return {boolean}
+     * @param {String} slot
+     * @param {(String|Ship)} ship
+     * @return {(boolean|null)}
      */
-    fitsSlot(slot) {
-        return itemFitsSlot(this._object.Item, this._ship._object.Ship, slot);
+    fitsSlotOn(slot, ship) {
+        if (!this._object.Item) {
+            return null;
+        }
+        if (ship instanceof Ship) {
+            ship = ship._object.Ship;
+        }
+        return itemFitsSlot(this._object.Item, ship, slot);
     }
 
     /**
      * @param {string} slot
+     * @throws {IllegalStateError}  If no ship has been set or slot already has
+     *                              been assigned.
      */
     setSlot(slot) {
-        if (this._object.Item ||
-            !itemFitsSlot(this._object.Item, this._ship._object.Ship, slot)) {
-            // TODO: throw
-            return;
+        if (!this._ship) {
+            throw new IllegalStateError(
+                `Can't assign slot to ${slot} for unknown ship`
+            );
         }
+
+        if (this._object.Slot) {
+            throw new IllegalStateError(`Can't reassign slot to ${slot}`);
+        }
+
+        if (!this._object.Item ||
+            itemFitsSlot(this._object.Item, this._ship._object.Ship, slot)) {
         this._object.Slot = slot;
     }
+    }
 
-    /**
-     * Turns this module into an empty one.
-     */
-    clear() {
-        this._object = { Item: '', Slot: '', On: true, Priority: 1 };
+    setShip(ship) {
+        if (this._ship === null) {
+            this._ship = ship;
+        } else {
+            throw new IllegalStateError('Cannot reassign ship in Module');
+        }
     }
 
     /**
