@@ -10,26 +10,29 @@ import { IllegalStateError, ImportExportError } from './errors';
 import Ship from './Ship';
 
 /**
+ * Module property modifier overriding default values.
  * @typedef {Object} ModifierObject
- * @property {string} Label
- * @property {number} Value
+ * @property {string} Label Property name
+ * @property {number} Value Modified property value
  */
 
 /**
+ * Engineer blueprint.
  * @typedef {Object} BlueprintObject
- * @property {string} BlueprintName
- * @property {number} Level
- * @property {number} Quality
- * @property {ModifierObject[]} Modifiers
+ * @property {string} BlueprintName Name of the blueprint
+ * @property {number} Level Grade of the blueprint from 1 to 5
+ * @property {number} Quality Progress of the blueprint from 0 to 1
+ * @property {ModifierObject[]} Modifiers Array of all modifiers
  */
 
 /**
+ * Loadout-event style object describing a module
  * @typedef {Object} ModuleObject
- * @property {string} Slot
- * @property {boolean} On
- * @property {string} Item
- * @property {number} Priority
- * @property {BlueprintObject} [Engineering]
+ * @property {string} Slot Slot this module is on (possibly empty string)
+ * @property {boolean} On True when this module is switched on
+ * @property {string} Item Item/actual module that this module represents
+ * @property {number} Priority Power priority group
+ * @property {BlueprintObject} [Engineering] Blueprint applied to this module
  */
 
 /**
@@ -65,8 +68,10 @@ function cloneModuleToJSON(module) {
 class Module {
 
     /**
-     * @param {ModuleLike} buildFrom
-     * @param {Ship} ship
+     * Create a module by reading a module JSON given in a loadout-event-style
+     * ship build. Can be given as a compressed string or plain object.
+     * @param {(string|ModuleObject)} buildFrom Module to load
+     * @param {Ship} [ship] Ship to assign this module to
      */
     constructor(buildFrom, ship) {
         autoBind(this);
@@ -94,8 +99,15 @@ class Module {
     }
 
     /**
-     * @param {string} property
-     * @param {*} value
+     * Write an arbitrary value to an arbitrary object property of this module's
+     * corresponding json. Fields that are required to be set on valid modules
+     * are protected and can only be written by invoking the corresponding
+     * method, e.g. to alter the module's item you can't invoke
+     * `module.write('Item', '...')` but must invoke
+     * `module.setItem('...')`.
+     * @param {string} property Property name
+     * @param {*} value Property value
+     * @throws {IllegalStateError} On an attempt to write a protected property
      */
     write(property, value) {
         if (moduleVarIsSpecified(property)) {
@@ -108,9 +120,12 @@ class Module {
     }
 
     /**
-     * @param {string} property
-     * @param {boolean} [modified=true]
-     * @return {(number|undefined)}
+     * Return a property of this module, e.g. "mass".
+     * @param {string} property Property name
+     * @param {boolean} [modified=true] False to retrieve default value
+     * @return {(number|null|undefined)} Property value or `null` when property
+     *      applies to this module but is not given or undefined when property
+     *      does not apply to this type of module, e.g. "ammo" on a cargo rack.
      */
     get(property, modified = true) {
         let modifierIndex = this._findModifier(property);
@@ -121,7 +136,9 @@ class Module {
     }
 
     /**
-     * @param {string} property
+     * Returns index of modifier for given property if present.
+     * @param {string} property Property name
+     * @return {(number|undefined)} Modifier index or `undefined` if not present
      */
     _findModifier(property) {
         if (!this._object.Engineering) {
@@ -143,8 +160,9 @@ class Module {
     getFormatted(property, modified = true, unit, value) {}
 
     /**
-     * @param {string} property
-     * @param {number} value
+     * Sets the value of a property.
+     * @param {string} property Property name
+     * @param {number} value Property value
      * @throws {IllegalStateError} When no blueprint is applied.
      */
     set(property, value) {
@@ -178,14 +196,16 @@ class Module {
     setSpecial(name) {}
 
     /**
-     * @return {Object}
+     * Returns a copy of this module as a loadout-event-style module.
+     * @return {Object} Module
      */
     toJSON() {
         return cloneDeep(this._object);
     }
 
     /**
-     * @return {string}
+     * Returns a compressed string representing the loadout-event-style module.
+     * @return {string} Compressed string
      */
     compress() {
         return compress(this._object);
@@ -194,8 +214,8 @@ class Module {
     /**
      * Set the item of this module.
      * @param {String} item Item to set.
-     * @throws {IllegalStateError}  When the given item does not fit the slot
-     *                              (if present).
+     * @throws {IllegalStateError} When the given item does not fit the slot
+     *      (if present).
      */
     setItem(item, clazz='', rating='') {
         if (clazz && rating) {
@@ -215,13 +235,12 @@ class Module {
 
     /**
      * Checks whether this module is on a matching slot.
-     * @param {(Slot|Slot[])} slot  Slot to check; if string exact match is
-     *                              required, if RegExp only a simple match is
-     *                              required. If an array, one the given slots
-     *                              must match.
+     * @param {(Slot|Slot[])} slot Slot to check; if string exact match is
+     *      required, if RegExp only a simple match is required. If an array,
+     *      one the given slots must match.
      * @return {(boolean|null)} True if the module is on the given slot or the
-     *                          RegExp matches, false if none of this holds;
-     *                          null if the slot is on no module at all.
+     *      RegExp matches, false if none of this holds; null if the slot is on
+     *      no module at all.
      */
     isOnSlot(slot) {
         if (!this._object.Slot) {
@@ -243,9 +262,12 @@ class Module {
     }
 
     /**
-     * @param {string} slot
-     * @throws {IllegalStateError}  If no ship has been set or slot already has
-     *                              been assigned.
+     * Sets the slot of this module. Slots can only be set once (includes
+     * constructor) to prevent bad states. A slot can only be assigned when a
+     * ship already has been assigned.
+     * @param {string} slot Slot to assign.
+     * @throws {IllegalStateError} If no ship has been set or slot already has
+     *      been assigned.
      */
     setSlot(slot) {
         if (!this._ship) {
@@ -285,21 +307,25 @@ class Module {
     }
 
     /**
-     * @return {boolean}
+     * Checks whether this module is empty, i.e. does not have an item assigned.
+     * @return {boolean} True when empty, false otherwise.
      */
     isEmpty() {
         return this._object.Item === '';
     }
 
     /**
-     * @return {boolean}
+     * Checks whether this module is assigned to a slot.
+     * @return {boolean} True when assigned, false otherwise.
      */
     isAssigned() {
         return this._ship && this._object.Slot !== '';
     }
 
     /**
-     * @return {number}
+     * Returns the class of this module. Class of utility items or bulkheads is
+     * always zero. Class of hardpoints is in range 1 to 4 for small to huge.
+     * @return {(number|null)} Item class or `null` if no item has been assigned
      */
     getClass() {
         if (!this._object.Item) {
@@ -309,7 +335,8 @@ class Module {
     }
 
     /**
-     * @return {String}
+     * Returns the rating of this module.
+     * @return {(string|null)} Rating or `null` if no item has been assigned
      */
     getRating() {
         if (!this._object.Item) {
@@ -319,7 +346,10 @@ class Module {
     }
 
     /**
-     * @return {number}
+     * Returns the size of the slot of this module. Size of utility slots and
+     * bulkheads is always zero. Size of hardpoint slots is in range 1 to 4 for
+     * small to huge.
+     * @return {(number|null)} Size or `null` if no slot has been assigned
      */
     getSize() {
         if (!this._ship || !this._object.Slot) {

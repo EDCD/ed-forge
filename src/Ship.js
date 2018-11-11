@@ -19,35 +19,43 @@ import { getShipProperty } from './data/ships';
 class Ship {
 
     /**
+     * A loadout-event-style ship build.
      * @typedef {Object} ShipObject
-     * @property {string} Ship
-     * @property {string} ShipName
-     * @property {string} ShipIdent
-     * @property {Module[]} Modules
+     * @property {string} Ship Ship type, e.g. cutter.
+     * @property {string} ShipName Player-set ship name.
+     * @property {string} ShipIdent Player-set or auto-generated Ship ID.
+     * @property {Module[]} Modules Array of all modules of this ship.
      */
 
     /**
+     * Object to reflect settings of a specific power distributor, e.g. WEP.
+     * It holds that `0 <= base + mc <= 4`.
      * @typedef {Object} DistributorSettingObject
-     * @property {number} base
-     * @property {number} mc
+     * @property {number} base Base pips
+     * @property {number} mc Additional multi-crew pips
      */
 
     /**
+     * A state of the power distributor.
      * @typedef {Object} DistributorStateObject
-     * @property {DistributorSettingObject} Sys
-     * @property {DistributorSettingObject} Eng
-     * @property {DistributorSettingObject} Wep
+     * @property {DistributorSettingObject} Sys Pips to SYS
+     * @property {DistributorSettingObject} Eng Pips to ENG
+     * @property {DistributorSettingObject} Wep Pips to WEP
      */
 
     /**
+     * State of the current ship.
      * @typedef {Object} StateObject
-     * @property {DistributorStateObject} PowerDistributor
-     * @property {number} Cargo
-     * @property {number} Fuel
+     * @property {DistributorStateObject} PowerDistributor Power distributor
+     *      settings.
+     * @property {number} Cargo Tones of cargo loaded
+     * @property {number} Fuel Tones of fuel in tanks
      */
 
     /**
-     * @param {(string|Object)} buildFrom
+     * Create a ship by reading a journal loadout-event-style object. Can be
+     * given as compressed string or plain object.
+     * @param {(string|Object)} buildFrom Ship build to load.
      * @throws {ImportExportError} On invalid ship json.
      */
     constructor(buildFrom) {
@@ -82,8 +90,8 @@ class Ship {
 
     /**
      * Read an arbitrary object property of this ship's corresponding json.
-     * @param {string} property
-     * @return {*}
+     * @param {string} property Property name
+     * @return {*} Property value
      */
     read(property) {
         return this._object[property];
@@ -96,6 +104,8 @@ class Ship {
      * method, e.g. to alter the ship's name you can't invoke
      * `ship.write('ShipName', 'Normandy')` but must invoke
      * `ship.setShipName('Normandy')`.
+     * @param {string} property Property name
+     * @param {*} value Property value
      * @throws {IllegalStateError} On an attempt to write a protected property.
      */
     write(property, value) {
@@ -114,7 +124,7 @@ class Ship {
      * guaranteed.
      * @param {(string|RegExp)} slot The slot of the module.
      * @return {(Module|undefined)} Returns the first matching module or
-     *                              undefined if no matching one can be found.
+     *      undefined if no matching one can be found.
      */
     getModule(slot) {
         return chain(this._object.Modules)
@@ -125,11 +135,13 @@ class Ship {
 
     /**
      * Gets a list of matching modules. Cf. {@see Ship.getModule} for what a
-     * "matching module" is. Order of returned modules is not guaranteed unless
-     * `slots` is an array then it is guaranteed for any slot with index i that
-     * matching modules with that slot appear in the return value before slots
-     * matching any slot with index > i. Duplicates are filtered.
+     * "matching module" is. Order of returned modules is not guaranteed.
+     * Duplicates are filtered.
      * @param {(Slot|Slot[])} slots Slots of the modules to get.
+     * @param {(string|RegExp)} type String or regex applied to module items to
+     *      filter modules.
+     * @param {boolean} [includeEmpty=false] True to include empty slots.
+     * @param {boolean} [sort=false] True to sort modules by slot.
      * @return {Module[]} All matching modules. Possibly empty.
      */
     getModules(slots, type, includeEmpty, sort) {
@@ -150,7 +162,9 @@ class Ship {
     }
 
     /**
-     * @return {Module[]}
+     * Returns an array of all core modules in order: alloys, power plant,
+     * thrusters, FSD, life support, power distributor, sensors, fuel tank.
+     * @return {Module[]} Core modules
      */
     getCoreModules() {
         return [
@@ -235,10 +249,9 @@ class Ship {
      * sorted by the module's class in descending order with a fixed order on
      * modules of the same class (as ingame).
      * @param {RegExp} [type] Optional regex to constrain the type of modules to
-     *                        be returned.
-     * @param {boolean} [includeEmpty=false]    If set to true also empty slots
-     *                                          will be returned, i.e. which are
-     *                                          just a slot.
+     *      be returned.
+     * @param {boolean} [includeEmpty=false] If set to true also empty slots
+     *      will be returned, i.e. which are just a slot.
      * @return {Module[]} Array of internal modules. Possibly empty.
      */
     getInternals(type, includeEmpty) {
@@ -253,9 +266,8 @@ class Ship {
      * Returns hardpoint modules of this ship. Return values is ordered by
      * module class in ascending order first, then by a fixed order (as ingame).
      * @param {string} [type] Type to filter modules by.
-     * @param {boolean} [includeEmpty=false]    If true, also empty modules will
-     *                                          be returned, i.e. which are just
-     *                                          a slot.
+     * @param {boolean} [includeEmpty=false] If true, also empty modules will be
+     *      returned, i.e. which are just a slot.
      * @return {Module[]} Hardpoint modules
      */
     getHardpoints(type, includeEmpty) {
@@ -265,9 +277,8 @@ class Ship {
     /**
      * Returns all utility module in a fixed order (as ingame).
      * @param {string} [type] Type to filter modules by.
-     * @param {boolean} [includeEmpty=false]    If true, also empty modules will
-     *                                          be returned, i.e. which are just
-     *                                          a slot.
+     * @param {boolean} [includeEmpty=false] If true, also empty modules will be
+     *      returned, i.e. which are just a slot.
      * @return {Module[]} Utility modules
      */
     getUtilities(type, includeEmpty) {
@@ -275,39 +286,45 @@ class Ship {
     }
 
     /**
-     * @param {(string|ShipPropertyCalculator)} property
-     * @param {boolean} [modified=true]
-     * @return {number}
+     * Return a property of this ship, e.g. "pitch".
+     * @param {(string|ShipPropertyCalculator)} property Property name
+     * @param {boolean} [modified=true] False to retrieve default value
+     * @return {number} Property value
      */
     get(property, modified = true) {
         return getShipProperty(this._object.Ship, property);
     }
 
     /**
-     * @return {string}
+     * Returns the player-set ship name.
+     * @return {string} Ship name
      */
     getShipName() {
         return this._object.ShipName;
     }
 
     /**
-     * @param {string} name
+     * Sets a new ship name.
+     * @param {string} name Name to set
      */
     setShipName(name) {
         this._object.ShipName = name;
     }
 
     /**
-     * @return {string}
+     * Returns player-set or auto-generated ship ID.
+     * @return {string} Ship ID
      */
     getShipID() {
         return this._object.ShipIdent;
     }
 
     /**
-     * @param {string} id
+     * Sets the ship ID.
+     * @param {string} id ID to set
      */
     setShipID(id) {
+        // TODO: constrain value
         this._object.ShipIdent = id;
     }
 
@@ -326,7 +343,8 @@ class Ship {
     getStatistics(statistics, modified = true) {}
 
     /**
-     * @return {Object}
+     * Copies the ship build and returns a valid loadout-event.
+     * @return {Object} Loadout-event-style ship build.
      */
     toJSON() {
         let _modules = this._object.Modules;
@@ -337,7 +355,9 @@ class Ship {
     }
 
     /**
-     * @return {string}
+     * Returns the loadout-event reflecting this ship build as compressed
+     * string.
+     * @return {string} Compressed loadout-event-style ship build.s
      */
     compress() {
         return compress(this.toJSON());

@@ -3,20 +3,19 @@
 This npm package will in future provide functionality to load and edit ship-builds from the game Elite: Dangerous.
 
 Following features are planned:
- * Loading ships in the Journal style format
- * Adding/removing modules
- * Modifying modules with blueprints
- * Exporting ships in json or compressed format
- * Getting statistics like jump range, DPS profile from ships
- * Comparing ships
+
+Feature                                             | Status
+--------------------------------------------------- | ------
+Loading ships in the Journal style format           | Implemented
+Adding/removing modules from a ship                 | Implemented
+Retrieving module/ship property values              | Implemented
+Retrieving synthetic module/ship property values    |
+Modifying modules                                   |
+Import/export ships in json or compressed format    | Implemented
+Comparing ships                                     |
 
 It meant to be used by other tools to provide functionality to players.
 This module is meant to be a library to be used by sites like https://coriolis.io oder http://www.edshipyard.com.
-
-**This library is under heavy development - expect git history rewrites.**
-Right now this library is in it's early phase.
-To keep the history clean it might get re-written quite a lot.
-If you want to help developing this library, please get in touch with the developers at our [discord channel](https://discord.gg/x53jTR) because forks might get out of sync very quickly.
 
 ## Setting up a development environment with VS code
 

@@ -5,6 +5,12 @@ const MODULE_SCHEMA = require('./ModuleObject.schema.json');
 
 const VALIDATOR = new Ajv({ schemas: [MODULE_SCHEMA, SHIP_SCHEMA]});
 
+/**
+ * Check whether a given object provides all fields necessary in order to be a
+ * loadout-event-style ship build.
+ * @param {Object} json Object to verify
+ * @returns {boolean} True if given object is a valid ship build
+ */
 export function validateShipJson(json) {
     return VALIDATOR.validate(
         'https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ShipObject.schema.json',
@@ -12,6 +18,12 @@ export function validateShipJson(json) {
     );
 }
 
+/**
+ * Check whether a given object provides all fields necessary in order to be a
+ * loadout-event-style module.
+ * @param {Object} json Object to verify
+ * @returns {boolean} True if this is a valid module
+ */
 export function validateModuleJson(json) {
     return VALIDATOR.validate(
         'https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json',
@@ -23,10 +35,20 @@ function varIsSpecified(object, v) {
     return Boolean(object.properties[v]);
 }
 
+/**
+ * Check whether a given var is specified in a loadout-event-style ship build.
+ * @param {string} v Property name
+ * @returns {boolean} True when there are some constraints for this property
+ */
 export function shipVarIsSpecified(v) {
     return varIsSpecified(SHIP_SCHEMA, v);
 }
 
+/**
+ * Check whether a given var is specified in a loadout-event-style module.
+ * @param {string} v Property name
+ * @returns {boolean} True when there are some constraints for this property
+ */
 export function moduleVarIsSpecified(v) {
     return varIsSpecified(MODULE_SCHEMA, v);
 }
