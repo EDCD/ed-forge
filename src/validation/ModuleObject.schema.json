@@ -25,10 +25,6 @@
             "description": "Description of the engineering work done on this module",
             "type": "object",
             "properties": {
-                "Engineer": {
-                    "description": "Engineer who did this blueprint",
-                    "type": "string"
-                },
                 "BlueprintName": {
                     "description": "name of the blueprint applied to this module",
                     "type": "string"

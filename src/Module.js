@@ -17,7 +17,6 @@ import Ship from './Ship';
 
 /**
  * @typedef {Object} BlueprintObject
- * @property {string} Engineer
  * @property {string} BlueprintName
  * @property {number} Level
  * @property {number} Quality
