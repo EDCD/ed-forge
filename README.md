@@ -18,7 +18,7 @@ It is meant to be used by other tools to provide functionality to players.
 This module is meant to be a library to be used by sites like https://coriolis.io or http://www.edshipyard.com.
 
 Here is a working code example:
-```
+```js
 import { Factory } from 'ed-forge';
 
 let ana = Factory.newShip('anaconda');
@@ -40,7 +40,7 @@ If you want to debug anything, add the test statements and hit `F5` and there yo
 We recommend using the following configuration files:
 
 `.vscode/task.json`
-```
+```json
 {
     "version": "2.0.0",
     "tasks": [
@@ -67,7 +67,7 @@ We recommend using the following configuration files:
 ```
 
 `.vscode/launch.json`
-```
+```json
 {
     "version": "0.2.0",
     "configurations": [
