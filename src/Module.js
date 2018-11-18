@@ -20,6 +20,7 @@ import Ship from './Ship';
  * Engineer blueprint.
  * @typedef {Object} BlueprintObject
  * @property {string} BlueprintName Name of the blueprint
+ * @property {string} [ExperimentalEffect] Name of the experimental effect
  * @property {number} Level Grade of the blueprint from 1 to 5
  * @property {number} Quality Progress of the blueprint from 0 to 1
  * @property {ModifierObject[]} Modifiers Array of all modifiers

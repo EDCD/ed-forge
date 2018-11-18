@@ -29,6 +29,10 @@
                     "description": "name of the blueprint applied to this module",
                     "type": "string"
                 },
+                "ExperimentalEffect": {
+                    "description": "Name of the experimental effect",
+                    "type": "string"
+                },
                 "Level": {
                     "description": "Grade of the blueprint applied to this module",
                     "type": "integer"
