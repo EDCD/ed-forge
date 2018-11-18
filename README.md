@@ -10,7 +10,7 @@ Loading ships in the Journal style format           | Implemented
 Adding/removing modules from a ship                 | Implemented
 Retrieving module/ship property values              | Implemented
 Retrieving synthetic module/ship property values    |
-Modifying modules                                   |
+Modifying modules                                   | Implemented
 Import/export ships in json or compressed format    | Implemented
 Comparing ships                                     |
 

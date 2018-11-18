@@ -1,5 +1,5 @@
 
-import { cloneDeep, pick, assign } from 'lodash';
+import { clamp, cloneDeep, keys, values } from 'lodash';
 import autoBind from 'auto-bind';
 import { validateModuleJson, moduleVarIsSpecified } from './validation';
 import { compress, decompress } from './compression';
@@ -8,12 +8,16 @@ import { itemFitsSlot, getClass, getModuleProperty, getRating } from './data/ite
 import { getSlotSize } from './data/slots';
 import { IllegalStateError, ImportExportError, NotImplementedError } from './errors';
 import Ship from './Ship';
+import { getBlueprintProps, calculateModifier } from './data/blueprints';
 
 /**
  * Module property modifier overriding default values.
  * @typedef {Object} ModifierObject
  * @property {string} Label Property name
  * @property {number} Value Modified property value
+ * @property {boolean} LessIsGood
+ * @property {number} Modifier
+ * @property {boolean} UserSet
  */
 
 /**
@@ -136,6 +140,15 @@ class Module {
         return getModuleProperty(this._object.Item, property);
     }
 
+    getModifier(property) {
+        let modifierIndex = this._findModifier(property);
+        if (-1 < modifierIndex) {
+            return this._object.Engineering.Modifiers[modifierIndex].Modifier;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Returns index of modifier for given property if present.
      * @param {string} property Property name
@@ -181,22 +194,109 @@ class Module {
         } else {
             this._object.Engineering.Modifiers.push({
                 Label: property,
-                Value: value
+                Value: value,
+                Modifier: calculateModifier(this._object.Item, property, value),
+                UserSet: true
             });
         }
     }
 
     /**
-     * @param {string} name
-     * @param {number} [grade=1]
-     * @param {number} [progress=0]
+     * Remove a modifier for a property and reset it to default values.
+     * @param {string} property Property name.
+     * @throws {IllegalStateError} When no blueprint has been applied.
      */
-    setBlueprint(name, grade = 1, progress = 0) {}
+    clear(property) {
+        if (!this._object.Engineering) {
+            throw new IllegalStateError(
+                `Can't clear property ${property} - no blueprint allied`
+            );
+        }
+
+        let modifierIndex = this._findModifier(property);
+        if (-1 < modifierIndex) {
+            delete this._object.Engineering.Modifiers[modifierIndex];
+        }
+    }
 
     /**
-     * @param {string} name
+     * Apply a blueprint to this module preserving user set properties.
+     * @param {string} name Blueprint name
+     * @param {number} [grade=1] Blueprint grade
+     * @param {number} [progress=0] Blueprint progress
+     * @param {string} [experimental] Experimental effect to apply; if none is
+     *      given old experimental (if given) is preserved
+     * @throws {IllegalStateError} If this module has no item
      */
-    setSpecial(name) {}
+    setBlueprint(name, grade = 1, progress = 0, experimental) {
+        if (!this._object.Item) {
+            throw new IllegalStateError(`Can't set blueprint ${name} without item`);
+        }
+
+        let oldExperimental, oldUserSet;
+        if (this._object.Engineering) {
+            oldExperimental = this._object.Engineering.ExperimentalEffect;
+            oldUserSet = this._object.Engineering.Modifiers.filter(
+                modifier => modifier.UserSet
+            );
+        }
+
+        this._object.Engineering = Factory.newBlueprint(name, grade);
+        if (experimental) {
+            this._object.Engineering.ExperimentalEffect = experimental;
+        } else if (oldExperimental) {
+            this._object.Engineering.ExperimentalEffect = oldExperimental;
+        }
+        if (oldUserSet) {
+            this._object.Engineering.Modifiers = oldUserSet;
+        }
+        this.setBlueprintProgress(progress);
+    }
+
+    /**
+     * Set the progress of the current blueprint.
+     * @param {number} [progress] Progress in range from 0 to 1
+     * @throws {IllegalStateError} When no blueprint has been applied
+     */
+    setBlueprintProgress(progress) {
+        if (!this._object.Engineering) {
+            throw new IllegalStateError('Can\'t set progress of no blueprint');
+        }
+
+        if (progress === undefined) {
+            progress = this._object.Engineering.Quality;
+        }
+        progress = clamp(progress, 0, 1);
+        this._object.Engineering.Quality = progress;
+
+        let modifiedProperties = getBlueprintProps(
+            this._object.Item,
+            this._object.Engineering.BlueprintName,
+            this._object.Engineering.Level,
+            this._object.Engineering.Quality,
+            this._object.Engineering.ExperimentalEffect
+        );
+        let modifiedLabels = keys(modifiedProperties);
+        this._object.Engineering.Modifiers = this._object.Engineering.Modifiers
+            .filter(modifier => !modifiedLabels.includes(modifier.Label))
+            .concat(values(modifiedProperties));
+    }
+
+    /**
+     * Apply a special effect to this module.
+     * @param {string} name Special effect name
+     * @throws {IllegalStateError} When no blueprint has been applied
+     */
+    setSpecial(name) {
+        if (!this._object.Engineering) {
+            throw new IllegalStateError(
+                `Can only set experimental ${name} when a blueprint has been applied.`
+            );
+        }
+
+        this._object.Engineering.ExperimentalEffect = name;
+        this.setBlueprintProgress();
+    }
 
     /**
      * Returns a copy of this module as a loadout-event-style module.

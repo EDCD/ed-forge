@@ -1,5 +1,5 @@
 
-const { Modules, Ships } = require('coriolis-data/dist');
+const { Modules, Ships, Modifications } = require('coriolis-data/dist');
 const fs = require('fs');
 const _ = require('lodash');
 
@@ -325,6 +325,12 @@ function consumeModule(module) {
         }
     }
 
+    let rof = module.rof;
+    if (rof) {
+        delete j.props.rof;
+        j.props.burstint = 1 / rof;
+    }
+
     MODULES[module.symbol.toLowerCase()] = j;
     (module.symbol.match(/Hpt_/i) ? ID_TO_MODULE_HP : ID_TO_MODULE)[module.id] = j;
 }
@@ -514,3 +520,90 @@ function consumeShip(entry) {
 _.forEach(_.entries(Ships), consumeShip);
 
 writeDataJSON('ships.json', SHIPS);
+
+// ---------------------------------
+//  Create src/data/blueprints.json
+// ---------------------------------
+
+const BLUEPRINTS = {};
+
+function consumeBlueprint(blueprintObject) {
+    let details = {};
+    for (let grade of _.keys(blueprintObject['grades'])) {
+        let features = blueprintObject['grades'][grade]['features'];
+        let rof = features['rof'];
+        if (rof) {
+            delete features['rof'];
+            features['burstint'] = rof.map(x => -1 * x);
+        }
+        details[grade] = features;
+    }
+
+    // ed-forge handles long range weapons differently
+    if (blueprintObject['fdname'] === 'Weapon_LongRange') {
+        for (let grade in details) {
+            delete details[grade]['fallofffromrange'];
+        }
+    }
+
+    BLUEPRINTS[blueprintObject['fdname'].toLowerCase()] = details;
+}
+
+_.mapValues(Modifications.blueprints, consumeBlueprint);
+
+writeDataJSON('blueprints.json', BLUEPRINTS);
+
+// ------------------------------------
+//  Create src/data/experimentals.json
+// ------------------------------------
+
+const EXPERIMENTALS = {};
+
+function consumeExperimental(head) {
+    let [ key, features ] = head;
+    if (!key.startsWith('special_')) {
+        return;
+    }
+
+    let damageDist = features['damagedist'];
+    if (damageDist) {
+        delete features['damagedist'];
+        let newDamageTypes = {
+            'absdamage': 0,
+            'kindamage': 0,
+            'expldamage': 0,
+            'thermdamage': 0,
+        };
+        for (let type of _.keys(damageDist)) {
+            let damageType;
+            switch (type) {
+                case 'A': damageType = 'absdamage';
+                case 'K': damageType = 'kindamage';
+                case 'E': damageType = 'expldamage';
+                case 'T': damageType = 'thermdamage';
+            }
+            newDamageTypes[damageType] = damageDist[type];
+        }
+        _.assign(features, newDamageTypes);
+    }
+
+    let rof = features['rof'];
+    if (rof) {
+        delete features['rof'];
+        features['burstint'] = -1 * rof;
+    }
+
+    for (let resKey of ['thermres', 'kinres', 'explres', 'causres']) {
+        let res = features[resKey];
+        if (res) {
+            features[resKey] = res / 100;
+        }
+    }
+
+    features = _.mapValues(features, val => [ val , val ]);
+    EXPERIMENTALS[key.toLowerCase()] = features;
+}
+
+_.toPairs(Modifications.modifierActions).map(consumeExperimental);
+
+writeDataJSON('experimentals.json', EXPERIMENTALS);

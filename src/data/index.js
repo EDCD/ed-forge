@@ -71,4 +71,14 @@ export default class Factory {
         // We don't clone the prototype because this is done in Ship
         return new Ship(getShipInfo(type).proto);
     }
+
+    static newBlueprint(name, grade, progress = 0) {
+        name = name.toLowerCase();
+        return {
+            'BlueprintName': name,
+            'Level': grade,
+            'Quality': undefined,
+            'Modifiers': []
+        };
+    }
 }
