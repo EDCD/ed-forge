@@ -38,6 +38,16 @@ function jsonReplacer(key, value) {
     return value;
 }
 
+function writeDataJSON(filename, json) {
+    let path = `./src/data/${filename}`;
+    console.log(`Writing ${path}`);
+    fs.writeFile(
+        path,
+        JSON.stringify(json, jsonReplacer, 4),
+        function () {}
+    );
+}
+
 /**
  * Following regexes will parse modules for the module cache. The function which
  * create the cache expects matching group 1 to represent the class of the item
@@ -342,12 +352,7 @@ _.chain([ Modules.internal, Modules.standard, Modules.hardpoints ])
     .forEach(consumeModule)
     .commit();
 
-console.log('Writing /src/data/modules.json');
-fs.writeFile(
-    './src/data/modules.json',
-    JSON.stringify(MODULES, jsonReplacer, 4),
-    function () {}
-);
+writeDataJSON('modules.json', MODULES);
 
 // -----------------------------------
 //  Create src/data/module_cache.json
@@ -376,12 +381,7 @@ _.forEach(_.entries(MODULES_REGEX), entry => {
     });
 });
 
-console.log('Writing /src/data/module_cache.json');
-fs.writeFile(
-    './src/data/module_cache.json',
-    JSON.stringify(MODULE_CACHE, jsonReplacer, 4),
-    function () {}
-);
+writeDataJSON('module_cache.json', MODULE_CACHE);
 
 // ----------------------------
 //  Create src/data/ships.json
@@ -513,9 +513,4 @@ function consumeShip(entry) {
 
 _.forEach(_.entries(Ships), consumeShip);
 
-console.log('Writing /src/data/ships.json');
-fs.writeFile(
-    './src/data/ships.json',
-    JSON.stringify(SHIPS, jsonReplacer, 4),
-    function () {}
-);
+writeDataJSON('ships.json', SHIPS);
