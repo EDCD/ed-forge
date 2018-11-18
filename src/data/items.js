@@ -22,6 +22,7 @@ import { matchesAny } from '../helper';
  * @property {MetaModuleInformation} meta Item meta information
  */
 
+/** @type {Object.<string, ModuleInformation>} */
 const MODULES = require('./modules.json');
 
 /**

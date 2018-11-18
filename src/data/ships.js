@@ -1,6 +1,28 @@
 
 import { UnknownRestrictedError } from '../errors.js';
 
+/**
+ * Ship meta data
+ * @typedef {Object} ShipMetaInfo
+ * @property {number} eddbID EDDB ID of this ship
+ * @property {number} edID ED ID of this ship
+ * @property {number} class Size of the ship; 1 is small, 3 is large
+ * @property {string} manufacturer Manufacturer of the ship
+ * @property {number} crew Crew seats including helm
+ * @property {Object.<string, number>} Map from core slots to respective size
+ * @property {Object.<string, number>} Map from military slots to respective
+ *      sizes
+ * @property {Object.<string, boolean>} Map from slots to true if passenger slot
+ */
+
+/**
+ * @typedef {Object} ShipInfo
+ * @property {import('../Ship.js').ShipObject} proto Ship prototype object
+ * @property {Object.<string, number>} props Ship properties
+ * @property {ShipMetaInfo} meta Meta data about a ship
+ */
+
+/** @type {Object.<string, ShipDescriptor>} */
 const SHIPS = require('./ships.json');
 
 /**
@@ -13,27 +35,6 @@ export function assertValidShip(ship) {
         throw new UnknownRestrictedError(`Don't know ship ${ship}`);
     }
 }
-
-/**
- * Meta data about a ship.
- * @typedef {Object} ShipMetaInfo
- * @property {number} eddbID EDDB ID of the ship
- * @property {number} edID ED ID of the ship
- * @property {number} class Landing pad size of the ship; from 1 to 3
- * @property {string} manufacturer Ship manufacturer
- * @property {number} crew Total number of crew members
- * @property {Object} coreSizes Map from slot to size for core slots
- * @property {Object} militarySizes Map from slot to size for military slots
- * @property {Object} passengerSlots Maps slot to true if it is a passenger slot
- */
-
-/**
- * Object holding information about a ship.
- * @typedef {Object} ShipInfo
- * @property {ShipObject} proto Loadout-event-style ship build prototype
- * @property {Object} props Ship properties
- * @property {ShipMetaInfo} meta Ship meta information
- */
 
 /**
  * Get ship info object.
