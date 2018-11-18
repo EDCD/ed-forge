@@ -6,7 +6,7 @@ import { compress, decompress } from './compression';
 import Factory from './data';
 import { itemFitsSlot, getClass, getModuleProperty, getRating } from './data/items';
 import { getSlotSize } from './data/slots';
-import { IllegalStateError, ImportExportError } from './errors';
+import { IllegalStateError, ImportExportError, NotImplementedError } from './errors';
 import Ship from './Ship';
 
 /**
@@ -158,7 +158,9 @@ class Module {
      * @param {number} [value]
      * @return {string}
      */
-    getFormatted(property, modified = true, unit, value) {}
+    getFormatted(property, modified = true, unit, value) {
+        throw new NotImplementedError();
+    }
 
     /**
      * Sets the value of a property.

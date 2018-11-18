@@ -6,7 +6,7 @@ import { compress, decompress } from './compression';
 import Module from './Module';
 import { REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
     REG_UTILITY_SLOT } from './data/slots';
-import { ImportExportError, IllegalStateError } from './errors';
+import { ImportExportError, IllegalStateError, NotImplementedError } from './errors';
 import { getShipProperty } from './data/ships';
 
 /**
@@ -334,13 +334,17 @@ class Ship {
      * @param {i18n.FormatOptions.SiUnit} [unit]
      * @param {number} [value]
      */
-    getFormatted(property, modified = true, unit, value) {}
+    getFormatted(property, modified = true, unit, value) {
+        throw new NotImplementedError();
+    }
 
     /**
      * @param {string} statistics
      * @param {boolean} [modified=true]
      */
-    getStatistics(statistics, modified = true) {}
+    getStatistics(statistics, modified = true) {
+        throw new NotImplementedError();
+    }
 
     /**
      * Copies the ship build and returns a valid loadout-event.
