@@ -14,8 +14,18 @@ Modifying modules                                   | Implemented
 Import/export ships in json or compressed format    | Implemented
 Comparing ships                                     |
 
-It meant to be used by other tools to provide functionality to players.
-This module is meant to be a library to be used by sites like https://coriolis.io oder http://www.edshipyard.com.
+It is meant to be used by other tools to provide functionality to players.
+This module is meant to be a library to be used by sites like https://coriolis.io or http://www.edshipyard.com.
+
+Here is a working code example:
+```
+import { Factory } from 'ed-forge';
+
+let ana = Factory.newShip('anaconda');
+let alloys = ana.getAlloys();
+alloys.setItem('Anaconda_Armour_Grade3');
+alloys.setBlueprint('Armour_HeavyDuty', 5, 1, 'special_armour_chunky');
+```
 
 ## Setting up a development environment with VS code
 
