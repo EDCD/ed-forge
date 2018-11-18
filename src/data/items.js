@@ -32,7 +32,7 @@ const MODULES = require('./modules.json');
  */
 export function assertValidModule(id) {
     if (!MODULES[id]) {
-        throw new UnknownRestrictedError(`Don't know module ${item}`);
+        throw new UnknownRestrictedError(`Don't know module ${id}`);
     }
 }
 
@@ -80,7 +80,7 @@ export function getRating(item) {
  * @throws {UnknownRestrictedError} When item is unknown
  */
 function getItemInfo(item) {
-    assertValidModule(type);
+    assertValidModule(item);
     let info = {
         Slots: [],
         passenger: false,
@@ -139,14 +139,14 @@ function getItemInfo(item) {
  * @throws {UnknownRestrictedError} When one of item, ship, slot is unknown
  */
 export function itemFitsSlot(item, ship, slot) {
-    assertValidModule(type);
+    assertValidModule(item);
     slot = slot.toLowerCase();
 
     let itemClass = getClass(item);
     let itemInfo = getItemInfo(item);
 
     // Does the item fit on this type of slot?
-    if (!matchesAny(itemClass, ...itemInfo.Slots)) {
+    if (!matchesAny(item, ...itemInfo.Slots)) {
         return false;
     }
 

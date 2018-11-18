@@ -130,8 +130,8 @@ class Module {
      */
     get(property, modified = true) {
         let modifierIndex = this._findModifier(property);
-        if (modified && modifierIndex) {
-            return this._object.Engineering.Modifiers[modifierIndex].value;
+        if (modified && -1 < modifierIndex) {
+            return this._object.Engineering.Modifiers[modifierIndex].Value;
         }
         return getModuleProperty(this._object.Item, property);
     }
@@ -143,10 +143,10 @@ class Module {
      */
     _findModifier(property) {
         if (!this._object.Engineering) {
-            return undefined;
+            return -1;
         }
 
-        return this._object.Engineering.Modifiers.find(
+        return this._object.Engineering.Modifiers.findIndex(
             modifier => modifier.Label === property
         );
     }
@@ -176,7 +176,7 @@ class Module {
         }
 
         let modifierIndex = this._findModifier(property);
-        if (modifierIndex) {
+        if (-1 < modifierIndex) {
             this._object.Engineering.Modifiers[modifierIndex].Value = value;
         } else {
             this._object.Engineering.Modifiers.push({
@@ -223,6 +223,8 @@ class Module {
     setItem(item, clazz='', rating='') {
         if (clazz && rating) {
             item = Factory.getModuleId(item, clazz, rating);
+        } else {
+            item = item.toLowerCase();
         }
 
         if (this._ship && this._object.Slot &&
@@ -250,18 +252,18 @@ class Module {
             return null;
         }
 
-            if (typeof slot === 'string') {
-                return this._object.Slot === slot;
-            } else if (slot instanceof RegExp) {
-            return Boolean(this._object.Slot.match(slot));
-            } else { // Array
-                for (let s of slot) {
-                    if (this.isOnSlot(s)) {
-                        return true;
-                    }
+        if (typeof slot === 'string') {
+            return this._object.Slot === slot.toLocaleLowerCase();
+        } else if (slot instanceof RegExp) {
+        return Boolean(this._object.Slot.match(slot));
+        } else { // Array
+            for (let s of slot) {
+                if (this.isOnSlot(s)) {
+                    return true;
                 }
-                return false;
             }
+            return false;
+        }
     }
 
     /**

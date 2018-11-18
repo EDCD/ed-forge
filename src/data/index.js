@@ -30,6 +30,9 @@ export default class Factory {
      * @param {string} [rating] Rating of the module
      */
     static getModuleId(group, clazz = '', rating = '') {
+        group = group.toLowerCase();
+        clazz = clazz.toLowerCase();
+        rating = rating.toLowerCase();
         let item = readModuleCache(group, clazz, rating);
         if (!item) {
             throw new UnknownRestrictedError(`Don't know module type ${group}`);
@@ -46,6 +49,9 @@ export default class Factory {
      * @return {Object} Module object
      */
     static newModule(type, clazz = '', rating = '') {
+        type = type.toLowerCase();
+        clazz = clazz.toLowerCase();
+        rating = rating.toLowerCase();
         let item = readModuleCache(type, clazz, rating);
         if (item) {
             return this.newModule(item);
@@ -58,9 +64,10 @@ export default class Factory {
     /**
      * Creates a new loadout-event-style ship object.
      * @param {string} type Ship type
-     * @returns {Object} Ship object
+     * @returns {Ship} Ship object
      */
     static newShip(type) {
+        type = type.toLowerCase();
         // We don't clone the prototype because this is done in Ship
         return new Ship(getShipInfo(type).proto);
     }

@@ -1,7 +1,7 @@
 
 import { UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
-import { getShipInfo } from './ships';
+import { assertValidShip, getShipInfo } from './ships';
 
 export const REG_CORE_SLOT = /(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)/i;
 export const REG_INTERNAL_SLOT = /Slot(\d{2})_Size(\d)/i;
