@@ -1,13 +1,19 @@
 
-import { clone, map, chain } from 'lodash';
+import { clone, cloneDeep, map, mapValues, chain, pick } from 'lodash';
 import autoBind from 'auto-bind';
 import { validateShipJson, shipVarIsSpecified } from './validation';
 import { compress, decompress } from './compression';
 import Module from './Module';
 import { REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
     REG_UTILITY_SLOT } from './data/slots';
-import { ImportExportError, IllegalStateError, NotImplementedError } from './errors';
-import { getShipProperty } from './data/ships';
+import { ImportExportError, IllegalStateError, NotImplementedError, UnknownRestrictedError } from './errors';
+import { getShipProperty, getShipMetaProperty } from './data/ships';
+
+const RESET_PIPS = {
+    Sys: { base: 2, mc: 0, },
+    Eng: { base: 2, mc: 0, },
+    Wep: { base: 2, mc: 0, },
+};
 
 /**
  * @typedef {(string|RegExp)} Slot
@@ -64,11 +70,7 @@ class Ship {
         this._object = null;
         /** @type {StateObject} */
         this.state = {
-            PowerDistributor: {
-                Sys: { base: 2, mc: 0, },
-                Eng: { base: 2, mc: 0, },
-                Wep: { base: 2, mc: 0, },
-            },
+            PowerDistributor: cloneDeep(RESET_PIPS),
             Cargo: 0,
             Fuel: 1,
         };
@@ -344,6 +346,122 @@ class Ship {
      */
     getStatistics(statistics, modified = true) {
         throw new NotImplementedError();
+    }
+
+    /**
+     * Returns the current power distributor settings.
+     * @param {boolean} split True to return the settings split up by multi-crew
+     *      and base pips.
+     * @returns {(DistributorStateObject|Object.<string, number>)} The
+     *      distributor settings either as DistributorStateObject or as a map to
+     *      overall pip values.
+     */
+    getDistributorSettings(split) {
+        return mapValues(this.state.PowerDistributor,
+            settings => split ? clone(settings) : settings.base + settings.mc
+        );
+    }
+
+    /**
+     * Set the power distributor settings.
+     * @param {DistributorStateObject} settings Power distributor settings
+     * @throws {IllegalStateError} If either multi-crew pips exceed crew size or
+     *      normal pips don't equal 6 in sum.
+     */
+    setDistributorSettings(settings) {
+        let mcSize = getShipMetaProperty(this._object.Ship, 'crew') - 1;
+        let newMc = settings.Sys.mc + settings.Eng.mc + settings.Wep.mc;
+        if (newMc < 0 || mcSize < newMc) {
+            throw new IllegalStateError(`Illegal amount of mc pips: ${newMc}`);
+        }
+
+        let newPips = settings.Sys.base + settings.Eng.base + settings.Wep.base;
+        if (newPips != 6) {
+            throw new IllegalStateError(
+                `Can't set other than 6 pis - is ${newPips}`
+            );
+        }
+
+        let pickProps = ['base', 'mc'];
+        this.state.PowerDistributor = {
+            Sys: pick(settings.Sys, pickProps),
+            Eng: pick(settings.Eng, pickProps),
+            Wep: pick(settings.Wep, pickProps),
+        };
+    }
+
+    /**
+     * Resets pips to standard.
+     * @param {boolean} mcOnly True if only multi-crew pips should be reset.
+     */
+    pipsReset(mcOnly) {
+        if (mcOnly) {
+            this.state.PowerDistributor.Sys.mc = 0;
+            this.state.PowerDistributor.Eng.mc = 0;
+            this.state.PowerDistributor.Wep.mc = 0;
+        } else {
+            this.state.PowerDistributor = cloneDeep(RESET_PIPS);
+        }
+    }
+
+    /**
+     * Incremented the pip settings for a given type. Might lead to no change if
+     * no further pips can be assigned.
+     * @param {string} pipType Either Sys, Eng or Wep.
+     * @param {boolean} [isMc=false] True if multi-crew pip should be incremented.
+     */
+    incPip(pipType, isMc) {
+        let dist = this.state.PowerDistributor;
+        let pips = dist[pipType];
+        let other1 = (pipType == 'Sys') ? dist.Eng : dist.Sys;
+        let other2 = (pipType == 'Wep') ? dist.Eng : dist.Wep;
+
+        const left = Math.min(1, 4 - (pips.base + pips.mc));
+        if (isMc) {
+            let mc = getShipMetaProperty(this._object.Ship, 'crew') - 1;
+            if (left > 0.5 && dist.Sys.mc + dist.Eng.mc + dist.Wep.mc < mc) {
+                pips.mc += 1;
+            }
+        } else if (left > 0) {
+            if (left == 0.5) {
+                // Take from whichever is larger
+                if (other1 > other2) {
+                    other1.base -= 0.5;
+                } else {
+                    other2.base -= 0.5;
+                }
+                pips.base += 0.5;
+            } else {  // left == 1
+                let other1WasZero = other1.base == 0;
+                other1.base -= (other2.base == 0) ? 1 : 0.5;
+                other2.base -= other1WasZero ? 1 : 0.5;
+                pips.base += 1;
+            }
+        }
+    }
+
+    /**
+     * Increment the sys pip settings.
+     * @param {boolean} [isMc=false] True to increment multi-crew pips
+     */
+    incSys(isMc) {
+        this.incPip('Sys', isMc);
+    }
+
+    /**
+     * Increment the eng pip settings.
+     * @param {boolean} [isMc=false] True to increment multi-crew pips
+     */
+    incEng(isMc) {
+        this.incPip('Eng', isMc);
+    }
+
+    /**
+     * Increment the wep pip settings.
+     * @param {boolean} [isMc=false] True to increment multi-crew pips
+     */
+    incWep(isMc) {
+        this.incPip('Wep', isMc);
     }
 
     /**
