@@ -55,3 +55,13 @@ export function getShipInfo(ship) {
 export function getShipProperty(ship, property) {
     return getShipInfo(ship).props[property];
 }
+
+/**
+ * Get a ship meta property value.
+ * @param {string} ship Ship ID
+ * @param {string} property Meta property key
+ * @returns {*} Meta property value
+ */
+export function getShipMetaProperty(ship, property) {
+    return getShipInfo(ship).meta[property];
+}
