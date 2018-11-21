@@ -3,7 +3,7 @@ import Ship from './Ship';
 import Module from './Module';
 import Factory from './data';
 
-/** @module ed-forge */
+/** @module edforge */
 export {
     Ship,
     Module,

@@ -1,5 +1,5 @@
 
-/** @module ed-forge/analyze */
+/** @module edforge_analyze */
 
 /**
  * @param {Ship} ship

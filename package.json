@@ -14,8 +14,9 @@
     }
   },
   "scripts": {
-    "build": "node coriolis_mapper.js && npm run build_light",
+    "build": "node coriolis_mapper.js && npm run build_light && npm run build_typings",
     "build_light": "babel src -d lib --copy-files --source-maps",
+    "build_typings": "jsdoc -d lib/ -t node_modules/tsd-jsdoc/dist src/*.js src/data/index.js",
     "prepublish": "npm run build",
     "release": "np",
     "watch": "npm run build && npm-watch build_light"
@@ -27,8 +28,10 @@
     "ajv": "^6.5.4",
     "auto-bind": "^1.2.1",
     "coriolis-data": "github:edcd/coriolis-data",
+    "jsdoc": "^3.5.5",
     "lodash": "^4.17.11",
-    "pako": "^1.0.6"
+    "pako": "^1.0.6",
+    "tsd-jsdoc": "^2.0.0-beta.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",

@@ -486,5 +486,5 @@ class Ship {
     }
 }
 
-/** @module ed-forge */
+/** @module edforge */
 export default Ship;

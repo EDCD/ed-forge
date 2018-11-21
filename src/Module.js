@@ -464,5 +464,5 @@ class Module {
     }
 }
 
-/** @module ed-forge */
+/** @module edforge */
 export default Module;

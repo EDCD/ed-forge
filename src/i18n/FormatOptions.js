@@ -1,5 +1,5 @@
 
-/** @module ed-forge/i18n */
+/** @module edforge_i18n */
 
 /**
  * @typedef {Object} FormattingObject
