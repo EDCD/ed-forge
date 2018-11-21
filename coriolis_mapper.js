@@ -396,7 +396,7 @@ writeDataJSON('module_cache.json', MODULE_CACHE);
 const SHIPS = {};
 
 const HP_SIZE_TO_DESCRIPTOR = [ 'Tiny', 'Small', 'Medium', 'Large', 'Huge' ];
-const CORE_SLOTS = [ 'PowerPlant', 'MainEngine', 'FrameShiftDrive',
+const CORE_SLOTS = [ 'PowerPlant', 'MainEngines', 'FrameShiftDrive',
     'LifeSupport', 'PowerDistributor', 'Radar', 'FuelTank' ];
 const CORE_ITEM_MAP = [ 'Int_PowerPlant', 'Int_Engine', 'Int_HyperDrive',
     'Int_LifeSupport', 'Int_PowerDistributor', 'Int_Sensors', 'Int_FuelTank' ];

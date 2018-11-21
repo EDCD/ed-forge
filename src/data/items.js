@@ -90,7 +90,7 @@ function getItemInfo(item) {
     } else if (item.match(/Int_PowerPlant/i)) {
         info.Slots = [ /PowerPlant/i ];
     } else if (item.match(/Int_Engine/i)) {
-        info.Slots = [ /MainEngine/i ];
+        info.Slots = [ /MainEngines/i ];
     } else if (item.match(/Int_HyperDrive/i)) {
         info.Slots = [ /FrameShiftDrive/i ];
     } else if (item.match(/Int_LifeSupport/i)) {
