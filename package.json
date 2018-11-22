@@ -16,7 +16,7 @@
   "scripts": {
     "build": "node coriolis_mapper.js && npm run build_light && npm run build_typings",
     "build_light": "babel src -d lib --copy-files --source-maps",
-    "build_typings": "jsdoc -d lib/ -t node_modules/tsd-jsdoc/dist src/*.js src/data/index.js",
+    "build_typings": "jsdoc -d lib/ -t node_modules/tsd-jsdoc/dist src/*.js src/data/index.js && mv lib/types.d.ts lib/index.d.ts",
     "prepublish": "npm run build",
     "release": "np",
     "watch": "npm run build && npm-watch build_light"
