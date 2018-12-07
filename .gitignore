@@ -2,7 +2,6 @@
 /out
 /node_modules
 /.vscode
-/coriolis-data
 /src/data/modules.json
 /src/data/ships.json
 /src/data/module_cache.json
