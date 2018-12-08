@@ -1,6 +1,6 @@
-import { UnknownRestrictedError } from '../errors.js';
-import { MODULE_STATS } from '../module-stats';
-import { getModuleInfo, getModuleProperty } from './items.js';
+import {UnknownRestrictedError} from '../errors';
+import {MODULE_STATS} from '../module-stats';
+import {getModuleInfo, getModuleProperty} from './items';
 
 /**
  * Maps property to array of from [min, max].
@@ -42,8 +42,8 @@ const BLUEPRINT_EXTRAS = {
  * @param {string} [experimentalName] Experimental effect
  * @return {PropertyMap} Map of property names to modifier objects.
  */
-export function getBlueprintProps(module, name, grade = 1, progress = 0,
-    experimentalName) {
+export function getBlueprintProps(module: string, name: string, grade: number = 1, progress: number = 0,
+                                  experimentalName: string) {
     let moduleInfo = getModuleInfo(module);
     let blueprint = BLUEPRINTS[name];
     let experimental = EXPERIMENTALS[experimentalName];
@@ -81,7 +81,7 @@ export function getBlueprintProps(module, name, grade = 1, progress = 0,
  * @param {number} modifiedProperty New property value
  * @returns {number} Modifier
  */
-export function calculateModifier(module, name, modifiedProperty) {
+export function calculateModifier(module: string, name: string, modifiedProperty: number): number {
     let baseValue = getModuleProperty(module, name);
     let propertyDescriptor = MODULE_STATS[name];
     if (!propertyDescriptor) {
@@ -89,10 +89,14 @@ export function calculateModifier(module, name, modifiedProperty) {
     }
 
     switch (propertyDescriptor.method) {
-        case 'additive':        return modifiedProperty - baseValue;
-        case 'multiplicative':  return modifiedProperty / baseValue;
-        case 'overwrite':       return modifiedProperty;
-        default:                return modifiedProperty / baseValue;
+        case 'additive':
+            return modifiedProperty - baseValue;
+        case 'multiplicative':
+            return modifiedProperty / baseValue;
+        case 'overwrite':
+            return modifiedProperty;
+        default:
+            return modifiedProperty / baseValue;
     }
 }
 
@@ -105,8 +109,8 @@ export function calculateModifier(module, name, modifiedProperty) {
  * @param {PropertyMap} propObject Property map to modify
  * @returns {PropertyMap} Returns `propObject`
  */
-function applyBlueprintModifiers(moduleInfo, modifierObject, progress,
-    propObject) {
+function applyBlueprintModifiers(moduleInfo, modifierObject: any, progress: number,
+                                 propObject) {
     for (let prop in modifierObject) {
         let propertyDescriptor = MODULE_STATS[prop];
         if (!propertyDescriptor) {
@@ -116,7 +120,7 @@ function applyBlueprintModifiers(moduleInfo, modifierObject, progress,
         // Allow subsequent applications of modifier objects for experimental effects
         let baseValue = (propObject[prop] && propObject[prop].Value) ||
             moduleInfo.props[prop];
-        let [ min, max ] = modifierObject[prop];
+        let [min, max] = modifierObject[prop];
         let blueprintModifier = (max - min) * progress + min;
 
         let Modifier = getModifier(propertyDescriptor, baseValue, blueprintModifier);
@@ -132,37 +136,43 @@ function applyBlueprintModifiers(moduleInfo, modifierObject, progress,
 
 /**
  * Turns a blueprint modifier into a modifier.
- * @param {import('../module-stats.js').ModulePropertyDescriptor}
- *      propertyDescriptor Meta data about the property to modify
+ * @param propertyDescriptor Meta data about the property to modify
  * @param {number} base Value to modify
  * @param {number} blueprintModifier Blueprint modifier
  * @returns {number} Modifier
  */
-function getModifier(propertyDescriptor, base, blueprintModifier) {
+function getModifier(propertyDescriptor, base: number, blueprintModifier: number): number {
     switch (propertyDescriptor.modifier) {
-        case undefined:     return blueprintModifier;
+        case undefined:
+            return blueprintModifier;
         // Used when modding resistances
-        case 'antiscale':   return (1 - base) * blueprintModifier;
+        case 'antiscale':
+            return (1 - base) * blueprintModifier;
         // Used when modding shield-/hullboost
-        case 'offsetscale': return (1 + base) * (1 + blueprintModifier) - (1 + base);
-        default: throw new UnknownRestrictedError();
+        case 'offsetscale':
+            return (1 + base) * (1 + blueprintModifier) - (1 + base);
+        default:
+            throw new UnknownRestrictedError();
     }
 }
 
 /**
  * Applies a modifier to a base value and returns the modified value.
- * @param {import('../module-stats.js').ModulePropertyDescriptor}
- *      propertyDescriptor Meta data about the property to modify
+ * @param propertyDescriptor Meta data about the property to modify
  * @param {number} base Value to modify
  * @param {number} modifier Modifier
  * @returns {number} Modified property
  */
-function getModifiedProperty(propertyDescriptor, base, modifier) {
+function getModifiedProperty(propertyDescriptor, base: number, modifier: number): number {
     switch (propertyDescriptor.method) {
         // Additive mods can add new properties
-        case 'additive':        return (base || 0) + modifier;
-        case 'multiplicative':  return base * (1 + modifier);
-        case 'overwrite':       return modifier;
-        default: throw new UnknownRestrictedError();
+        case 'additive':
+            return (base || 0) + modifier;
+        case 'multiplicative':
+            return base * (1 + modifier);
+        case 'overwrite':
+            return modifier;
+        default:
+            throw new UnknownRestrictedError();
     }
 }

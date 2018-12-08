@@ -1,19 +1,45 @@
-
-import { clone, cloneDeep, map, mapValues, chain, pick } from 'lodash';
+import {clone, cloneDeep, map, mapValues, chain, pick} from 'lodash';
 import autoBind from 'auto-bind';
-import { validateShipJson, shipVarIsSpecified } from './validation';
-import { compress, decompress } from './compression';
+import {validateShipJson, shipVarIsSpecified} from './validation';
+import {compress, decompress} from './compression';
 import Module from './Module';
-import { REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
-    REG_UTILITY_SLOT } from './data/slots';
-import { ImportExportError, IllegalStateError, NotImplementedError, UnknownRestrictedError } from './errors';
-import { getShipProperty, getShipMetaProperty } from './data/ships';
+import {
+    REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
+    REG_UTILITY_SLOT
+} from './data/slots';
+import {ImportExportError, IllegalStateError, NotImplementedError, UnknownRestrictedError} from './errors';
+import {getShipProperty, getShipMetaProperty} from './data/ships';
 
 const RESET_PIPS = {
-    Sys: { base: 2, mc: 0, },
-    Eng: { base: 2, mc: 0, },
-    Wep: { base: 2, mc: 0, },
+    Sys: {base: 2, mc: 0,},
+    Eng: {base: 2, mc: 0,},
+    Wep: {base: 2, mc: 0,},
 };
+
+interface Ship {
+    ShipName: string;
+    Ship: string;
+    ShipIdent: string;
+    Modules: Module[];
+    state: ShipState;
+}
+
+interface ShipState {
+    PowerDistributor: DistributorStateObject | any;
+    Cargo: number;
+    Fuel: number;
+}
+
+interface DistributorStateObject {
+    Sys: DistributorSettingObject;
+    Eng: DistributorSettingObject;
+    Wep: DistributorSettingObject;
+}
+
+interface DistributorSettingObject {
+    base: number;
+    mc: number;
+}
 
 /**
  * @typedef {(string|RegExp)} Slot
@@ -22,8 +48,10 @@ const RESET_PIPS = {
 /**
  * An Elite: Dangerous ship build.
  */
-class Ship {
+class Ship implements Ship {
 
+    public _object: any;
+    public state: ShipState;
     /**
      * A loadout-event-style ship build.
      * @typedef {Object} ShipObject
@@ -64,7 +92,7 @@ class Ship {
      * @param {(string|Object)} buildFrom Ship build to load.
      * @throws {ImportExportError} On invalid ship json.
      */
-    constructor(buildFrom) {
+    constructor(buildFrom: string | any) {
         autoBind(this);
         /** @type {ShipObject} */
         this._object = null;
@@ -95,7 +123,7 @@ class Ship {
      * @param {string} property Property name
      * @return {*} Property value
      */
-    read(property) {
+    read(property: string): any {
         return this._object[property];
     }
 
@@ -110,7 +138,7 @@ class Ship {
      * @param {*} value Property value
      * @throws {IllegalStateError} On an attempt to write a protected property.
      */
-    write(property, value) {
+    write(property: string, value: any) {
         if (shipVarIsSpecified(property)) {
             throw new IllegalStateError(
                 `Can't write protected property ${property}`
@@ -128,7 +156,7 @@ class Ship {
      * @return {(Module|undefined)} Returns the first matching module or
      *      undefined if no matching one can be found.
      */
-    getModule(slot) {
+    getModule(slot: (string | RegExp)): any {
         return chain(this._object.Modules)
             .filter(m => m.isOnSlot(slot))
             .head()
@@ -146,8 +174,8 @@ class Ship {
      * @param {boolean} [sort=false] True to sort modules by slot.
      * @return {Module[]} All matching modules. Possibly empty.
      */
-    getModules(slots, type, includeEmpty, sort) {
-        let ms = chain(this._object.Modules)
+    getModules(slots: (string | string[] | RegExp), type: (string | RegExp), includeEmpty: boolean, sort: boolean): Module[] | string[] {
+        let ms: any = chain(this._object.Modules)
             .filter(module => module.isOnSlot(slots));
 
         if (type) {
@@ -168,7 +196,7 @@ class Ship {
      * thrusters, FSD, life support, power distributor, sensors, fuel tank.
      * @return {Module[]} Core modules
      */
-    getCoreModules() {
+    getCoreModules(): Module[] {
         return [
             this.getAlloys(),
             this.getPowerPlant(),
@@ -185,7 +213,7 @@ class Ship {
      * Get the alloys of this ship.
      * @return {Module} Alloys
      */
-    getAlloys() {
+    getAlloys(): Module {
         return this.getModule('Armour');
     }
 
@@ -193,7 +221,7 @@ class Ship {
      * Get the power plant of this ship.
      * @return {Module} Power plant
      */
-    getPowerPlant() {
+    getPowerPlant(): Module {
         return this.getModule('PowerPlant');
     }
 
@@ -201,7 +229,7 @@ class Ship {
      * Get the thrusters of this ship.
      * @return {Module} Thrusters
      */
-    getThrusters() {
+    getThrusters(): Module {
         return this.getModule('MainEngines');
     }
 
@@ -209,7 +237,7 @@ class Ship {
      * Get the frame shift drive of this ship.
      * @return {Module} FSD
      */
-    getFSD() {
+    getFSD(): Module {
         return this.getModule('FrameShiftDrive');
     }
 
@@ -217,7 +245,7 @@ class Ship {
      * Get the life support module of this ship.
      * @return {Module} Life support
      */
-    getLifeSupport() {
+    getLifeSupport(): Module {
         return this.getModule('LifeSupport');
     }
 
@@ -225,7 +253,7 @@ class Ship {
      * Get the power distributor of this ship.
      * @return {Module} Power distributor
      */
-    getPowerDistributor() {
+    getPowerDistributor(): Module {
         return this.getModule('PowerDistributor');
     }
 
@@ -233,7 +261,7 @@ class Ship {
      * Get the sensors of this ship.
      * @return {Module} Sensors
      */
-    getSensors() {
+    getSensors(): Module {
         return this.getModule('Radar');
     }
 
@@ -241,7 +269,7 @@ class Ship {
      * The core fuel tank of this ship.
      * @return {Module} Core fuel tank
      */
-    getCoreFuelTank() {
+    getCoreFuelTank(): Module {
         return this.getModule('FuelTank');
     }
 
@@ -256,11 +284,12 @@ class Ship {
      *      will be returned, i.e. which are just a slot.
      * @return {Module[]} Array of internal modules. Possibly empty.
      */
-    getInternals(type, includeEmpty) {
+    getInternals(type: RegExp, includeEmpty: boolean) {
         let ms = this.getModules(REG_INTERNAL_SLOT, type, includeEmpty, true);
         let militaryMs = this.getModules(
             REG_MILITARY_SLOT, type, includeEmpty, true
         );
+        // @ts-ignore
         return ms.concat(militaryMs);
     }
 
@@ -272,7 +301,7 @@ class Ship {
      *      returned, i.e. which are just a slot.
      * @return {Module[]} Hardpoint modules
      */
-    getHardpoints(type, includeEmpty) {
+    getHardpoints(type: string, includeEmpty: boolean) {
         return this.getModules(REG_HARDPOINT_SLOT, type, includeEmpty, true);
     }
 
@@ -283,7 +312,7 @@ class Ship {
      *      returned, i.e. which are just a slot.
      * @return {Module[]} Utility modules
      */
-    getUtilities(type, includeEmpty) {
+    getUtilities(type: string, includeEmpty: boolean) {
         return this.getModules(REG_UTILITY_SLOT, type, includeEmpty, true);
     }
 
@@ -293,7 +322,7 @@ class Ship {
      * @param {boolean} [modified=true] False to retrieve default value
      * @return {number} Property value
      */
-    get(property, modified = true) {
+    get(property: string, modified: boolean = true): number {
         return getShipProperty(this._object.Ship, property);
     }
 
@@ -301,7 +330,7 @@ class Ship {
      * Returns the player-set ship name.
      * @return {string} Ship name
      */
-    getShipName() {
+    getShipName(): string {
         return this._object.ShipName;
     }
 
@@ -309,7 +338,7 @@ class Ship {
      * Sets a new ship name.
      * @param {string} name Name to set
      */
-    setShipName(name) {
+    setShipName(name: string) {
         this._object.ShipName = name;
     }
 
@@ -317,7 +346,7 @@ class Ship {
      * Returns player-set or auto-generated ship ID.
      * @return {string} Ship ID
      */
-    getShipID() {
+    getShipID(): string {
         return this._object.ShipIdent;
     }
 
@@ -325,7 +354,7 @@ class Ship {
      * Sets the ship ID.
      * @param {string} id ID to set
      */
-    setShipID(id) {
+    setShipID(id: string) {
         // TODO: constrain value
         this._object.ShipIdent = id;
     }
@@ -336,7 +365,7 @@ class Ship {
      * @param {i18n.FormatOptions.SiUnit} [unit]
      * @param {number} [value]
      */
-    getFormatted(property, modified = true, unit, value) {
+    getFormatted(property: string, modified: boolean = true, unit: string, value: number) {
         throw new NotImplementedError();
     }
 
@@ -344,7 +373,7 @@ class Ship {
      * @param {string} statistics
      * @param {boolean} [modified=true]
      */
-    getStatistics(statistics, modified = true) {
+    getStatistics(statistics: string, modified: boolean = true) {
         throw new NotImplementedError();
     }
 
@@ -356,7 +385,7 @@ class Ship {
      *      distributor settings either as DistributorStateObject or as a map to
      *      overall pip values.
      */
-    getDistributorSettings(split) {
+    getDistributorSettings(split: boolean): (DistributorStateObject | { [s: string]: number; }) {
         return mapValues(this.state.PowerDistributor,
             settings => split ? clone(settings) : settings.base + settings.mc
         );
@@ -368,7 +397,7 @@ class Ship {
      * @throws {IllegalStateError} If either multi-crew pips exceed crew size or
      *      normal pips don't equal 6 in sum.
      */
-    setDistributorSettings(settings) {
+    setDistributorSettings(settings: DistributorStateObject) {
         let mcSize = getShipMetaProperty(this._object.Ship, 'crew') - 1;
         let newMc = settings.Sys.mc + settings.Eng.mc + settings.Wep.mc;
         if (newMc < 0 || mcSize < newMc) {
@@ -394,7 +423,7 @@ class Ship {
      * Resets pips to standard.
      * @param {boolean} mcOnly True if only multi-crew pips should be reset.
      */
-    pipsReset(mcOnly) {
+    pipsReset(mcOnly: boolean) {
         if (mcOnly) {
             this.state.PowerDistributor.Sys.mc = 0;
             this.state.PowerDistributor.Eng.mc = 0;
@@ -410,7 +439,7 @@ class Ship {
      * @param {string} pipType Either Sys, Eng or Wep.
      * @param {boolean} [isMc=false] True if multi-crew pip should be incremented.
      */
-    incPip(pipType, isMc) {
+    incPip(pipType: string, isMc: boolean) {
         let dist = this.state.PowerDistributor;
         let pips = dist[pipType];
         let other1 = (pipType == 'Sys') ? dist.Eng : dist.Sys;
@@ -444,7 +473,7 @@ class Ship {
      * Increment the sys pip settings.
      * @param {boolean} [isMc=false] True to increment multi-crew pips
      */
-    incSys(isMc) {
+    incSys(isMc: boolean) {
         this.incPip('Sys', isMc);
     }
 
@@ -452,7 +481,7 @@ class Ship {
      * Increment the eng pip settings.
      * @param {boolean} [isMc=false] True to increment multi-crew pips
      */
-    incEng(isMc) {
+    incEng(isMc: boolean) {
         this.incPip('Eng', isMc);
     }
 
@@ -460,7 +489,7 @@ class Ship {
      * Increment the wep pip settings.
      * @param {boolean} [isMc=false] True to increment multi-crew pips
      */
-    incWep(isMc) {
+    incWep(isMc: boolean) {
         this.incPip('Wep', isMc);
     }
 
@@ -468,7 +497,7 @@ class Ship {
      * Copies the ship build and returns a valid loadout-event.
      * @return {Object} Loadout-event-style ship build.
      */
-    toJSON() {
+    toJSON(): any {
         let _modules = this._object.Modules;
         this._object.Modules = map(_modules, m => m.toJSON());
         let r = clone(this._object);
@@ -481,7 +510,7 @@ class Ship {
      * string.
      * @return {string} Compressed loadout-event-style ship build.s
      */
-    compress() {
+    compress(): string {
         return compress(this.toJSON());
     }
 }

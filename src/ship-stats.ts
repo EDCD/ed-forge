@@ -35,8 +35,6 @@ export const SHIP_PROPERTIES = {
     /** @type {ShipPropertyCalculator} */
     UNLADEN_RANGE: PASS,
     /** @type {ShipPropertyCalculator} */
-    LADEN_RANGE: PASS,
-    /** @type {ShipPropertyCalculator} */
     PITCH: PASS,
     /** @type {ShipPropertyCalculator} */
     YAW: PASS,

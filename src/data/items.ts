@@ -30,7 +30,7 @@ const MODULES = require('./modules.json');
  * @param {String} id Item id
  * @throws {UnknownRestrictedError} When ID is not valid
  */
-export function assertValidModule(id) {
+export function assertValidModule(id: string) {
     if (!MODULES[id]) {
         throw new UnknownRestrictedError(`Don't know module ${id}`);
     }
@@ -41,7 +41,7 @@ export function assertValidModule(id) {
  * @param {string} item Item id
  * @returns {ModuleInformation} Information object
  */
-export function getModuleInfo(item) {
+export function getModuleInfo(item: string) {
     assertValidModule(item);
     return MODULES[item];
 }
@@ -51,7 +51,7 @@ export function getModuleInfo(item) {
  * @param {string} item Item id
  * @returns {number} Item class
  */
-export function getClass(item) {
+export function getClass(item: string): number {
     return getModuleInfo(item).meta.class;
 }
 
@@ -60,7 +60,7 @@ export function getClass(item) {
  * @param {string} item Item id
  * @returns {string} Item rating; '' when not applicable
  */
-export function getRating(item) {
+export function getRating(item: string): string {
     return getModuleInfo(item).meta.rating || '';
 }
 
@@ -79,7 +79,7 @@ export function getRating(item) {
  * @returns {ItemFitInfo} Item fit info
  * @throws {UnknownRestrictedError} When item is unknown
  */
-function getItemInfo(item) {
+function getItemInfo(item: string): any {
     assertValidModule(item);
     let info = {
         Slots: [],
@@ -138,7 +138,7 @@ function getItemInfo(item) {
  * @returns {boolean} True when the item can be outfitted false otherwise
  * @throws {UnknownRestrictedError} When one of item, ship, slot is unknown
  */
-export function itemFitsSlot(item, ship, slot) {
+export function itemFitsSlot(item: string, ship: string, slot: string): boolean {
     assertValidModule(item);
     slot = slot.toLowerCase();
 
@@ -166,6 +166,6 @@ export function itemFitsSlot(item, ship, slot) {
  * @param {string} property Property value
  * @returns {number} Default property value
  */
-export function getModuleProperty(item, property) {
+export function getModuleProperty(item: string, property: string): any {
     return getModuleInfo(item).props[property];
 }

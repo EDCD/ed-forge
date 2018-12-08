@@ -1,5 +1,5 @@
 
-import { UnknownRestrictedError } from '../errors.js';
+import { UnknownRestrictedError } from '../errors';
 
 /**
  * Ship meta data
@@ -17,7 +17,7 @@ import { UnknownRestrictedError } from '../errors.js';
 
 /**
  * @typedef {Object} ShipInfo
- * @property {import('../Ship.js').ShipObject} proto Ship prototype object
+ * @property {import('../Ship').ShipObject} proto Ship prototype object
  * @property {Object.<string, number>} props Ship properties
  * @property {ShipMetaInfo} meta Meta data about a ship
  */
@@ -27,10 +27,10 @@ const SHIPS = require('./ships.json');
 
 /**
  * Checks whether a given ship id is valid.
- * @param {String} id Ship ID
+ * @param {String} ship Ship ID
  * @throws {UnknownRestrictedError} When ID is not valid
  */
-export function assertValidShip(ship) {
+export function assertValidShip(ship: string) {
     if (!SHIPS[ship]) {
         throw new UnknownRestrictedError(`Don't know ship ${ship}`);
     }
@@ -41,7 +41,7 @@ export function assertValidShip(ship) {
  * @param {string} ship Ship ID
  * @returns {ShipInfo} Ship info object
  */
-export function getShipInfo(ship) {
+export function getShipInfo(ship: string) {
     assertValidShip(ship);
     return SHIPS[ship];
 }
@@ -52,7 +52,7 @@ export function getShipInfo(ship) {
  * @param {string} property Property name
  * @returns {number} Property value
  */
-export function getShipProperty(ship, property) {
+export function getShipProperty(ship: string, property: string): number {
     return getShipInfo(ship).props[property];
 }
 
@@ -62,6 +62,6 @@ export function getShipProperty(ship, property) {
  * @param {string} property Meta property key
  * @returns {*} Meta property value
  */
-export function getShipMetaProperty(ship, property) {
+export function getShipMetaProperty(ship: string, property: string): any {
     return getShipInfo(ship).meta[property];
 }

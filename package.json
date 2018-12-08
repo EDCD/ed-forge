@@ -26,7 +26,6 @@
   "dependencies": {
     "ajv": "^6.5.4",
     "auto-bind": "^1.2.1",
-    "coriolis-data": "github:edcd/coriolis-data",
     "jsdoc": "^3.5.5",
     "lodash": "^4.17.11",
     "pako": "^1.0.6",
@@ -35,8 +34,12 @@
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
-    "np": "*",
     "@babel/preset-env": "^7.1.0",
+    "@types/auto-bind": "^1.2.0",
+    "@types/babel__core": "^7.0.4",
+    "@types/lodash": "^4.14.118",
+    "@types/pako": "^1.0.0",
+    "np": "*",
     "npm-watch": "^0.4.0"
   }
 }

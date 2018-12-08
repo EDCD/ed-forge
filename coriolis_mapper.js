@@ -1,5 +1,5 @@
 
-const { Modules, Ships, Modifications } = require('coriolis-data/dist');
+const { Modules, Ships, Modifications } = require('./coriolis-data/dist');
 const fs = require('fs');
 const _ = require('lodash');
 
@@ -282,6 +282,8 @@ const SHIP_TO_ARMOUR = {
     'cobra_mk_iv': 'CobraMkIV',
     'beluga': 'BelugaLiner',
     'type_10_defender': 'Type9_Military',
+    'mamba': 'mamba',
+    'krait_phantom': 'Krait_Light',
     'alliance_chieftain': 'TypeX',
     'alliance_challenger': 'TypeX_3',
     'alliance_crusader': 'TypeX_2',
@@ -412,6 +414,7 @@ NOT_PROPS_KEYS = [ 'name', 'luxuryCabins', 'class', 'manufacturer',
 
 function consumeShip(entry) {
     let [shipName, ship] = entry;
+    console.log(shipName)
     let j = {
         proto: {
             Ship: shipName,

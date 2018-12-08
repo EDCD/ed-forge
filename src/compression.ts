@@ -5,7 +5,7 @@ import pako from 'pako';
  * @param {Object} json Object to compress
  * @return {string} Compressed string
  */
-export function compress(json) {
+export function compress(json: object): string {
   const string = JSON.stringify(json);
   const deflated = pako.deflate(string, { to: 'string' });
   return encodeURIComponent(Buffer.from(deflated).toString('base64'));
@@ -16,7 +16,7 @@ export function compress(json) {
  * @param {string} str String to decompress
  * @return {Object} Decompressed json
  */
-export function decompress(str) {
+export function decompress(str: string): object {
   const decoded = Buffer.from(decodeURIComponent(str), 'base64');
   const inflated = pako.inflate(decoded, { to: 'string' });
   return JSON.parse(inflated);

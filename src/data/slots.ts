@@ -14,7 +14,7 @@ export const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
  * @param {string} slot Slot ID
  * @throws {UnknownRestrictedError} When slot ID is nod valid
  */
-export function assertValidSlot(slot) {
+export function assertValidSlot(slot: string) {
     if (!matchesAny(slot, REG_CORE_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_HARDPOINT_SLOT, REG_UTILITY_SLOT)) {
         throw new UnknownRestrictedError(`Don't know slot ${slot}`);
     }
@@ -26,7 +26,7 @@ export function assertValidSlot(slot) {
  * @param {string} slot Slot ID
  * @returns {number} Core slot size
  */
-export function getCoreSlotSize(ship, slot) {
+export function getCoreSlotSize(ship: string, slot: string): number {
     assertValidSlot(slot);
     return getShipInfo(ship).meta.coreSizes[slot];
 }
@@ -37,7 +37,7 @@ export function getCoreSlotSize(ship, slot) {
  * @param {string} slot Slot ID
  * @returns {number} Military slot size
  */
-export function getMilitarySlotSize(ship, slot) {
+export function getMilitarySlotSize(ship: string, slot: string): number {
     assertValidSlot(slot);
     return getShipInfo(ship).meta.militarySizes[slot];
 }
@@ -48,7 +48,7 @@ export function getMilitarySlotSize(ship, slot) {
  * @param {string} slot Slot ID
  * @returns {boolean} True if slot is a passenger slot.
  */
-export function isPassengerSlot(ship, slot) {
+export function isPassengerSlot(ship: string, slot: string): boolean {
     assertValidSlot(slot);
     return getShipInfo(ship).meta.passengerSlots[slot];
 }
@@ -58,7 +58,7 @@ export function isPassengerSlot(ship, slot) {
  * @param {string} slot Slot ID
  * @returns {number} Internal slot size
  */
-export function getInternalSlotSize(slot) {
+export function getInternalSlotSize(slot: string): number {
     assertValidSlot(slot);
     let m = slot.match(REG_INTERNAL_SLOT);
     if (m) {
@@ -72,7 +72,7 @@ export function getInternalSlotSize(slot) {
  * @param {string} slot Slot ID
  * @returns {number} Hardpoint slot size
  */
-export function getHardpointSlotSize(slot) {
+export function getHardpointSlotSize(slot: string): number {
     assertValidSlot(slot);
     if (slot.match(/Tiny/i)) {
         return 0;
@@ -93,7 +93,7 @@ export function getHardpointSlotSize(slot) {
  * @param {string} slot Slot ID
  * @returns {number} Slot size
  */
-export function getSlotSize(ship, slot) {
+export function getSlotSize(ship: string, slot: string): number {
     assertValidShip(ship);
     assertValidSlot(slot);
     let slotSize = getCoreSlotSize(ship, slot);

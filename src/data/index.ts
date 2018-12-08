@@ -7,6 +7,7 @@ import { UnknownRestrictedError } from '../errors';
 
 const MODULE_CACHE = require('./module_cache.json');
 
+
 function readModuleCache(type, clazz='', rating='') {
     let cache = MODULE_CACHE[type];
     if (cache) {
@@ -17,7 +18,7 @@ function readModuleCache(type, clazz='', rating='') {
 /**
  * Factory to create basic ships and modules.
  */
-export default class Factory {
+class Factory {
     /**
      * Returns the item id of the given module via group, class and rating.
      * Class and rating for the most part match what is shown in-game but there
@@ -29,7 +30,7 @@ export default class Factory {
      * @param {string} [clazz] Class of the module
      * @param {string} [rating] Rating of the module
      */
-    static getModuleId(group, clazz = '', rating = '') {
+    static getModuleId(group: string, clazz: string = '', rating: string = '') {
         group = group.toLowerCase();
         clazz = clazz.toLowerCase();
         rating = rating.toLowerCase();
@@ -48,7 +49,7 @@ export default class Factory {
      * @param {*} [rating] Rating of the module
      * @return {Object} Module object
      */
-    static newModule(type, clazz = '', rating = '') {
+    static newModule(type: string, clazz: string = '', rating: any = ''): object {
         type = type.toLowerCase();
         clazz = clazz.toLowerCase();
         rating = rating.toLowerCase();
@@ -66,7 +67,7 @@ export default class Factory {
      * @param {string} type Ship type
      * @returns {Ship} Ship object
      */
-    static newShip(type) {
+    static newShip(type: string): Ship {
         type = type.toLowerCase();
         // We don't clone the prototype because this is done in Ship
         return new Ship(getShipInfo(type).proto);
@@ -82,3 +83,5 @@ export default class Factory {
         };
     }
 }
+
+export default Factory;
