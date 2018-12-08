@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "node coriolis_mapper.js && npm run build_light",
-    "build_light": "babel src -d lib --copy-files --source-maps",
+    "build_light": "tsc",
     "prepublish": "npm run build",
     "release": "np",
     "watch": "npm run build && npm-watch build_light"
@@ -40,6 +40,7 @@
     "@types/lodash": "^4.14.118",
     "@types/pako": "^1.0.0",
     "np": "*",
-    "npm-watch": "^0.4.0"
+    "npm-watch": "^0.4.0",
+    "typescript": "^3.2.2"
   }
 }
