@@ -3,6 +3,49 @@ const { Modules, Ships, Modifications } = require('./coriolis-data/dist');
 const fs = require('fs');
 const _ = require('lodash');
 
+let SHIP_FD_NAME_TO_CORIOLIS_NAME = {
+  'Adder': 'adder',
+  'Anaconda': 'anaconda',
+  'Asp': 'asp',
+  'Asp_Scout': 'asp_scout',
+  'BelugaLiner': 'beluga',
+  'CobraMkIII': 'cobra_mk_iii',
+  'CobraMkIV': 'cobra_mk_iv',
+  'Cutter': 'imperial_cutter',
+  'DiamondBackXL': 'diamondback_explorer',
+  'DiamondBack': 'diamondback',
+  'Dolphin': 'dolphin',
+  'Eagle': 'eagle',
+  'Empire_Courier': 'imperial_courier',
+  'Empire_Eagle': 'imperial_eagle',
+  'Empire_Trader': 'imperial_clipper',
+  'Federation_Corvette': 'federal_corvette',
+  'Federation_Dropship': 'federal_dropship',
+  'Federation_Dropship_MkII': 'federal_assault_ship',
+  'Federation_Gunship': 'federal_gunship',
+  'FerDeLance': 'fer_de_lance',
+  'Hauler': 'hauler',
+  'Independant_Trader': 'keelback',
+  'Krait_MkII': 'krait_mkii',
+  'Mamba': 'mamba',
+  'Krait_Light': 'krait_phantom',
+  'Orca': 'orca',
+  'Python': 'python',
+  'SideWinder': 'sidewinder',
+  'Type6': 'type_6_transporter',
+  'Type7': 'type_7_transport',
+  'Type9': 'type_9_heavy',
+  'Type9_Military': 'type_10_defender',
+  'TypeX': 'alliance_chieftain',
+  'TypeX_2': 'alliance_crusader',
+  'TypeX_3': 'alliance_challenger',
+  'Viper': 'viper',
+  'Viper_MkIV': 'viper_mk_iv',
+  'Vulture': 'vulture'
+};
+
+SHIP_FD_NAME_TO_CORIOLIS_NAME = _.invertBy(SHIP_FD_NAME_TO_CORIOLIS_NAME)
+
 // Will be set in consumeModule; hardpoints and other modules don't share ids
 const ID_TO_MODULE = {};
 const ID_TO_MODULE_HP = {};
@@ -413,11 +456,11 @@ NOT_PROPS_KEYS = [ 'name', 'luxuryCabins', 'class', 'manufacturer',
     'fighterHangars', 'crew' ];
 
 function consumeShip(entry) {
-    let [shipName, ship] = entry;
-    console.log(shipName)
+	let [shipName, ship] = entry;
+	const Ship = SHIP_FD_NAME_TO_CORIOLIS_NAME[shipName][0];
     let j = {
         proto: {
-            Ship: shipName,
+            Ship: Ship,
             ShipId: 0,
             ShipName: '',
             ShipIdent: '',
@@ -517,7 +560,7 @@ function consumeShip(entry) {
         .value();
     j.proto.Modules.push(...hardpoints);
 
-    SHIPS[ship.properties.name.toLowerCase()] = j;
+    SHIPS[Ship.toLowerCase()] = j;
 }
 
 _.forEach(_.entries(Ships), consumeShip);
