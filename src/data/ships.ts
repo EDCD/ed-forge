@@ -23,7 +23,7 @@ import { UnknownRestrictedError } from '../errors';
  */
 
 /** @type {Object.<string, ShipDescriptor>} */
-const SHIPS = require('./ships.json');
+import SHIPS from './ships.json';
 
 /**
  * Checks whether a given ship id is valid.

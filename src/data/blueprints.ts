@@ -13,9 +13,10 @@ import {getModuleInfo, getModuleProperty} from './items';
  */
 
 /** @type {Object.<string, BlueprintGrade>} */
-const BLUEPRINTS = require('./blueprints.json');
+import BLUEPRINTS from './blueprints.json';
+
 /** @type {Object.<string, BlueprintFeature>} */
-const EXPERIMENTALS = require('./experimentals.json');
+import EXPERIMENTALS from './experimentals.json';
 
 const BLUEPRINT_EXTRAS = {
     'Weapon_LongRange': (moduleInfo, propObject) => {

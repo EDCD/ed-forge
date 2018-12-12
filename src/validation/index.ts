@@ -1,6 +1,6 @@
 import Ajv from "ajv";
-const SHIP_SCHEMA = require('./ShipObject.schema.json');
-const MODULE_SCHEMA = require('./ModuleObject.schema.json');
+import SHIP_SCHEMA from './ShipObject.schema.json';
+import MODULE_SCHEMA from './ModuleObject.schema.json';
 
 const VALIDATOR = new Ajv({ schemas: [MODULE_SCHEMA, SHIP_SCHEMA]});
 

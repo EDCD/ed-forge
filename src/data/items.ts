@@ -23,7 +23,7 @@ import { matchesAny } from '../helper';
  */
 
 /** @type {Object.<string, ModuleInformation>} */
-const MODULES = require('./modules.json');
+import MODULES from './modules.json';
 
 /**
  * Checks whether a given item id is valid.

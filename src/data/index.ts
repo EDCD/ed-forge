@@ -5,7 +5,8 @@ import { getModuleInfo } from './items';
 import { getShipInfo } from './ships';
 import { UnknownRestrictedError } from '../errors';
 
-const MODULE_CACHE = require('./module_cache.json');
+
+import MODULE_CACHE from './module_cache.json';
 
 
 function readModuleCache(type, clazz='', rating='') {
