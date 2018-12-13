@@ -4,30 +4,39 @@ import { getSlotSize, isPassengerSlot, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
 } from './slots';
 import { UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
+import { ModuleObject } from '../Module'
+
+import * as MODULES from './modules.json';
 
 /**
  * Meta data about an item.
- * @typedef {Object} MetaModuleInformation
- * @property {number} eddbID EDDB ID of the item
- * @property {number} edID ED ID of the item
- * @property {number} class Class of the item
- * @property {string} [rating] Rating of the item
  */
+export interface MetaModuleInformation {
+    /** EDDB ID of the item */
+    eddbID: number;
+    /** ED ID of the item */
+    edID: number;
+    /** Class of the item */
+    class: number;
+    /** Rating of the item */
+    rating: string;
+}
 
 /**
  * Object holding information about an item.
- * @typedef {Object} ModuleInformation
- * @property {ModuleObject} proto Loadout-event-style module object prototype
- * @property {Object} props Default item properties
- * @property {MetaModuleInformation} meta Item meta information
  */
-
-/** @type {Object.<string, ModuleInformation>} */
-import MODULES from './modules.json';
+export interface ModuleInformation {
+    /** Loadout-event-style module object prototype */
+    proto: ModuleObject;
+    /** Default item properties */
+    props: Object;
+    /** Item meta information */
+    meta: MetaModuleInformation;
+}
 
 /**
  * Checks whether a given item id is valid.
- * @param {String} id Item id
+ * @param id Item id
  * @throws {UnknownRestrictedError} When ID is not valid
  */
 export function assertValidModule(id: string) {
@@ -38,7 +47,7 @@ export function assertValidModule(id: string) {
 
 /**
  * Returns an object with details about the item.
- * @param {string} item Item id
+ * @param item Item id
  * @returns {ModuleInformation} Information object
  */
 export function getModuleInfo(item: string) {
@@ -48,8 +57,8 @@ export function getModuleInfo(item: string) {
 
 /**
  * Get the class of an item.
- * @param {string} item Item id
- * @returns {number} Item class
+ * @param item Item id
+ * @returns Item class
  */
 export function getClass(item: string): number {
     return getModuleInfo(item).meta.class;
@@ -57,8 +66,8 @@ export function getClass(item: string): number {
 
 /**
  * Return the rating of an item.
- * @param {string} item Item id
- * @returns {string} Item rating; '' when not applicable
+ * @param item Item id
+ * @returns Item rating; '' when not applicable
  */
 export function getRating(item: string): string {
     return getModuleInfo(item).meta.rating || '';
@@ -66,20 +75,21 @@ export function getRating(item: string): string {
 
 /**
  * Info about where an item can fit.
- * @typedef {Object} ItemFitInfo
- * @property {RegExp[]} Slots Array of regexes that match slots where this item
- *      can be equipped.
- * @property {boolean} passenger True if this module can be fit only to
- *      passenger slots.
  */
+interface ItemFitInfo {
+    /** Array of regexes that match slots where this item can be equipped */
+    Slots: RegExp[];
+    /** True if this module can be fit only to passenger slots */
+    passenger: boolean;
+}
 
 /**
  * Get information about where an item can fit.
- * @param {string} item Item ID
- * @returns {ItemFitInfo} Item fit info
+ * @param item Item ID
+ * @returns Item fit info
  * @throws {UnknownRestrictedError} When item is unknown
  */
-function getItemInfo(item: string): any {
+function getItemInfo(item: string): ItemFitInfo {
     assertValidModule(item);
     let info = {
         Slots: [],
@@ -132,10 +142,10 @@ function getItemInfo(item: string): any {
 
 /**
  * Checks whether an item fits on a slot of a given ship.
- * @param {string} item Item ID
- * @param {string} ship Ship type
- * @param {string} slot Slot
- * @returns {boolean} True when the item can be outfitted false otherwise
+ * @param item Item ID
+ * @param ship Ship type
+ * @param slot Slot
+ * @returns True when the item can be outfitted false otherwise
  * @throws {UnknownRestrictedError} When one of item, ship, slot is unknown
  */
 export function itemFitsSlot(item: string, ship: string, slot: string): boolean {
@@ -162,9 +172,9 @@ export function itemFitsSlot(item: string, ship: string, slot: string): boolean 
 
 /**
  * Get a default property value of an item.
- * @param {string} item Item ID
- * @param {string} property Property value
- * @returns {number} Default property value
+ * @param item Item ID
+ * @param property Property value
+ * @returns Default property value
  */
 export function getModuleProperty(item: string, property: string): any {
     return getModuleInfo(item).props[property];

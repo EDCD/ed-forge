@@ -1,15 +1,21 @@
 
 import Ship from '../Ship';
-import Module from '../Module';
+import Module, { ModuleObject, BlueprintObject } from '../Module';
 import { getModuleInfo } from './items';
 import { getShipInfo } from './ships';
 import { UnknownRestrictedError } from '../errors';
 
+import * as MODULE_CACHE from './module_cache.json';
 
-import MODULE_CACHE from './module_cache.json';
 
-
-function readModuleCache(type, clazz='', rating='') {
+/**
+ * Fetches a module ID from the cache.
+ * @param type The type of the module to fetch
+ * @param clazz Class of the module to fetch
+ * @param rating Rating of the module to fetch.
+ * @returns Item ID
+ */
+function readModuleCache(type: string, clazz: string = '', rating: string = ''): string {
     let cache = MODULE_CACHE[type];
     if (cache) {
         return cache[clazz][rating];
@@ -27,11 +33,12 @@ class Factory {
      * Some modules have no class and/or rating because there is only a single
      * one available for that group.
      * Details can be looked up in the `module_cache.json` file.
-     * @param {string} group Type of the module
-     * @param {string} [clazz] Class of the module
-     * @param {string} [rating] Rating of the module
+     * @param group Type of the module
+     * @param clazz Class of the module
+     * @param rating Rating of the module
+     * @returns Item ID
      */
-    static getModuleId(group: string, clazz: string = '', rating: string = '') {
+    static getModuleId(group: string, clazz: string = '', rating: string = ''): string {
         group = group.toLowerCase();
         clazz = clazz.toLowerCase();
         rating = rating.toLowerCase();
@@ -43,14 +50,14 @@ class Factory {
     }
 
     /**
-     * Creates a new loadout-event-style module object.
-     * @param {string} type Type of the module; either as a group as for
-     *      {@link Factory.getModuleId} or as a valid item id.
-     * @param {string} [clazz] Class of the module
-     * @param {*} [rating] Rating of the module
-     * @return {Object} Module object
+     * Creates a new loadout-event-style module.
+     * @param type Type of the module; either as a group as for
+     * [[Factory.getModuleId]] or as a valid item id.
+     * @param clazz Class of the module
+     * @param rating Rating of the module
+     * @return Module
      */
-    static newModule(type: string, clazz: string = '', rating: any = ''): object {
+    static newModule(type: string, clazz: string = '', rating: any = ''): Module {
         type = type.toLowerCase();
         clazz = clazz.toLowerCase();
         rating = rating.toLowerCase();
@@ -65,8 +72,8 @@ class Factory {
 
     /**
      * Creates a new loadout-event-style ship object.
-     * @param {string} type Ship type
-     * @returns {Ship} Ship object
+     * @param type Ship type
+     * @returns Ship object
      */
     static newShip(type: string): Ship {
         type = type.toLowerCase();
@@ -74,7 +81,13 @@ class Factory {
         return new Ship(getShipInfo(type).proto);
     }
 
-    static newBlueprint(name, grade, progress = 0) {
+    /**
+     * Creates a new blueprint object.
+     * @param name Name of the blueprint
+     * @param grade Grade of the blueprints
+     * @param progress Progress of the blueprint
+     */
+    static newBlueprint(name: string, grade: number, progress: number = 0): BlueprintObject {
         name = name.toLowerCase();
         return {
             'BlueprintName': name,

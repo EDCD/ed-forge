@@ -11,7 +11,7 @@ export const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
 
 /**
  * Checks whether a slot is valid.
- * @param {string} slot Slot ID
+ * @param slot Slot ID
  * @throws {UnknownRestrictedError} When slot ID is nod valid
  */
 export function assertValidSlot(slot: string) {
@@ -22,9 +22,9 @@ export function assertValidSlot(slot: string) {
 
 /**
  * Returns the size of a core slot of a given ship.
- * @param {string} ship Ship ID
- * @param {string} slot Slot ID
- * @returns {number} Core slot size
+ * @param ship Ship ID
+ * @param slot Slot ID
+ * @returns Core slot size
  */
 export function getCoreSlotSize(ship: string, slot: string): number {
     assertValidSlot(slot);
@@ -33,9 +33,9 @@ export function getCoreSlotSize(ship: string, slot: string): number {
 
 /**
  * Returns the size of a given military slot.
- * @param {string} ship Ship ID
- * @param {string} slot Slot ID
- * @returns {number} Military slot size
+ * @param ship Ship ID
+ * @param slot Slot ID
+ * @returns Military slot size
  */
 export function getMilitarySlotSize(ship: string, slot: string): number {
     assertValidSlot(slot);
@@ -44,9 +44,9 @@ export function getMilitarySlotSize(ship: string, slot: string): number {
 
 /**
  * Returns whether a slot is a passenger slot on the given ship.
- * @param {string} ship Ship ID
- * @param {string} slot Slot ID
- * @returns {boolean} True if slot is a passenger slot.
+ * @param ship Ship ID
+ * @param slot Slot ID
+ * @returns True if slot is a passenger slot.
  */
 export function isPassengerSlot(ship: string, slot: string): boolean {
     assertValidSlot(slot);
@@ -55,8 +55,8 @@ export function isPassengerSlot(ship: string, slot: string): boolean {
 
 /**
  * Returns the size of an internal slot.
- * @param {string} slot Slot ID
- * @returns {number} Internal slot size
+ * @param slot Slot ID
+ * @returns Internal slot size
  */
 export function getInternalSlotSize(slot: string): number {
     assertValidSlot(slot);
@@ -69,8 +69,8 @@ export function getInternalSlotSize(slot: string): number {
 /**
  * Returns the size of a hardpoint slot from 1 to 4 where 1 is the size of a
  * small and 4 is the size of a huge hardpoint.
- * @param {string} slot Slot ID
- * @returns {number} Hardpoint slot size
+ * @param slot Slot ID
+ * @returns Hardpoint slot size
  */
 export function getHardpointSlotSize(slot: string): number {
     assertValidSlot(slot);
@@ -89,9 +89,9 @@ export function getHardpointSlotSize(slot: string): number {
 
 /**
  * Get the size of a slot; bulkheads and utility slots have size 0.
- * @param {string} ship Ship ID
- * @param {string} slot Slot ID
- * @returns {number} Slot size
+ * @param ship Ship ID
+ * @param slot Slot ID
+ * @returns Slot size
  */
 export function getSlotSize(ship: string, slot: string): number {
     assertValidShip(ship);

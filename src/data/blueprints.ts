@@ -1,25 +1,23 @@
 import {UnknownRestrictedError} from '../errors';
 import {MODULE_STATS} from '../module-stats';
-import {getModuleInfo, getModuleProperty} from './items';
+import {getModuleInfo, getModuleProperty, ModuleInformation} from './items';
+import { ModifierObject } from '../Module';
+
+import * as BLUEPRINTS from './blueprints.json';
+import * as EXPERIMENTALS from './experimentals.json';
 
 /**
  * Maps property to array of from [min, max].
- * @typedef {Object.<string, number[]>} BlueprintFeature
  */
+type BlueprintFeature = { [property: string]: number[] };
 
 /**
  * Maps blueprint key to grades.
- * @typedef {Object.<string, BlueprintFeature>} BlueprintGrade
  */
-
-/** @type {Object.<string, BlueprintGrade>} */
-import BLUEPRINTS from './blueprints.json';
-
-/** @type {Object.<string, BlueprintFeature>} */
-import EXPERIMENTALS from './experimentals.json';
+type BlueprintGrade = { [grade: string]: BlueprintFeature };
 
 const BLUEPRINT_EXTRAS = {
-    'Weapon_LongRange': (moduleInfo, propObject) => {
+    'Weapon_LongRange': (moduleInfo: ModuleInformation, propObject) => {
         let falloff = propObject['range'].value;
         let baseFalloff = moduleInfo.props['falloff'];
         propObject['falloff'] = {
@@ -31,20 +29,20 @@ const BLUEPRINT_EXTRAS = {
 
 /**
  * Maps property names to ModifierObject for a blueprint.
- * @typedef {Object.<string, import('../Module.js').ModifierObject>} PropertyMap
  */
+type PropertyMap = { [ property: string ]: ModifierObject }
 
 /**
  * Get modified properties for a module.
- * @param {string} module Item key
- * @param {string} name Blueprint key
- * @param {number} [grade=1] Blueprint grade
- * @param {number} [progress=0] Blueprint progress
- * @param {string} [experimentalName] Experimental effect
- * @return {PropertyMap} Map of property names to modifier objects.
+ * @param module Item key
+ * @param name Blueprint key
+ * @param grade Blueprint grade
+ * @param progress Blueprint progress
+ * @param experimentalName Experimental effect
+ * @returns Map of property names to modifier objects.
  */
-export function getBlueprintProps(module: string, name: string, grade: number = 1, progress: number = 0,
-                                  experimentalName: string) {
+export function getBlueprintProps(module: string, name: string,
+    grade: number = 1, progress: number = 0, experimentalName?: string): PropertyMap {
     let moduleInfo = getModuleInfo(module);
     let blueprint = BLUEPRINTS[name];
     let experimental = EXPERIMENTALS[experimentalName];
@@ -77,10 +75,10 @@ export function getBlueprintProps(module: string, name: string, grade: number = 
 
 /**
  * Return a modifier based on a modified property.
- * @param {string} module Item id
- * @param {string} name Property name
- * @param {number} modifiedProperty New property value
- * @returns {number} Modifier
+ * @param module Item id
+ * @param name Property name
+ * @param modifiedProperty New property value
+ * @returns Modifier
  */
 export function calculateModifier(module: string, name: string, modifiedProperty: number): number {
     let baseValue = getModuleProperty(module, name);
@@ -104,14 +102,14 @@ export function calculateModifier(module: string, name: string, modifiedProperty
 /**
  * Applies blueprint modifiers for a module and saves the results to a property
  * map.
- * @param {import('./items.js').ModuleInformation} moduleInfo Module info
- * @param {BlueprintGrade} modifierObject Blueprint modifier object
- * @param {number} progress Blueprint progress
- * @param {PropertyMap} propObject Property map to modify
- * @returns {PropertyMap} Returns `propObject`
+ * @param moduleInfo Module info
+ * @param modifierObject Blueprint modifier object
+ * @param progress Blueprint progress
+ * @param propObject Property map to modify
+ * @returns Returns `propObject`
  */
-function applyBlueprintModifiers(moduleInfo, modifierObject: any, progress: number,
-                                 propObject) {
+function applyBlueprintModifiers(moduleInfo: ModuleInformation,
+    modifierObject: BlueprintFeature, progress: number, propObject: PropertyMap): PropertyMap {
     for (let prop in modifierObject) {
         let propertyDescriptor = MODULE_STATS[prop];
         if (!propertyDescriptor) {
@@ -138,9 +136,9 @@ function applyBlueprintModifiers(moduleInfo, modifierObject: any, progress: numb
 /**
  * Turns a blueprint modifier into a modifier.
  * @param propertyDescriptor Meta data about the property to modify
- * @param {number} base Value to modify
- * @param {number} blueprintModifier Blueprint modifier
- * @returns {number} Modifier
+ * @param base Value to modify
+ * @param blueprintModifier Blueprint modifier
+ * @returns Modifier
  */
 function getModifier(propertyDescriptor, base: number, blueprintModifier: number): number {
     switch (propertyDescriptor.modifier) {
@@ -160,9 +158,9 @@ function getModifier(propertyDescriptor, base: number, blueprintModifier: number
 /**
  * Applies a modifier to a base value and returns the modified value.
  * @param propertyDescriptor Meta data about the property to modify
- * @param {number} base Value to modify
- * @param {number} modifier Modifier
- * @returns {number} Modified property
+ * @param base Value to modify
+ * @param modifier Modifier
+ * @returns Modified property
  */
 function getModifiedProperty(propertyDescriptor, base: number, modifier: number): number {
     switch (propertyDescriptor.method) {

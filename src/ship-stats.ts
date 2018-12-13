@@ -1,6 +1,4 @@
 
-/** @module edforge_shipstats */
-
 /** @type {ShipPropertyCalculator} */
 const PASS = (ship, modified) => {};
 

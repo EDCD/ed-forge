@@ -9,14 +9,14 @@
  */
 
  /**
-  * Has various properties of type {@link FormattingObject} that define how
+  * Has various properties of type [[FormattingObject]] that define how
   * specific module/ship properties are to be formatted.
   */
 export const PROPERTY_FORMATTING = {};
 
 /**
- * Any string that is a concatenation of {@link SI_PREFIXES} and {@link UNITS}
- * or just a value in {@link UNITS}.
+ * Any string that is a concatenation of [[SI_PREFIXES]] and [[UNITS]]
+ * or just a value in [[UNITS]].
  * @typedef {string} SiUnit
  */
 

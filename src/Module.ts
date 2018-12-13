@@ -10,51 +10,17 @@ import Ship from './Ship';
 import {getBlueprintProps, calculateModifier} from './data/blueprints';
 
 /**
- * Module property modifier overriding default values.
- * @typedef {Object} ModifierObject
- * @property {string} Label Property name
- * @property {number} Value Modified property value
- * @property {boolean} LessIsGood
- * @property {number} Modifier
- * @property {boolean} UserSet
- */
-
-/**
- * Engineer blueprint.
- * @typedef {Object} BlueprintObject
- * @property {string} BlueprintName Name of the blueprint
- * @property {string} [ExperimentalEffect] Name of the experimental effect
- * @property {number} Level Grade of the blueprint from 1 to 5
- * @property {number} Quality Progress of the blueprint from 0 to 1
- * @property {ModifierObject[]} Modifiers Array of all modifiers
- */
-
-/**
- * Loadout-event style object describing a module
- * @typedef {Object} ModuleObject
- * @property {string} Slot Slot this module is on (possibly empty string)
- * @property {boolean} On True when this module is switched on
- * @property {string} Item Item/actual module that this module represents
- * @property {number} Priority Power priority group
- * @property {BlueprintObject} [Engineering] Blueprint applied to this module
- */
-
-/**
- * @typedef {(string|Module|ModuleObject)} ModuleLike
- */
-
-/**
  * Clones a given module.
- * @param {ModuleLike} module Module to clone
- * @return {ModuleObject} Cloned module object
+ * @param module Module to clone
+ * @returns Cloned module object
  * @throws {ImportExportError} On invalid module json.
  */
-function cloneModuleToJSON(module) {
+function cloneModuleToJSON(module: (string | Module | ModuleObject)): ModuleObject {
     if (module instanceof Module) {
         module = module.toJSON();
     } else {
         if (typeof module === 'string') {
-            module = decompress(module);
+            module = decompress<ModuleObject>(module);
         }
         module = cloneDeep(module);
 
@@ -66,56 +32,72 @@ function cloneModuleToJSON(module) {
     return module;
 }
 
-interface Module {
+/**
+ * Loadout-event style object describing a module
+ */
+export interface ModuleObject {
+    /** Item/actual module that this module represents */
     Item: string;
+    /** Power priority group */
     Priority: number;
+    /** Slot this module is on (possibly empty string) */
     Slot: string;
-    Engineering: ModuleEngineering;
+    /** Blueprint applied to this module */
+    Engineering?: BlueprintObject;
+    /** True when this module is switched on */
     On: boolean
 }
 
-type Slot = string;
+export type Slot = string | RegExp;
 
-interface ModuleEngineering {
+/**
+ * Engineer blueprint.
+ */
+export interface BlueprintObject {
     Engineer?: string;
     EngineerID?: number;
     BlueprintID?: number;
-    BlueprintName?: string;
-    Level?: number;
-    Quality?: number;
+    /** Name of the blueprint */
+    BlueprintName: string;
+    /** Grade of the blueprint from 1 to 5 */
+    Level: number;
+    /** Progress of the blueprint from 0 to 1 */
+    Quality: number;
+    /** Name of the experimental effect */
     ExperimentalEffect?: string;
-    ExperimentalEffect_Localised?: string;
-    Modifiers: ModuleEngineeringModifiers[]
+    /** Array of all modifiers */
+    Modifiers: ModifierObject[]
 }
 
-interface ModuleEngineeringModifiers {
+/**
+ * Module property modifier overriding default values.
+ */
+export interface ModifierObject {
+    /** Property name */
     Label: string;
+    /** Modified property value */
     Value: number;
     OriginalValue?: number;
     Modifier?: number;
-    LessIsGood?: number;
+    LessIsGood?: boolean;
     UserSet?: boolean;
 }
 
 /**
- * A module that belongs to a {@link Ship}.
+ * A module that belongs to a Ship.
  */
-class Module {
-    private _object: Module;
-    private _ship: Ship;
+export default class Module {
+    public _object: ModuleObject = {Item: '', Slot: '', On: true, Priority: 1};
+    public _ship: Ship = null;
 
     /**
      * Create a module by reading a module JSON given in a loadout-event-style
      * ship build. Can be given as a compressed string or plain object.
-     * @param {(string|ModuleObject)} buildFrom Module to load
-     * @param {Ship} [ship] Ship to assign this module to
+     * @param buildFrom Module to load
+     * @param ship Ship to assign this module to
      */
-    constructor(buildFrom: (string | Module), ship?: Ship) {
+    constructor(buildFrom: (string | Module | ModuleObject), ship?: Ship) {
         autoBind(this);
-        /** @type {ModuleObject} */
-        this._object = {Item: '', Slot: '', On: true, Priority: 1} as any;
-        /** @type {Ship} */
-        this._ship = null;
 
         if (buildFrom) {
             this._object = cloneModuleToJSON(buildFrom);
@@ -128,8 +110,8 @@ class Module {
 
     /**
      * Read an arbitrary object property of this module's corresponding json.
-     * @param {string} property Property name
-     * @return {*} Property value
+     * @param property Property name
+     * @returns Property value
      */
     read(property: string): any {
         return this._object[property];
@@ -142,8 +124,8 @@ class Module {
      * method, e.g. to alter the module's item you can't invoke
      * `module.write('Item', '...')` but must invoke
      * `module.setItem('...')`.
-     * @param {string} property Property name
-     * @param {*} value Property value
+     * @param property Property name
+     * @param value Property value
      * @throws {IllegalStateError} On an attempt to write a protected property
      */
     write(property: string, value: any) {
@@ -158,9 +140,9 @@ class Module {
 
     /**
      * Return a property of this module, e.g. "mass".
-     * @param {string} property Property name
-     * @param {boolean} [modified=true] False to retrieve default value
-     * @return {(number|null|undefined)} Property value or `null` when property
+     * @param property Property name
+     * @param modified False to retrieve default value
+     * @returns Property value or `null` when property
      *      applies to this module but is not given or undefined when property
      *      does not apply to this type of module, e.g. "ammo" on a cargo rack.
      */
@@ -183,8 +165,8 @@ class Module {
 
     /**
      * Returns index of modifier for given property if present.
-     * @param {string} property Property name
-     * @return {(number|undefined)} Modifier index or `undefined` if not present
+     * @param property Property name
+     * @returns Modifier index or `undefined` if not present
      */
     _findModifier(property: string): (number | undefined) {
         if (!this._object.Engineering) {
@@ -197,11 +179,11 @@ class Module {
     }
 
     /**
-     * @param {string} property
-     * @param {boolean} [modified=true]
-     * @param {i18n.FormatOptions.SiUnit} [unit]
-     * @param {number} [value]
-     * @return {string}
+     * @param property
+     * @param modified
+     * @param unit
+     * @param value
+     * @returns
      */
     getFormatted(property: string, modified: boolean = true, unit: string, value: number): string {
         throw new NotImplementedError();
@@ -209,8 +191,8 @@ class Module {
 
     /**
      * Sets the value of a property.
-     * @param {string} property Property name
-     * @param {number} value Property value
+     * @param property Property name
+     * @param value Property value
      * @throws {IllegalStateError} When no blueprint is applied.
      */
     set(property: string, value: number) {
@@ -235,7 +217,7 @@ class Module {
 
     /**
      * Remove a modifier for a property and reset it to default values.
-     * @param {string} property Property name.
+     * @param property Property name.
      * @throws {IllegalStateError} When no blueprint has been applied.
      */
     clear(property: string) {
@@ -253,14 +235,14 @@ class Module {
 
     /**
      * Apply a blueprint to this module preserving user set properties.
-     * @param {string} name Blueprint name
-     * @param {number} [grade=1] Blueprint grade
-     * @param {number} [progress=0] Blueprint progress
-     * @param {string} [experimental] Experimental effect to apply; if none is
-     *      given old experimental (if given) is preserved
+     * @param name Blueprint name
+     * @param grade Blueprint grade
+     * @param progress Blueprint progress
+     * @param experimental Experimental effect to apply; if none is given old
+     * experimental (if given) is preserved
      * @throws {IllegalStateError} If this module has no item
      */
-    setBlueprint(name: string, grade: number = 1, progress: number = 0, experimental: string) {
+    setBlueprint(name: string, grade: number = 1, progress: number = 0, experimental?: string) {
         if (!this._object.Item) {
             throw new IllegalStateError(`Can't set blueprint ${name} without item`);
         }
@@ -287,7 +269,7 @@ class Module {
 
     /**
      * Set the progress of the current blueprint.
-     * @param {number} [progress] Progress in range from 0 to 1
+     * @param progress Progress in range from 0 to 1
      * @throws {IllegalStateError} When no blueprint has been applied
      */
     setBlueprintProgress(progress?: number) {
@@ -316,7 +298,7 @@ class Module {
 
     /**
      * Apply a special effect to this module.
-     * @param {string} name Special effect name
+     * @param name Special effect name
      * @throws {IllegalStateError} When no blueprint has been applied
      */
     setSpecial(name: string) {
@@ -332,15 +314,15 @@ class Module {
 
     /**
      * Returns a copy of this module as a loadout-event-style module.
-     * @return {Object} Module
+     * @returns Module
      */
-    toJSON(): Module {
+    toJSON(): ModuleObject {
         return cloneDeep(this._object);
     }
 
     /**
      * Returns a compressed string representing the loadout-event-style module.
-     * @return {string} Compressed string
+     * @returns Compressed string
      */
     compress(): string {
         return compress(this._object);
@@ -348,13 +330,13 @@ class Module {
 
     /**
      * Set the item of this module.
-     * @param {String} item Item to set.
-     * @param {String} clazz
-     * @param {String} rating
+     * @param item Item to set.
+     * @param clazz
+     * @param rating
      * @throws {IllegalStateError} When the given item does not fit the slot
      *      (if present).
      */
-    setItem(item: string, clazz = '', rating = '') {
+    setItem(item: string, clazz: string = '', rating: string = '') {
         if (clazz && rating) {
             item = Factory.getModuleId(item, clazz, rating);
         } else {
@@ -374,12 +356,11 @@ class Module {
 
     /**
      * Checks whether this module is on a matching slot.
-     * @param {(Slot|Slot[])} slot Slot to check; if string exact match is
-     *      required, if RegExp only a simple match is required. If an array,
-     *      one the given slots must match.
-     * @return {(boolean|null)} True if the module is on the given slot or the
-     *      RegExp matches, false if none of this holds; null if the slot is on
-     *      no module at all.
+     * @param slot Slot to check; if string exact match is required, if RegExp
+     * only a simple match is required. If an array, one the given slots must
+     * match.
+     * @returns True if the module is on the given slot or the RegExp matches,
+     *  false if none of this holds; null if the slot is on no module at all.
      */
     isOnSlot(slot: (Slot | Slot[])): (boolean | null) {
         if (!this._object.Slot) {
@@ -404,7 +385,7 @@ class Module {
      * Sets the slot of this module. Slots can only be set once (includes
      * constructor) to prevent bad states. A slot can only be assigned when a
      * ship already has been assigned.
-     * @param {string} slot Slot to assign.
+     * @param slot Slot to assign.
      * @throws {IllegalStateError} If no ship has been set or slot already has
      *      been assigned.
      */
@@ -431,13 +412,9 @@ class Module {
     /**
      * Sets the ship of this module. A ship can only be assigned once to prevent
      * bad states.
-     * @param {(string|Ship)} ship
+     * @param ship
      */
-    setShip(ship: any) {
-        if (ship instanceof Ship) {
-            ship = ship._object.Ship;
-        }
-
+    setShip(ship: Ship) {
         if (this._ship !== null) {
             throw new IllegalStateError('Cannot reassign ship in Module');
         }
@@ -447,7 +424,7 @@ class Module {
 
     /**
      * Checks whether this module is empty, i.e. does not have an item assigned.
-     * @return {boolean} True when empty, false otherwise.
+     * @returns True when empty, false otherwise.
      */
     isEmpty(): boolean {
         return this._object.Item === '';
@@ -455,7 +432,7 @@ class Module {
 
     /**
      * Checks whether this module is assigned to a slot.
-     * @return {boolean} True when assigned, false otherwise.
+     * @returns True when assigned, false otherwise.
      */
     isAssigned(): boolean {
         return this._ship && this._object.Slot !== '';
@@ -464,7 +441,7 @@ class Module {
     /**
      * Returns the class of this module. Class of utility items or bulkheads is
      * always zero. Class of hardpoints is in range 1 to 4 for small to huge.
-     * @return {(number|null)} Item class or `null` if no item has been assigned
+     * @returns Item class or `null` if no item has been assigned
      */
     getClass(): (number | null) {
         if (!this._object.Item) {
@@ -475,7 +452,7 @@ class Module {
 
     /**
      * Returns the rating of this module.
-     * @return {(string|null)} Rating or `null` if no item has been assigned
+     * @returns Rating or `null` if no item has been assigned
      */
     getRating(): (string | null) {
         if (!this._object.Item) {
@@ -488,7 +465,7 @@ class Module {
      * Returns the size of the slot of this module. Size of utility slots and
      * bulkheads is always zero. Size of hardpoint slots is in range 1 to 4 for
      * small to huge.
-     * @return {(number|null)} Size or `null` if no slot has been assigned
+     * @returns Size or `null` if no slot has been assigned
      */
     getSize(): (number | null) {
         if (!this._ship || !this._object.Slot) {
@@ -497,6 +474,3 @@ class Module {
         return getSlotSize(this._ship._object.Ship, this._object.Slot);
     }
 }
-
-/** @module edforge */
-export default Module;
