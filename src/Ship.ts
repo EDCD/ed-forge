@@ -126,6 +126,15 @@ export default class Ship {
     }
 
     /**
+     * Read an arbitrary object property of this ship's corresponding meta properties.
+     * @param property Property name
+     * @returns Property value
+     */
+    readMeta(property: string): any {
+        return getShipMetaProperty(this._object.Ship, property);
+    }
+
+    /**
      * Write an arbitrary value to an arbitrary object property of this ship's
      * corresponding json. Fields that are required to be set on valid builds
      * are protected and can only be written by invoking the corresponding
