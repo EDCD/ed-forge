@@ -11,7 +11,6 @@ import * as MODULES from './modules.json';
 /**
  * Checks whether a given item id is valid.
  * @param id Item id
- * @throws {UnknownRestrictedError} When ID is not valid
  */
 export function assertValidModule(id: string) {
     if (!MODULES[id]) {
@@ -61,7 +60,6 @@ interface ItemFitInfo {
  * Get information about where an item can fit.
  * @param item Item ID
  * @returns Item fit info
- * @throws {UnknownRestrictedError} When item is unknown
  */
 function getItemInfo(item: string): ItemFitInfo {
     assertValidModule(item);
@@ -120,7 +118,6 @@ function getItemInfo(item: string): ItemFitInfo {
  * @param ship Ship type
  * @param slot Slot
  * @returns True when the item can be outfitted false otherwise
- * @throws {UnknownRestrictedError} When one of item, ship, slot is unknown
  */
 export function itemFitsSlot(item: string, ship: string, slot: string): boolean {
     assertValidModule(item);

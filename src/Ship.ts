@@ -97,7 +97,6 @@ export default class Ship {
      * Create a ship by reading a journal loadout-event-style object. Can be
      * given as compressed string or plain object.
      * @param buildFrom Ship build to load.
-     * @throws {ImportExportError} On invalid ship json.
      */
     constructor(buildFrom: string | ShipObject) {
         autoBind(this);
@@ -135,7 +134,6 @@ export default class Ship {
      * `ship.setShipName('Normandy')`.
      * @param property Property name
      * @param value Property value
-     * @throws {IllegalStateError} On an attempt to write a protected property.
      */
     write(property: string, value: any) {
         if (shipVarIsSpecified(property)) {
@@ -397,8 +395,6 @@ export default class Ship {
     /**
      * Set the power distributor settings.
      * @param settings Power distributor settings
-     * @throws {IllegalStateError} If either multi-crew pips exceed crew size or
-     *      normal pips don't equal 6 in sum.
      */
     setDistributorSettings(settings: DistributorStateObject) {
         let mcSize = getShipMetaProperty(this._object.Ship, 'crew') - 1;

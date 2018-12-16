@@ -7,7 +7,6 @@ import * as SHIPS from './ships.json';
 /**
  * Checks whether a given ship id is valid.
  * @param ship Ship ID
- * @throws {UnknownRestrictedError} When ID is not valid
  */
 export function assertValidShip(ship: string) {
     if (!SHIPS[ship]) {

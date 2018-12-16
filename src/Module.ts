@@ -13,7 +13,6 @@ import {getBlueprintProps, calculateModifier} from './data/blueprints';
  * Clones a given module.
  * @param module Module to clone
  * @returns Cloned module object
- * @throws {ImportExportError} On invalid module json.
  */
 function cloneModuleToJSON(module: (string | Module | ModuleObject)): ModuleObject {
     if (module instanceof Module) {
@@ -126,7 +125,6 @@ export default class Module {
      * `module.setItem('...')`.
      * @param property Property name
      * @param value Property value
-     * @throws {IllegalStateError} On an attempt to write a protected property
      */
     write(property: string, value: any) {
         if (moduleVarIsSpecified(property)) {
@@ -193,7 +191,6 @@ export default class Module {
      * Sets the value of a property.
      * @param property Property name
      * @param value Property value
-     * @throws {IllegalStateError} When no blueprint is applied.
      */
     set(property: string, value: number) {
         if (!this._object.Engineering) {
@@ -218,7 +215,6 @@ export default class Module {
     /**
      * Remove a modifier for a property and reset it to default values.
      * @param property Property name.
-     * @throws {IllegalStateError} When no blueprint has been applied.
      */
     clear(property: string) {
         if (!this._object.Engineering) {
@@ -240,7 +236,6 @@ export default class Module {
      * @param progress Blueprint progress
      * @param experimental Experimental effect to apply; if none is given old
      * experimental (if given) is preserved
-     * @throws {IllegalStateError} If this module has no item
      */
     setBlueprint(name: string, grade: number = 1, progress: number = 0, experimental?: string) {
         if (!this._object.Item) {
@@ -270,7 +265,6 @@ export default class Module {
     /**
      * Set the progress of the current blueprint.
      * @param progress Progress in range from 0 to 1
-     * @throws {IllegalStateError} When no blueprint has been applied
      */
     setBlueprintProgress(progress?: number) {
         if (!this._object.Engineering) {
@@ -299,7 +293,6 @@ export default class Module {
     /**
      * Apply a special effect to this module.
      * @param name Special effect name
-     * @throws {IllegalStateError} When no blueprint has been applied
      */
     setSpecial(name: string) {
         if (!this._object.Engineering) {
@@ -333,8 +326,6 @@ export default class Module {
      * @param item Item to set.
      * @param clazz
      * @param rating
-     * @throws {IllegalStateError} When the given item does not fit the slot
-     *      (if present).
      */
     setItem(item: string, clazz: string = '', rating: string = '') {
         if (clazz && rating) {
@@ -386,8 +377,6 @@ export default class Module {
      * constructor) to prevent bad states. A slot can only be assigned when a
      * ship already has been assigned.
      * @param slot Slot to assign.
-     * @throws {IllegalStateError} If no ship has been set or slot already has
-     *      been assigned.
      */
     setSlot(slot: string) {
         if (!this._ship) {

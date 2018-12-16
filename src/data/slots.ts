@@ -12,7 +12,6 @@ export const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
 /**
  * Checks whether a slot is valid.
  * @param slot Slot ID
- * @throws {UnknownRestrictedError} When slot ID is nod valid
  */
 export function assertValidSlot(slot: string) {
     if (!matchesAny(slot, REG_CORE_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_HARDPOINT_SLOT, REG_UTILITY_SLOT)) {
