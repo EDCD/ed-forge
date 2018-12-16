@@ -1,19 +1,26 @@
 
 /**
  * Stores meta data about module properties.
- * @typedef {Object} ModulePropertyDescriptor
- * @property {string} [modifier] Method on how to turn a blueprint modifier into
- *      a modifier. If not given, blueprint modifier will be used as modifier.
- * @property {string} [method] How to apply the modifier to the the module
- *      property. If not given then the property can't be modified.
- * @property {boolean} [higherbetter] True if increasing this value is good. If
- *      not given, there is no clear sense of what is better.
  */
+ export interface ModulePropertyDescriptor {
+    /**
+     * Method on how to turn a blueprint modifier into a modifier. If not given,
+     * blueprint modifier will be used as modifier.
+     */
+    modifier?: string,
+    /**
+     * How to apply the modifier to the the module property. If not given then
+     * the property can't be modified.
+     */
+    method?: string,
+    /**
+     * True if increasing this value is good. If not given, there is no clear
+     * sense of what is better.
+     */
+    higherbetter?: boolean,
+}
 
-/**
- * @enum {ModulePropertyDescriptor}
- */
-export const MODULE_STATS = {
+export const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'ammo': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'absdamage': { 'method': 'overwrite' },
     'angle': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified

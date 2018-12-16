@@ -4,33 +4,15 @@ import { getSlotSize, isPassengerSlot, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
 } from './slots';
 import { UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
+import { ModuleInformation } from '../types';
 
-/**
- * Meta data about an item.
- * @typedef {Object} MetaModuleInformation
- * @property {number} eddbID EDDB ID of the item
- * @property {number} edID ED ID of the item
- * @property {number} class Class of the item
- * @property {string} [rating] Rating of the item
- */
-
-/**
- * Object holding information about an item.
- * @typedef {Object} ModuleInformation
- * @property {ModuleObject} proto Loadout-event-style module object prototype
- * @property {Object} props Default item properties
- * @property {MetaModuleInformation} meta Item meta information
- */
-
-/** @type {Object.<string, ModuleInformation>} */
-const MODULES = require('./modules.json');
+import * as MODULES from './modules.json';
 
 /**
  * Checks whether a given item id is valid.
- * @param {String} id Item id
- * @throws {UnknownRestrictedError} When ID is not valid
+ * @param id Item id
  */
-export function assertValidModule(id) {
+export function assertValidModule(id: string) {
     if (!MODULES[id]) {
         throw new UnknownRestrictedError(`Don't know module ${id}`);
     }
@@ -38,48 +20,48 @@ export function assertValidModule(id) {
 
 /**
  * Returns an object with details about the item.
- * @param {string} item Item id
- * @returns {ModuleInformation} Information object
+ * @param item Item id
+ * @returns Information object
  */
-export function getModuleInfo(item) {
+export function getModuleInfo(item: string): ModuleInformation {
     assertValidModule(item);
     return MODULES[item];
 }
 
 /**
  * Get the class of an item.
- * @param {string} item Item id
- * @returns {number} Item class
+ * @param item Item id
+ * @returns Item class
  */
-export function getClass(item) {
+export function getClass(item: string): number {
     return getModuleInfo(item).meta.class;
 }
 
 /**
  * Return the rating of an item.
- * @param {string} item Item id
- * @returns {string} Item rating; '' when not applicable
+ * @param item Item id
+ * @returns Item rating; '' when not applicable
  */
-export function getRating(item) {
+export function getRating(item: string): string {
     return getModuleInfo(item).meta.rating || '';
 }
 
 /**
  * Info about where an item can fit.
- * @typedef {Object} ItemFitInfo
- * @property {RegExp[]} Slots Array of regexes that match slots where this item
- *      can be equipped.
- * @property {boolean} passenger True if this module can be fit only to
- *      passenger slots.
  */
+interface ItemFitInfo {
+    /** Array of regexes that match slots where this item can be equipped */
+    Slots: RegExp[];
+    /** True if this module can be fit only to passenger slots */
+    passenger: boolean;
+}
 
 /**
  * Get information about where an item can fit.
- * @param {string} item Item ID
- * @returns {ItemFitInfo} Item fit info
- * @throws {UnknownRestrictedError} When item is unknown
+ * @param item Item ID
+ * @returns Item fit info
  */
-function getItemInfo(item) {
+function getItemInfo(item: string): ItemFitInfo {
     assertValidModule(item);
     let info = {
         Slots: [],
@@ -132,13 +114,12 @@ function getItemInfo(item) {
 
 /**
  * Checks whether an item fits on a slot of a given ship.
- * @param {string} item Item ID
- * @param {string} ship Ship type
- * @param {string} slot Slot
- * @returns {boolean} True when the item can be outfitted false otherwise
- * @throws {UnknownRestrictedError} When one of item, ship, slot is unknown
+ * @param item Item ID
+ * @param ship Ship type
+ * @param slot Slot
+ * @returns True when the item can be outfitted false otherwise
  */
-export function itemFitsSlot(item, ship, slot) {
+export function itemFitsSlot(item: string, ship: string, slot: string): boolean {
     assertValidModule(item);
     slot = slot.toLowerCase();
 
@@ -162,10 +143,10 @@ export function itemFitsSlot(item, ship, slot) {
 
 /**
  * Get a default property value of an item.
- * @param {string} item Item ID
- * @param {string} property Property value
- * @returns {number} Default property value
+ * @param item Item ID
+ * @param property Property value
+ * @returns Default property value
  */
-export function getModuleProperty(item, property) {
+export function getModuleProperty(item: string, property: string): number {
     return getModuleInfo(item).props[property];
 }
