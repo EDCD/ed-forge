@@ -1,3 +1,0 @@
-[submodule "coriolis-data"]
-	path = coriolis-data
-	url = git@github.com:edcd/coriolis-data.git

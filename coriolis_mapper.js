@@ -1,5 +1,5 @@
 
-const { Modules, Ships, Modifications } = require('./coriolis-data/dist');
+const { Modules, Ships, Modifications } = require('coriolis-data/dist');
 const fs = require('fs');
 const _ = require('lodash');
 

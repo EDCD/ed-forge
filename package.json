@@ -27,6 +27,7 @@
   "dependencies": {
     "ajv": "^6.5.4",
     "auto-bind": "^1.2.1",
+    "coriolis-data": "github:edcd/coriolis-data",
     "jsdoc": "^3.5.5",
     "lodash": "^4.17.11",
     "pako": "^1.0.6",
