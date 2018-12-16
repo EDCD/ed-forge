@@ -154,7 +154,7 @@ export default class Module {
         return getModuleProperty(this._object.Item, property);
     }
 
-    getModifier(property: string): any {
+    getModifier(property: string): number | null {
         let modifierIndex = this._findModifier(property);
         if (-1 < modifierIndex) {
             return this._object.Engineering.Modifiers[modifierIndex].Modifier;

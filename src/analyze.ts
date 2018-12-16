@@ -1,32 +1,9 @@
+import Ship from "./Ship";
 
-/** @module edforge_analyze */
+export function analyzeDefences(ship: Ship, opponent: Ship, engagementRange: number): any {}
 
-/**
- * @param {Ship} ship
- * @param {Ship} opponent
- * @return {Object}
- */
-export function analyzeDefences(ship, opponent, engagementRange) {}
+export function analyzeOffences(ship: Ship, opponent: Ship, engagementRange: number): any {}
 
-/**
- * @param {Ship} ship
- * @param {Ship} opponent
- * @return {Object}
- */
-export function analyzeOffences(ship, opponent, engagementRange) {}
+export function compareOn(ship: Ship, otherShip: Ship, properties: string[]): any {}
 
-/**
- * @param {Ship} ship
- * @param {Ship} otherShip
- * @param {string[]} properties
- * @return {Object}
- */
-export function compareOn(ship, otherShip, properties) {}
-
-/**
- * @param {Module} module
- * @param {Module} otherModule
- * @param {string[]} properties
- * @return {Object}
- */
-export function moduleCompareOn(module, otherModule, properties) {}
+export function moduleCompareOn(module: Ship, otherModule: Ship, properties: string[]): any {}

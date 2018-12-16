@@ -57,7 +57,7 @@ class Factory {
      * @param rating Rating of the module
      * @return Module
      */
-    static newModule(type: string, clazz: string = '', rating: any = ''): Module {
+    static newModule(type: string, clazz: string = '', rating: string = ''): Module {
         type = type.toLowerCase();
         clazz = clazz.toLowerCase();
         rating = rating.toLowerCase();

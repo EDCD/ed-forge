@@ -22,9 +22,9 @@ export function assertValidModule(id: string) {
 /**
  * Returns an object with details about the item.
  * @param item Item id
- * @returns {ModuleInformation} Information object
+ * @returns Information object
  */
-export function getModuleInfo(item: string) {
+export function getModuleInfo(item: string): ModuleInformation {
     assertValidModule(item);
     return MODULES[item];
 }
@@ -150,6 +150,6 @@ export function itemFitsSlot(item: string, ship: string, slot: string): boolean 
  * @param property Property value
  * @returns Default property value
  */
-export function getModuleProperty(item: string, property: string): any {
+export function getModuleProperty(item: string, property: string): number {
     return getModuleInfo(item).props[property];
 }

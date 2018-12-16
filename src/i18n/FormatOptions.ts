@@ -1,12 +1,9 @@
 
-/** @module edforge_i18n */
-
-/**
- * @typedef {Object} FormattingObject
- * @property {string} format
- * @property {string} unit
- * @property {string} [storedUnit]
- */
+export interface FormattingObject {
+  format: string,
+  unit: string,
+  storedUnit?: string
+}
 
  /**
   * Has various properties of type [[FormattingObject]] that define how
@@ -17,8 +14,8 @@ export const PROPERTY_FORMATTING = {};
 /**
  * Any string that is a concatenation of [[SI_PREFIXES]] and [[UNITS]]
  * or just a value in [[UNITS]].
- * @typedef {string} SiUnit
  */
+type SiUnit = string;
 
 /**
  * Holds all units available.

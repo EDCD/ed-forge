@@ -18,9 +18,9 @@ export function assertValidShip(ship: string) {
 /**
  * Get ship info object.
  * @param ship Ship ID
- * @returns {ShipInfo} Ship info object
+ * @returns Ship info object
  */
-export function getShipInfo(ship: string) {
+export function getShipInfo(ship: string): ShipInfo {
     assertValidShip(ship);
     return SHIPS[ship];
 }

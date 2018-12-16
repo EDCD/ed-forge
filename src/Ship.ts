@@ -83,7 +83,7 @@ export interface DistributorSettingObject {
 /**
  * An Elite: Dangerous ship build.
  */
-export default class Ship implements Ship {
+export default class Ship {
 
     public _object: ShipObjectHandler = null;
     public _Modules: Module[] = [];
@@ -210,7 +210,7 @@ export default class Ship implements Ship {
 
     /**
      * Get the alloys of this ship.
-     * @return {Module} Alloys
+     * @returns Alloys
      */
     getAlloys(): Module {
         return this.getModule('Armour');
@@ -218,7 +218,7 @@ export default class Ship implements Ship {
 
     /**
      * Get the power plant of this ship.
-     * @return {Module} Power plant
+     * @returns Power plant
      */
     getPowerPlant(): Module {
         return this.getModule('PowerPlant');
@@ -226,7 +226,7 @@ export default class Ship implements Ship {
 
     /**
      * Get the thrusters of this ship.
-     * @return {Module} Thrusters
+     * @returns Thrusters
      */
     getThrusters(): Module {
         return this.getModule('MainEngines');
@@ -234,7 +234,7 @@ export default class Ship implements Ship {
 
     /**
      * Get the frame shift drive of this ship.
-     * @return {Module} FSD
+     * @returns FSD
      */
     getFSD(): Module {
         return this.getModule('FrameShiftDrive');
@@ -242,7 +242,7 @@ export default class Ship implements Ship {
 
     /**
      * Get the life support module of this ship.
-     * @return {Module} Life support
+     * @returns Life support
      */
     getLifeSupport(): Module {
         return this.getModule('LifeSupport');
@@ -250,7 +250,7 @@ export default class Ship implements Ship {
 
     /**
      * Get the power distributor of this ship.
-     * @return {Module} Power distributor
+     * @returns Power distributor
      */
     getPowerDistributor(): Module {
         return this.getModule('PowerDistributor');
@@ -258,7 +258,7 @@ export default class Ship implements Ship {
 
     /**
      * Get the sensors of this ship.
-     * @return {Module} Sensors
+     * @returns Sensors
      */
     getSensors(): Module {
         return this.getModule('Radar');
@@ -266,7 +266,7 @@ export default class Ship implements Ship {
 
     /**
      * The core fuel tank of this ship.
-     * @return {Module} Core fuel tank
+     * @returns Core fuel tank
      */
     getCoreFuelTank(): Module {
         return this.getModule('FuelTank');
@@ -277,13 +277,13 @@ export default class Ship implements Ship {
      * in normal and military slots. Normal slots come first. Each category is
      * sorted by the module's class in descending order with a fixed order on
      * modules of the same class (as ingame).
-     * @param {RegExp} [type] Optional regex to constrain the type of modules to
+     * @param type Regex to constrain the type of modules to
      *      be returned.
-     * @param {boolean} [includeEmpty=false] If set to true also empty slots
+     * @param includeEmpty If set to true also empty slots
      *      will be returned, i.e. which are just a slot.
-     * @return {Module[]} Array of internal modules. Possibly empty.
+     * @returns Array of internal modules. Possibly empty.
      */
-    getInternals(type: RegExp, includeEmpty: boolean) {
+    getInternals(type?: RegExp, includeEmpty: boolean = false): Module[] {
         let ms = this.getModules(REG_INTERNAL_SLOT, type, includeEmpty, true);
         let militaryMs = this.getModules(
             REG_MILITARY_SLOT, type, includeEmpty, true
@@ -509,7 +509,7 @@ export default class Ship implements Ship {
     /**
      * Returns the loadout-event reflecting this ship build as compressed
      * string.
-     * @return {string} Compressed loadout-event-style ship build.s
+     * @returns Compressed loadout-event-style ship build.s
      */
     compress(): string {
         return compress(this.toJSON());
