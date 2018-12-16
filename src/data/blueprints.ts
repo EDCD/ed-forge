@@ -1,20 +1,11 @@
 import {UnknownRestrictedError} from '../errors';
 import {MODULE_STATS} from '../module-stats';
-import {getModuleInfo, getModuleProperty, ModuleInformation} from './items';
+import { getModuleInfo, getModuleProperty } from './items';
 import { ModifierObject } from '../Module';
+import { FeatureObject, ModuleInformation } from '../types';
 
 import * as BLUEPRINTS from './blueprints.json';
 import * as EXPERIMENTALS from './experimentals.json';
-
-/**
- * Maps property to array of from [min, max].
- */
-type BlueprintFeature = { [property: string]: number[] };
-
-/**
- * Maps blueprint key to grades.
- */
-type BlueprintGrade = { [grade: string]: BlueprintFeature };
 
 const BLUEPRINT_EXTRAS = {
     'Weapon_LongRange': (moduleInfo: ModuleInformation, propObject) => {
@@ -109,7 +100,7 @@ export function calculateModifier(module: string, name: string, modifiedProperty
  * @returns Returns `propObject`
  */
 function applyBlueprintModifiers(moduleInfo: ModuleInformation,
-    modifierObject: BlueprintFeature, progress: number, propObject: PropertyMap): PropertyMap {
+    modifierObject: FeatureObject, progress: number, propObject: PropertyMap): PropertyMap {
     for (let prop in modifierObject) {
         let propertyDescriptor = MODULE_STATS[prop];
         if (!propertyDescriptor) {

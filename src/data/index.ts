@@ -1,6 +1,6 @@
 
 import Ship from '../Ship';
-import Module, { ModuleObject, BlueprintObject } from '../Module';
+import Module, { BlueprintObject } from '../Module';
 import { getModuleInfo } from './items';
 import { getShipInfo } from './ships';
 import { UnknownRestrictedError } from '../errors';

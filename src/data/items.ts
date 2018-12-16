@@ -4,35 +4,9 @@ import { getSlotSize, isPassengerSlot, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
 } from './slots';
 import { UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
-import { ModuleObject } from '../Module'
+import { ModuleInformation } from '../types';
 
 import * as MODULES from './modules.json';
-
-/**
- * Meta data about an item.
- */
-export interface MetaModuleInformation {
-    /** EDDB ID of the item */
-    eddbID: number;
-    /** ED ID of the item */
-    edID: number;
-    /** Class of the item */
-    class: number;
-    /** Rating of the item */
-    rating: string;
-}
-
-/**
- * Object holding information about an item.
- */
-export interface ModuleInformation {
-    /** Loadout-event-style module object prototype */
-    proto: ModuleObject;
-    /** Default item properties */
-    props: Object;
-    /** Item meta information */
-    meta: MetaModuleInformation;
-}
 
 /**
  * Checks whether a given item id is valid.

@@ -1,39 +1,8 @@
 
 import { UnknownRestrictedError } from '../errors';
-import { ShipObject } from '../Ship';
+import { ShipInfo } from '../types';
 
 import * as SHIPS from './ships.json';
-
-/**
- * Ship meta data
- */
-export interface ShipMetaInfo {
-    /** EDDB ID of this ship */
-    eddbID: number;
-    /** ED ID of this ship */
-    edID: number;
-    /** Size of the ship; 1 is small, 3 is large */
-    class: number;
-    /** Manufacturer of the ship */
-    manufacturer: string;
-    /** Crew seats including helm */
-    crew: number;
-    /** Map from core slots to respective size */
-    coreSizes: { [key: string]: number };
-    /** Map from military slots to respective sizes */
-    militarySizes: { [ key: string ]: number };
-    /** Map from slots to true if passenger slot */
-    passengerSlots: { [ key: string ]: boolean };
-}
-
-interface ShipInfo {
-    /** Ship prototype object */
-    proto: ShipObject;
-    /** Ship properties */
-    props: { [ key: string ]: number };
-    /** Meta data about a ship */
-    meta: ShipMetaInfo;
-}
 
 /**
  * Checks whether a given ship id is valid.
