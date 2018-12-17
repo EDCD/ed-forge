@@ -1,3 +1,10 @@
+/**
+* @module Data
+*/
+
+/**
+* Ignore
+*/
 import {UnknownRestrictedError} from '../errors';
 import {MODULE_STATS} from '../module-stats';
 import { getModuleInfo, getModuleProperty } from './items';

@@ -1,4 +1,10 @@
+/**
+* @module Data
+*/
 
+/**
+* Ignore
+*/
 import { UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
 import { assertValidShip, getShipInfo } from './ships';

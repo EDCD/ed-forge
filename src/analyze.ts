@@ -1,3 +1,10 @@
+/**
+* @module Analyze
+*/
+
+/**
+* Ignore
+*/
 import Ship from "./Ship";
 
 export function analyzeDefences(ship: Ship, opponent: Ship, engagementRange: number): any {}

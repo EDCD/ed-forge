@@ -1,3 +1,10 @@
+/**
+* @module ShipStats
+*/
+
+/**
+* Ignore
+*/
 import { Ship } from ".";
 
 const PASS: ShipPropertyCalculator = (ship, modified) => 0;

@@ -1,4 +1,10 @@
+/**
+* @module Errors
+*/
 
+/**
+* Ignore
+*/
 export class UnknownRestrictedError extends Error {}
 
 export class IllegalStateError extends Error {}

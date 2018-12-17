@@ -16,7 +16,7 @@
   "scripts": {
     "build": "node coriolis_mapper.js && npm run build_light",
     "build_light": "tsc",
-    "docs": "typedoc --out docs/ src/",
+    "docs": "typedoc --gitRevision master --name \"E:D Forge\" --out docs/ src/",
     "prepublish": "npm run build",
     "release": "np",
     "watch": "npm run build && npm-watch build_light"
@@ -28,10 +28,12 @@
     "ajv": "^6.5.4",
     "auto-bind": "^1.2.1",
     "coriolis-data": "github:edcd/coriolis-data",
+    "i18next": "^13.0.0",
     "jsdoc": "^3.5.5",
     "lodash": "^4.17.11",
     "pako": "^1.0.6",
-    "tsd-jsdoc": "^2.0.0-beta.6"
+    "tsd-jsdoc": "^2.0.0-beta.6",
+    "typedoc-plugin-external-module-name": "^1.1.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",

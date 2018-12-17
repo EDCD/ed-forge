@@ -1,4 +1,10 @@
+/**
+* @module Helper
+*/
 
+/**
+* Ignore
+*/
 /**
  * Check whether a string matches any of the given regular expressions.
  * @param string String to match

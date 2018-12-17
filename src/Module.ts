@@ -1,3 +1,10 @@
+/**
+* @module Module
+*/
+
+/**
+* Ignore
+*/
 import {clamp, cloneDeep, keys, values} from 'lodash';
 import autoBind from 'auto-bind';
 import {validateModuleJson, moduleVarIsSpecified} from './validation';

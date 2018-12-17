@@ -1,4 +1,10 @@
+/**
+* @module ModuleStats
+*/
 
+/**
+* Ignore
+*/
 /**
  * Stores meta data about module properties.
  */

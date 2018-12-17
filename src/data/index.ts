@@ -1,4 +1,10 @@
+/**
+* @module Data
+*/
 
+/**
+* Ignore
+*/
 import Ship from '../Ship';
 import Module, { BlueprintObject } from '../Module';
 import { getModuleInfo } from './items';

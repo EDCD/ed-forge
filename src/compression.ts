@@ -1,3 +1,10 @@
+/**
+* @module Compression
+*/
+
+/**
+* Ignore
+*/
 import pako from 'pako';
 
 /**

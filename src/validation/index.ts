@@ -1,3 +1,10 @@
+/**
+* @module Validation
+*/
+
+/**
+* Ignore
+*/
 import Ajv from "ajv";
 import * as SHIP_SCHEMA from './ShipObject.schema.json';
 import * as MODULE_SCHEMA from './ModuleObject.schema.json';

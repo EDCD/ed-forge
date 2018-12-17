@@ -1,4 +1,10 @@
+/**
+* @module i18n
+*/
 
+/**
+* Ignore
+*/
 export interface FormattingObject {
   format: string,
   unit: string,

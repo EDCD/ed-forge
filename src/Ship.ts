@@ -1,3 +1,10 @@
+/**
+* @module Ship
+*/
+
+/**
+* Ignore
+*/
 import {clone, cloneDeep, map, mapValues, chain, pick} from 'lodash';
 import autoBind from 'auto-bind';
 import {validateShipJson, shipVarIsSpecified} from './validation';
