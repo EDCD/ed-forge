@@ -6,7 +6,7 @@
 * Ignore
 */
 import {UnknownRestrictedError} from '../errors';
-import {MODULE_STATS} from '../module-stats';
+import MODULE_STATS from '../module-stats';
 import { getModuleInfo, getModuleProperty } from './items';
 import { ModifierObject } from '../Module';
 import { FeatureObject, ModuleInformation } from '../types';

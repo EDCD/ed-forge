@@ -3,8 +3,12 @@
 */
 
 /**
-* Ignore
-*/
+ * Ignore
+ */
+import { Ship } from ".";
+import Module from "./Module";
+import { IllegalStateError } from "./errors";
+
 /**
  * Stores meta data about module properties.
  */
@@ -26,7 +30,7 @@
     higherbetter?: boolean,
 }
 
-export const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
+const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'ammo': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'absdamage': { 'method': 'overwrite' },
     'angle': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -88,3 +92,45 @@ export const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = 
     'weprate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'jumpboost': {}
 };
+export default MODULE_STATS;
+
+const PD_RECHARGE_MAP = {};
+for (let i = 0; i <= 4; i += 0.5) {
+    PD_RECHARGE_MAP[i] = Math.pow(i, 1.1) / Math.pow(4, 1.1);
+}
+
+function getPdRechargeMultiplier(ship: Ship): number {
+    return PD_RECHARGE_MAP[ship.getDistributorSettings().Sys]
+}
+
+export interface ModulePropertyCalculator {
+    (module: Module, modified: boolean): number
+}
+
+export interface ModulePropertyCalculatorClass {
+    calculate(module: Module, modified: boolean): number
+}
+
+export function EFFECTIVE_SYS_RATE(module: Module, modified: boolean): number {
+    if (!module._ship) {
+        throw new IllegalStateError();
+    }
+    return module.get('sysrate', modified)
+        * getPdRechargeMultiplier(module._ship);
+}
+
+export function EFFECTIVE_ENG_RATE(module: Module, modified: boolean): number {
+    if (!module._ship) {
+        throw new IllegalStateError();
+    }
+    return module.get('engrate', modified)
+        * getPdRechargeMultiplier(module._ship);
+}
+
+export function EFFECTIVE_WEP_RATE(module: Module, modified: boolean): number {
+    if (!module._ship) {
+        throw new IllegalStateError();
+    }
+    return module.get('weprate', modified)
+        * getPdRechargeMultiplier(module._ship);
+}

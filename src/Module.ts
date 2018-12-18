@@ -15,6 +15,7 @@ import {getSlotSize} from './data/slots';
 import {IllegalStateError, ImportExportError, NotImplementedError} from './errors';
 import Ship from './Ship';
 import {getBlueprintProps, calculateModifier} from './data/blueprints';
+import { ModulePropertyCalculator, ModulePropertyCalculatorClass } from './module-stats';
 
 /**
  * Clones a given module.
@@ -151,7 +152,13 @@ export default class Module {
      *      applies to this module but is not given or undefined when property
      *      does not apply to this type of module, e.g. "ammo" on a cargo rack.
      */
-    get(property: string, modified: boolean = true): (number | null | undefined) {
+    get(property: string | ModulePropertyCalculator | ModulePropertyCalculatorClass, modified: boolean = true): (number | null | undefined) {
+        if (typeof property === 'object') {
+            return property.calculate(this, modified);
+        }
+        if (typeof property === 'function') {
+            return property(this, modified);
+        }
         let modifierIndex = this._findModifier(property);
         if (modified && -1 < modifierIndex) {
             return this._object.Engineering.Modifiers[modifierIndex].Value;
@@ -329,6 +336,28 @@ export default class Module {
     }
 
     /**
+     * Check whether the item of this slot is of the given type. If a string
+     * is given as argument, it will be checked for equality. If it is an regex
+     * it will be checked whether the regex matches this item.
+     * @param type Item type to check
+     * @returns True if the item matches the type provided
+     */
+    itemIsOfType(type: (string | RegExp)): boolean {
+        if (typeof type === 'string') {
+            return this._object.Item === type.toLowerCase();
+        }
+        return Boolean(this._object.Item.match(type));
+    }
+
+    /**
+     * Returns the actual item of this module, e.g. `int_powerplant_size5_class1`.
+     * @returns The item
+     */
+    getItem(): string {
+        return this._object.Item;
+    }
+
+    /**
      * Set the item of this module.
      * @param item Item to set.
      * @param clazz
@@ -403,6 +432,26 @@ export default class Module {
         }
 
         this._object.Slot = slot;
+    }
+
+    /**
+     * Is the module currently enabled?
+     * @returns True when enabled
+     */
+    isEnabled(): boolean {
+        return this._object.On;
+    }
+
+    /**
+     * Turn this module on/off. If the module does not consume power, this
+     * method hasn't any effect.
+     * @param on True to turn the module on
+     */
+    setEnabled(on: boolean) {
+        // if an module does not consume power, it is always on
+        if (this.get('power')) {
+            this._object.On = on;
+        }
     }
 
     /**

@@ -15,6 +15,7 @@ import {
 } from './data/slots';
 import {ImportExportError, IllegalStateError, NotImplementedError} from './errors';
 import {getShipProperty, getShipMetaProperty} from './data/ships';
+import { ShipPropertyCalculator, ShipPropertyCalculatorClass, CARGO_CAPACITY, FUEL_CAPACITY } from './ship-stats';
 
 const RESET_PIPS = {
     Sys: {base: 2, mc: 0,},
@@ -53,6 +54,8 @@ export interface ShipState {
     Cargo: number;
     /** Tones of fuel in tanks */
     Fuel: number;
+    /** Does the ship currently boost? */
+    BoostActive: boolean;
 }
 
 /**
@@ -98,6 +101,7 @@ export default class Ship {
         PowerDistributor: cloneDeep(RESET_PIPS),
         Cargo: 0,
         Fuel: 1,
+        BoostActive: false,
     };
 
     /**
@@ -169,11 +173,22 @@ export default class Ship {
      * @returns Returns the first matching module or undefined if no matching
      * one can be found.
      */
-    getModule(slot: Slot): (Module | undefined) {
-        return chain(this._Modules)
-            .filter(m => m.isOnSlot(slot))
-            .head()
-            .value();
+    getModule(slot?: Slot, type?: (string | RegExp)): (Module | undefined) {
+        if (!slot && !type) {
+            return undefined;
+        }
+
+        let c = chain(this._Modules)
+
+        if (slot) {
+            c = c.filter(m => m.isOnSlot(slot));
+        }
+
+        if (type) {
+            c = c.filter(m => m.itemIsOfType(type));
+        }
+
+        return c.head().value();
     }
 
     /**
@@ -186,16 +201,21 @@ export default class Ship {
      * @param [sort=false] True to sort modules by slot.
      * @return {Module[]} All matching modules. Possibly empty.
      */
-    getModules(slots: (Slot | Slot[]), type: (string | RegExp),
+    getModules(slots?: (Slot | Slot[]), type?: (string | RegExp),
         includeEmpty: boolean = false, sort: boolean = false): Module[] {
-        let ms = chain(this._Modules)
-            .filter(module => module.isOnSlot(slots));
-
-        if (type) {
-            ms = ms.filter(m => Boolean(m._object.Item.match(type)));
+        if (!slots && !type) {
+            return [];
         }
+        let ms = chain(this._Modules);
+
         if (!includeEmpty) {
             ms = ms.filter(m => !m.isEmpty());
+        }
+        if (slots) {
+            ms = ms.filter(module => module.isOnSlot(slots));
+        }
+        if (type) {
+            ms = ms.filter(m => Boolean(m._object.Item.match(type)));
         }
         if (sort) {
             ms = ms.sortBy(m => m._object.Slot);
@@ -287,6 +307,48 @@ export default class Ship {
     }
 
     /**
+     * The shield generator of this ship.
+     * @returns Shield generator or undefined if not present
+     */
+    getShieldGenerator(): (Module | undefined) {
+        return this.getModule(undefined, /int_shieldgenerator/);
+    }
+
+    /**
+     * Get an array of all shield boosters of this ship.
+     * @returns Array of shield boosters, possibly empty
+     */
+    getShieldBoosters(): Module[] {
+        return this.getModules(undefined, /hpt_shieldbooster/);
+    }
+
+    /**
+     * Get an array of all shield cell banks of this ship.
+     * @returns Array of shield cell banks, possibly empty
+     */
+    getSCBs(): Module[] {
+        return this.getModules(undefined, /int_shieldcellbank/);
+    }
+
+    /**
+     * Get an array of all hull reinforcement packages of this ship, including
+     * guardian and meta alloy hull reinforcement packages.
+     * @returns Array of hull reinforcement packages, possibly empty
+     */
+    getHRPs(): Module[] {
+        return this.getModules(undefined, /int_(metaalloy|guardian)?hullreinforcement/);
+    }
+
+    /**
+     * Get an array of all module reinforcement packages of this ship, including
+     * guardian module reinforcement packages.
+     * @returns Array of module reinforcement packages, possibly empty
+     */
+    getMRPs(): Module[] {
+        return this.getModules(undefined, /int_(guardian)?modulereinforcement/);
+    }
+
+    /**
      * Gets an array of internal modules from this ship. Return value is split
      * in normal and military slots. Normal slots come first. Each category is
      * sorted by the module's class in descending order with a fixed order on
@@ -335,7 +397,20 @@ export default class Ship {
      * @param modified False to retrieve default value
      * @returns Property value
      */
-    get(property: string, modified: boolean = true): number {
+    get(property: ShipPropertyCalculator | ShipPropertyCalculatorClass,
+        modified: boolean = true): number {
+        if (typeof property === 'object') {
+            return property.calculate(this, modified);
+        }
+        return property(this, modified);
+    }
+
+    /**
+     * Returns one of the ship's constants, e.g. `hullmass`.
+     * @param property Name of the property
+     * @returns Value of the property
+     */
+    getBaseProperty(property: string): number {
         return getShipProperty(this._object.Ship, property);
     }
 
@@ -506,6 +581,66 @@ export default class Ship {
      */
     incWep(isMc: boolean = false) {
         this.incPip('Wep', isMc);
+    }
+
+    /**
+     * Return the amount of cargo currently loaded
+     * @param modified True when modifications should be taken into account - as
+     * of writing this documentation, this argument should have no effect but
+     * change in future
+     * @return Amount of cargo currently loaded
+     */
+    getCargo(modified: boolean = true): number {
+        return Math.min(this.state.Cargo, this.get(CARGO_CAPACITY, modified));
+    }
+
+    /**
+     * Set the amount of cargo currently loaded. Will be sanitized if it is
+     * lower than zero or above what can be carried.
+     * @param cargo Cargo to be set; will be sanitized
+     */
+    setCargo(cargo: number) {
+        cargo = Math.max(0, cargo);
+        cargo = Math.min(cargo, this.get(CARGO_CAPACITY, true));
+        this.state.Cargo = cargo;
+    }
+
+    /**
+     * Get the number of fuel currently in all tanks
+     * @param modified True when modifications should be taken into account - as
+     * of writing this documentation, this argument should have no effect but
+     * change in future
+     * @returns Tons of fuel in all tanks
+     */
+    getFuel(modified: boolean = true) {
+        return Math.min(this.state.Fuel, this.get(FUEL_CAPACITY, modified));
+    }
+
+    /**
+     * Set the amount of fuel currently in all tanks. Will be sanitized if it is
+     * lower than zero or above what can be carried.
+     * @param fuel Fuel currently in all tanks; will be sanitized
+     */
+    setFuel(fuel: number) {
+        fuel = Math.max(0, fuel);
+        fuel = Math.min(fuel, this.get(FUEL_CAPACITY, true));
+        this.state.Fuel = fuel;
+    }
+
+    /**
+     * Returns whether the ship is currently boosting.
+     * @returns True if the ship is boosting
+     */
+    isBoosting(): boolean {
+        return this.state.BoostActive;
+    }
+
+    /**
+     * Set whether the ship is currently boosting
+     * @param isBoosting True when boosting
+     */
+    setBoosting(isBoosting: boolean) {
+        this.state.BoostActive = isBoosting;
     }
 
     /**
