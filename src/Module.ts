@@ -5,17 +5,18 @@
 /**
 * Ignore
 */
-import {clamp, clone, cloneDeep, keys, values} from 'lodash';
+import {clamp, clone, cloneDeep, set, values} from 'lodash';
 import autoBind from 'auto-bind';
 import {validateModuleJson, moduleVarIsSpecified} from './validation';
 import {compress, decompress} from './compression';
 import Factory from './data';
-import {itemFitsSlot, getClass, getModuleProperty, getRating} from './data/items';
+import {itemFitsSlot, getClass, getModuleProperty, getRating, getModuleInfo} from './data/items';
 import {getSlotSize} from './data/slots';
 import {IllegalStateError, ImportExportError, NotImplementedError} from './errors';
 import Ship from './Ship';
 import {getBlueprintProps, calculateModifier, PropertyMap} from './data/blueprints';
 import { ModulePropertyCalculator, ModulePropertyCalculatorClass } from './module-stats';
+import DiffEmitter from './helper/DiffEmitter';
 
 /**
  * Clones a given module.
@@ -106,10 +107,12 @@ export interface ModifierObject {
     UserSet?: boolean;
 }
 
+const DIFF_EVENT = 'diff';
+
 /**
  * A module that belongs to a Ship.
  */
-export default class Module {
+export default class Module extends DiffEmitter {
     public _object: ModuleObjectHandler = { Item: '', Slot: '', On: true, Priority: 1 };
     public _ship: Ship = null;
 
@@ -120,6 +123,7 @@ export default class Module {
      * @param ship Ship to assign this module to
      */
     constructor(buildFrom: (string | Module | ModuleObject), ship?: Ship) {
+        super();
         autoBind(this);
 
         if (buildFrom) {
@@ -166,7 +170,7 @@ export default class Module {
             );
         }
 
-        this._object[property] = value;
+        this._writeObject(property, value);
     }
 
     /**
@@ -221,16 +225,16 @@ export default class Module {
             );
         }
 
-        let modifiers = this._object.Engineering.Modifiers;
-        if (modifiers[property]) {
-            modifiers[property].Value = value;
+        let propertyPath = `Engineering.Modifiers.${property}`;
+        if (this._object.Engineering.Modifiers[property]) {
+            this._writeObject(`${propertyPath}.Value`, value);
         } else {
-            modifiers[property] = {
+            this._writeObject(propertyPath, {
                 Label: property,
                 Value: value,
                 Modifier: calculateModifier(this._object.Item, property, value),
                 UserSet: true
-            };
+            });
         }
     }
 
@@ -245,7 +249,9 @@ export default class Module {
             );
         }
 
+        this._prepare(DIFF_EVENT, this._object, `Engineering.Modifiers.${property}`);
         delete this._object.Engineering.Modifiers[property];
+        this._commitObjectChanges();
     }
 
     /**
@@ -261,10 +267,8 @@ export default class Module {
             throw new IllegalStateError(`Can't set blueprint ${name} without item`);
         }
 
-
-        let deletedProperties = values(this._object.Engineering.Modifiers).map(modifier => modifier.Label);
-        this._object.Engineering = Factory.newBlueprint(name, grade, experimental);
-        this.setBlueprintProgress(progress);
+        this._prepareObjectChange('Engineering', Factory.newBlueprint(name, grade, experimental));
+        this.setBlueprintProgress(progress); // this will commit prepare changes
     }
 
     /**
@@ -280,15 +284,15 @@ export default class Module {
             progress = this._object.Engineering.Quality;
         }
         progress = clamp(progress, 0, 1);
-        this._object.Engineering.Quality = progress;
-
-        this._object.Engineering.Modifiers = getBlueprintProps(
+        this._prepareObjectChange('Engineering.Quality', progress);
+        this._prepareObjectChange('Engineering.Modifiers', getBlueprintProps(
             this._object.Item,
             this._object.Engineering.BlueprintName,
             this._object.Engineering.Level,
             this._object.Engineering.Quality,
             this._object.Engineering.ExperimentalEffect
-        );
+        ));
+        this._commitObjectChanges();
     }
 
     /**
@@ -302,8 +306,8 @@ export default class Module {
             );
         }
 
-        this._object.Engineering.ExperimentalEffect = name;
-        this.setBlueprintProgress();
+        this._prepareObjectChange('Engineering.ExperimentalEffect', name);
+        this.setBlueprintProgress(); // this will commit prepare changes
     }
 
     /**
@@ -370,7 +374,9 @@ export default class Module {
             );
         }
 
-        this._object.Item = item;
+        this._prepare(DIFF_EVENT, this._object, 'Engineering');
+        delete this._object.Engineering;
+        this._writeObject('Item', item); // this will commit changes
     }
 
     /**
@@ -423,7 +429,7 @@ export default class Module {
             );
         }
 
-        this._object.Slot = slot;
+        this._writeObject('Slot', slot);
     }
 
     /**
@@ -442,7 +448,7 @@ export default class Module {
     setEnabled(on: boolean) {
         // if an module does not consume power, it is always on
         if (this.get('power')) {
-            this._object.On = on;
+            this._writeObject('On', on);
         }
     }
 
@@ -509,5 +515,33 @@ export default class Module {
             return null;
         }
         return getSlotSize(this._ship._object.Ship, this._object.Slot);
+    }
+
+    /**
+     * Write a value to [[_object]] and emit the changes as `'diff'` event.
+     * @param path Path for the object to write to
+     * @param value Value to write
+     */
+    private _writeObject(path: string, value: any) {
+        this._prepareObjectChange(path, value);
+        this._commitObjectChanges();
+    }
+
+    /**
+     * Write a value to [[_object]] and prepare the changes to be emitted
+     * as `'diff'` event.
+     * @param path Path for the object to write to
+     * @param value Value to write
+     */
+    private _prepareObjectChange(path: string, value: any) {
+        this._prepare(DIFF_EVENT, this._object, path);
+        set(this._object, path, value);
+    }
+
+    /**
+     * Emit all saved changes to [[_object]] as `'diff'` event.
+     */
+    private _commitObjectChanges() {
+        this._commit(DIFF_EVENT);
     }
 }

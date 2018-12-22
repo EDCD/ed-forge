@@ -5,7 +5,7 @@
 /**
 * Ignore
 */
-import {clone, cloneDeep, map, mapValues, chain, pick, values} from 'lodash';
+import {clone, cloneDeep, map, mapValues, chain, pick, set, values} from 'lodash';
 import autoBind from 'auto-bind';
 import {validateShipJson, shipVarIsSpecified} from './validation';
 import {compress, decompress} from './compression';
@@ -17,6 +17,7 @@ import {ImportExportError, IllegalStateError, NotImplementedError} from './error
 import {getShipProperty, getShipMetaProperty, getShipInfo} from './data/ships';
 import { ShipPropertyCalculator, ShipPropertyCalculatorClass, CARGO_CAPACITY, FUEL_CAPACITY } from './ship-stats';
 import { matchesAny } from './helper';
+import DiffEmitter from './helper/DiffEmitter';
 
 const RESET_PIPS = {
     Sys: {base: 2, mc: 0,},
@@ -95,11 +96,13 @@ export interface DistributorSettingObject {
     mc: number;
 }
 
+const STATE_EVENT = 'diff-state';
+const OBJECT_EVENT = 'diff';
+
 /**
  * An Elite: Dangerous ship build.
  */
-export default class Ship {
-
+export default class Ship extends DiffEmitter {
     public _object: ShipObjectHandler = null;
     public state: ShipState = {
         PowerDistributor: cloneDeep(RESET_PIPS),
@@ -114,6 +117,7 @@ export default class Ship {
      * @param buildFrom Ship build to load.
      */
     constructor(buildFrom: string | ShipObject) {
+        super();
         autoBind(this);
 
         if (typeof buildFrom === 'string') {
@@ -135,6 +139,14 @@ export default class Ship {
             delete defaultModules[slot];
         });
         values(defaultModules).forEach(m => object.Modules[m.Slot] = new Module(m));
+        values(this._object.Modules).forEach(m => m.on(
+            'diff', (...args) => {
+                args = args.map(diff => {
+                    diff.path = `Modules.${m._object.Slot}.${diff.path}`;
+                });
+                this.emit('diff', ...args);
+            }
+        ));
     }
 
     /**
@@ -171,7 +183,7 @@ export default class Ship {
                 `Can't write protected property ${property}`
             );
         }
-        this._object[property] = value;
+        this._writeObject(property, value);
     }
 
     /**
@@ -193,9 +205,9 @@ export default class Ship {
             c = chain([ this._object.Modules[slot] ]);
         } else {
             c = chain(this._object.Modules).values();
-        if (slot) {
-            c = c.filter(m => m.isOnSlot(slot));
-        }
+            if (slot) {
+                c = c.filter(m => m.isOnSlot(slot));
+            }
         }
 
         if (type) {
@@ -464,7 +476,7 @@ export default class Ship {
      * @param name Name to set
      */
     setShipName(name: string) {
-        this._object.ShipName = name;
+        this._writeObject('ShipName', name);
     }
 
     /**
@@ -481,7 +493,7 @@ export default class Ship {
      */
     setShipID(id: string) {
         // TODO: constrain value
-        this._object.ShipIdent = id;
+        this._writeObject('ShipIdent', id);
     }
 
     /**
@@ -539,11 +551,11 @@ export default class Ship {
         }
 
         let pickProps = ['base', 'mc'];
-        this.state.PowerDistributor = {
-            Sys: pick(settings.Sys, pickProps) as DistributorSettingObject,
-            Eng: pick(settings.Eng, pickProps) as DistributorSettingObject,
-            Wep: pick(settings.Wep, pickProps) as DistributorSettingObject,
-        };
+        this._writeState('PowerDistributor', {
+            Sys: pick(settings.Sys, pickProps),
+            Eng: pick(settings.Eng, pickProps),
+            Wep: pick(settings.Wep, pickProps),
+        });
     }
 
     /**
@@ -552,11 +564,12 @@ export default class Ship {
      */
     pipsReset(mcOnly: boolean) {
         if (mcOnly) {
-            this.state.PowerDistributor.Sys.mc = 0;
-            this.state.PowerDistributor.Eng.mc = 0;
-            this.state.PowerDistributor.Wep.mc = 0;
+            this._prepareStateChange('PowerDistributor.Sys.mc', 0);
+            this._prepareStateChange('PowerDistributor.Eng.mc', 0);
+            this._prepareStateChange('PowerDistributor.Wep.mc', 0);
+            this._commitStateChanges();
         } else {
-            this.state.PowerDistributor = cloneDeep(RESET_PIPS);
+            this._writeState('PowerDistributor', cloneDeep(RESET_PIPS));
         }
     }
 
@@ -569,30 +582,49 @@ export default class Ship {
     incPip(pipType: string, isMc: boolean = false) {
         let dist = this.state.PowerDistributor;
         let pips = dist[pipType];
-        let other1 = (pipType == 'Sys') ? dist.Eng : dist.Sys;
-        let other2 = (pipType == 'Wep') ? dist.Eng : dist.Wep;
+        let other1, other1Key;
+        if (pipType == 'Sys') {
+            other1 = dist.Eng;
+            other1Key = 'Eng';
+        } else {
+            other1 = dist.Sys;
+            other1Key = 'Sys';
+        }
+        let other2, other2Key;
+        if (pipType == 'Wep') {
+            other2 = dist.Eng;
+            other2Key = 'Eng';
+        } else {
+            other2 = dist.Wep;
+            other2Key = 'Wep';
+        };
 
         const left = Math.min(1, 4 - (pips.base + pips.mc));
         if (isMc) {
             let mc = getShipMetaProperty(this._object.Ship, 'crew') - 1;
             if (left > 0.5 && dist.Sys.mc + dist.Eng.mc + dist.Wep.mc < mc) {
-                pips.mc += 1;
+                this._writeState(`PowerDistributor.${pipType}.mc`, pips.mc + 1);
             }
         } else if (left > 0) {
+            let sum, diff1, diff2;
             if (left == 0.5) {
                 // Take from whichever is larger
                 if (other1 > other2) {
-                    other1.base -= 0.5;
+                    diff1 = other1.base - 0.5;
                 } else {
-                    other2.base -= 0.5;
+                    diff2 = other2.base - 0.5;
                 }
-                pips.base += 0.5;
+                sum = pips.base + 0.5;
             } else {  // left == 1
                 let other1WasZero = other1.base == 0;
-                other1.base -= (other2.base == 0) ? 1 : 0.5;
-                other2.base -= other1WasZero ? 1 : 0.5;
-                pips.base += 1;
+                diff1 = other1.base - ((other2.base == 0) ? 1 : 0.5);
+                diff2 = other2.base - (other1WasZero ? 1 : 0.5);
+                sum = pips.base + 1;
             }
+            this._prepareStateChange(`PowerDistributor.${pipType}.base`, sum);
+            this._prepareStateChange(`PowerDistributor.${other1Key}.base`, diff1);
+            this._prepareStateChange(`PowerDistributor.${other2Key}.base`, diff2);
+            this._commitStateChanges();
         }
     }
 
@@ -639,7 +671,7 @@ export default class Ship {
     setCargo(cargo: number) {
         cargo = Math.max(0, cargo);
         cargo = Math.min(cargo, this.get(CARGO_CAPACITY, true));
-        this.state.Cargo = cargo;
+        this._writeState('Cargo', cargo);
     }
 
     /**
@@ -661,7 +693,7 @@ export default class Ship {
     setFuel(fuel: number) {
         fuel = Math.max(0, fuel);
         fuel = Math.min(fuel, this.get(FUEL_CAPACITY, true));
-        this.state.Fuel = fuel;
+        this._writeState('Fuel', fuel);
     }
 
     /**
@@ -677,7 +709,7 @@ export default class Ship {
      * @param isBoosting True when boosting
      */
     setBoosting(isBoosting: boolean) {
-        this.state.BoostActive = isBoosting;
+        this._writeState('BoostActive', isBoosting);
     }
 
     /**
@@ -697,5 +729,55 @@ export default class Ship {
      */
     compress(): string {
         return compress(this.toJSON());
+    }
+
+    /**
+     * Write a value to [[state]] and emit the changes as `'diff-state'`
+     * event.
+     * @param path Path for the state object to write to
+     * @param value Value to write
+     */
+    private _writeState(path: string, value: any) {
+        this._prepareStateChange(path, value);
+        this._commitStateChanges();
+    }
+
+    /**
+     * Write a value to [[state]] and prepare the changes to be emitted as
+     * `'diff-state'` event.
+     * @param path Path for the state object to write to
+     * @param value Value to write
+     */
+    private _prepareStateChange(path: string, value: any) {
+        this._prepare(STATE_EVENT, this.state, path);
+        set(this.state, path, value);
+    }
+
+    /**
+     * Emit all saved changes to [[state]] as `'diff-state'` event.
+     */
+    private _commitStateChanges() {
+        this._commit(STATE_EVENT);
+    }
+
+    /**
+     * Write a value to [[_object]] and emit the changes as `'diff'` event.
+     * @param path Path for the object to write to
+     * @param value Value to write
+     */
+    private _writeObject(path: string, value: any) {
+        this._prepareObjectChange(path, value);
+        this._commit(OBJECT_EVENT);
+    }
+
+    /**
+     * Write a value to [[_object]] and prepare the changes to be emitted
+     * as `'diff'` event.
+     * @param path Path for the object to write to
+     * @param value Value to write
+     */
+    private _prepareObjectChange(path: string, value: any) {
+        this._prepare(STATE_EVENT, this._object, path);
+        set(this._object, path, value);
     }
 }
