@@ -5,7 +5,7 @@
 /**
 * Ignore
 */
-import {clamp, cloneDeep, keys, values} from 'lodash';
+import {clamp, clone, cloneDeep, keys, values} from 'lodash';
 import autoBind from 'auto-bind';
 import {validateModuleJson, moduleVarIsSpecified} from './validation';
 import {compress, decompress} from './compression';
@@ -14,7 +14,7 @@ import {itemFitsSlot, getClass, getModuleProperty, getRating} from './data/items
 import {getSlotSize} from './data/slots';
 import {IllegalStateError, ImportExportError, NotImplementedError} from './errors';
 import Ship from './Ship';
-import {getBlueprintProps, calculateModifier} from './data/blueprints';
+import {getBlueprintProps, calculateModifier, PropertyMap} from './data/blueprints';
 import { ModulePropertyCalculator, ModulePropertyCalculatorClass } from './module-stats';
 
 /**
@@ -42,17 +42,25 @@ function cloneModuleToJSON(module: (string | Module | ModuleObject)): ModuleObje
 /**
  * Loadout-event style object describing a module
  */
-export interface ModuleObject {
+interface ModuleObjectBase {
     /** Item/actual module that this module represents */
     Item: string;
     /** Power priority group */
     Priority: number;
     /** Slot this module is on (possibly empty string) */
     Slot: string;
-    /** Blueprint applied to this module */
-    Engineering?: BlueprintObject;
     /** True when this module is switched on */
     On: boolean
+}
+
+export interface ModuleObject extends ModuleObjectBase {
+    /** Blueprint applied to this module */
+    Engineering?: BlueprintObject;
+}
+
+export interface ModuleObjectHandler extends ModuleObjectBase {
+    /** Blueprint applied to this module */
+    Engineering?: BlueprintObjectHandler;
 }
 
 export type Slot = string | RegExp;
@@ -60,7 +68,7 @@ export type Slot = string | RegExp;
 /**
  * Engineer blueprint.
  */
-export interface BlueprintObject {
+interface BlueprintObjectBase {
     Engineer?: string;
     EngineerID?: number;
     BlueprintID?: number;
@@ -72,8 +80,16 @@ export interface BlueprintObject {
     Quality: number;
     /** Name of the experimental effect */
     ExperimentalEffect?: string;
+}
+
+export interface BlueprintObject extends BlueprintObjectBase {
     /** Array of all modifiers */
     Modifiers: ModifierObject[]
+}
+
+export interface BlueprintObjectHandler extends BlueprintObjectBase {
+    /** Array of all modifiers */
+    Modifiers: PropertyMap;
 }
 
 /**
@@ -94,7 +110,7 @@ export interface ModifierObject {
  * A module that belongs to a Ship.
  */
 export default class Module {
-    public _object: ModuleObject = {Item: '', Slot: '', On: true, Priority: 1};
+    public _object: ModuleObjectHandler = { Item: '', Slot: '', On: true, Priority: 1 };
     public _ship: Ship = null;
 
     /**
@@ -107,7 +123,16 @@ export default class Module {
         autoBind(this);
 
         if (buildFrom) {
-            this._object = cloneModuleToJSON(buildFrom);
+            let object = cloneModuleToJSON(buildFrom) as ModuleObject & ModuleObjectHandler;
+            let handler = object as ModuleObjectHandler;
+            if (object.Engineering) {
+                let modifiers = object.Engineering.Modifiers;
+                handler.Engineering.Modifiers = {};
+                modifiers.forEach(modifier => {
+                    handler.Engineering.Modifiers[modifier.Label] = modifier;
+                });
+            }
+            this._object = handler;
         }
 
         if (ship) {
@@ -159,35 +184,18 @@ export default class Module {
         if (typeof property === 'function') {
             return property(this, modified);
         }
-        let modifierIndex = this._findModifier(property);
-        if (modified && -1 < modifierIndex) {
-            return this._object.Engineering.Modifiers[modifierIndex].Value;
+        if (this._object.Engineering && this._object.Engineering.Modifiers[property]) {
+            return this._object.Engineering.Modifiers[property].Value;
         }
         return getModuleProperty(this._object.Item, property);
     }
 
     getModifier(property: string): number | null {
-        let modifierIndex = this._findModifier(property);
-        if (-1 < modifierIndex) {
-            return this._object.Engineering.Modifiers[modifierIndex].Modifier;
+        if (this._object.Engineering && this._object.Engineering.Modifiers[property]) {
+            return this._object.Engineering.Modifiers[property].Modifier;
         } else {
             return null;
         }
-    }
-
-    /**
-     * Returns index of modifier for given property if present.
-     * @param property Property name
-     * @returns Modifier index or `undefined` if not present
-     */
-    _findModifier(property: string): (number | undefined) {
-        if (!this._object.Engineering) {
-            return -1;
-        }
-
-        return this._object.Engineering.Modifiers.findIndex(
-            modifier => modifier.Label === property
-        );
     }
 
     /**
@@ -213,16 +221,16 @@ export default class Module {
             );
         }
 
-        let modifierIndex = this._findModifier(property);
-        if (-1 < modifierIndex) {
-            this._object.Engineering.Modifiers[modifierIndex].Value = value;
+        let modifiers = this._object.Engineering.Modifiers;
+        if (modifiers[property]) {
+            modifiers[property].Value = value;
         } else {
-            this._object.Engineering.Modifiers.push({
+            modifiers[property] = {
                 Label: property,
                 Value: value,
                 Modifier: calculateModifier(this._object.Item, property, value),
                 UserSet: true
-            });
+            };
         }
     }
 
@@ -237,10 +245,7 @@ export default class Module {
             );
         }
 
-        let modifierIndex = this._findModifier(property);
-        if (-1 < modifierIndex) {
-            delete this._object.Engineering.Modifiers[modifierIndex];
-        }
+        delete this._object.Engineering.Modifiers[property];
     }
 
     /**
@@ -256,23 +261,9 @@ export default class Module {
             throw new IllegalStateError(`Can't set blueprint ${name} without item`);
         }
 
-        let oldExperimental, oldUserSet;
-        if (this._object.Engineering) {
-            oldExperimental = this._object.Engineering.ExperimentalEffect;
-            oldUserSet = this._object.Engineering.Modifiers.filter(
-                modifier => modifier.UserSet
-            );
-        }
 
-        this._object.Engineering = Factory.newBlueprint(name, grade);
-        if (experimental) {
-            this._object.Engineering.ExperimentalEffect = experimental;
-        } else if (oldExperimental) {
-            this._object.Engineering.ExperimentalEffect = oldExperimental;
-        }
-        if (oldUserSet) {
-            this._object.Engineering.Modifiers = oldUserSet;
-        }
+        let deletedProperties = values(this._object.Engineering.Modifiers).map(modifier => modifier.Label);
+        this._object.Engineering = Factory.newBlueprint(name, grade, experimental);
         this.setBlueprintProgress(progress);
     }
 
@@ -291,17 +282,13 @@ export default class Module {
         progress = clamp(progress, 0, 1);
         this._object.Engineering.Quality = progress;
 
-        let modifiedProperties = getBlueprintProps(
+        this._object.Engineering.Modifiers = getBlueprintProps(
             this._object.Item,
             this._object.Engineering.BlueprintName,
             this._object.Engineering.Level,
             this._object.Engineering.Quality,
             this._object.Engineering.ExperimentalEffect
         );
-        let modifiedLabels = keys(modifiedProperties);
-        this._object.Engineering.Modifiers = this._object.Engineering.Modifiers
-            .filter(modifier => !modifiedLabels.includes(modifier.Label))
-            .concat(values(modifiedProperties));
     }
 
     /**
@@ -324,7 +311,12 @@ export default class Module {
      * @returns Module
      */
     toJSON(): ModuleObject {
-        return cloneDeep(this._object);
+        let r = clone(this._object) as (ModuleObject & ModuleObjectHandler) as ModuleObject;
+        if (this._object.Engineering) {
+            r.Engineering = clone(this._object.Engineering) as (BlueprintObject & BlueprintObjectHandler) as BlueprintObject;
+            r.Engineering.Modifiers = values(this._object.Engineering.Modifiers);
+        }
+        return r;
     }
 
     /**

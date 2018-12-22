@@ -6,7 +6,7 @@
 * Ignore
 */
 import Ship from '../Ship';
-import Module, { BlueprintObject } from '../Module';
+import Module, { BlueprintObjectHandler } from '../Module';
 import { getModuleInfo } from './items';
 import { getShipInfo } from './ships';
 import { UnknownRestrictedError } from '../errors';
@@ -93,14 +93,18 @@ class Factory {
      * @param grade Grade of the blueprints
      * @param progress Progress of the blueprint
      */
-    static newBlueprint(name: string, grade: number, progress: number = 0): BlueprintObject {
+    static newBlueprint(name: string, grade: number, experimental?: string): BlueprintObjectHandler {
         name = name.toLowerCase();
-        return {
+        let blueprint: BlueprintObjectHandler = {
             'BlueprintName': name,
             'Level': grade,
             'Quality': undefined,
-            'Modifiers': []
+            'Modifiers': {}
         };
+        if (experimental) {
+            blueprint.ExperimentalEffect = experimental.toLowerCase();
+        }
+        return blueprint;
     }
 }
 

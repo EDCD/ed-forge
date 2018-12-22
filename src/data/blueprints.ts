@@ -28,7 +28,7 @@ const BLUEPRINT_EXTRAS = {
 /**
  * Maps property names to ModifierObject for a blueprint.
  */
-type PropertyMap = { [ property: string ]: ModifierObject }
+export type PropertyMap = { [ property: string ]: ModifierObject }
 
 /**
  * Get modified properties for a module.

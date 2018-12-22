@@ -5,7 +5,7 @@
 /**
 * Ignore
 */
-import {clone, cloneDeep, map, mapValues, chain, pick} from 'lodash';
+import {clone, cloneDeep, map, mapValues, chain, pick, values} from 'lodash';
 import autoBind from 'auto-bind';
 import {validateShipJson, shipVarIsSpecified} from './validation';
 import {compress, decompress} from './compression';
@@ -14,8 +14,9 @@ import {
     REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_UTILITY_SLOT
 } from './data/slots';
 import {ImportExportError, IllegalStateError, NotImplementedError} from './errors';
-import {getShipProperty, getShipMetaProperty} from './data/ships';
+import {getShipProperty, getShipMetaProperty, getShipInfo} from './data/ships';
 import { ShipPropertyCalculator, ShipPropertyCalculatorClass, CARGO_CAPACITY, FUEL_CAPACITY } from './ship-stats';
+import { matchesAny } from './helper';
 
 const RESET_PIPS = {
     Sys: {base: 2, mc: 0,},
@@ -27,7 +28,7 @@ const RESET_PIPS = {
 /**
  * A loadout-event-style ship build without modules
  */
-export interface ShipObjectHandler {
+interface ShipObjectBase {
     /** Player-set ship name */
     ShipName: string;
     /** Ship type, e.g. cutter */
@@ -39,9 +40,13 @@ export interface ShipObjectHandler {
 /**
  * A loadout-event-style ship build.
  */
-export interface ShipObject extends ShipObjectHandler {
+export interface ShipObject extends ShipObjectBase {
     /** Array of all modules of this ship */
     Modules: ModuleObject[];
+}
+
+export interface ShipObjectHandler extends ShipObjectBase {
+    Modules: { [ slot: string ]: Module };
 }
 
 /**
@@ -96,7 +101,6 @@ export interface DistributorSettingObject {
 export default class Ship {
 
     public _object: ShipObjectHandler = null;
-    public _Modules: Module[] = [];
     public state: ShipState = {
         PowerDistributor: cloneDeep(RESET_PIPS),
         Cargo: 0,
@@ -120,11 +124,17 @@ export default class Ship {
             throw new ImportExportError('Ship build is not valid');
         }
 
-        this._object = clone(buildFrom);
-        this._Modules = map(
-            buildFrom.Modules,
-            moduleObject => new Module(moduleObject, this)
-        );
+        let modules = buildFrom.Modules;
+        let object = clone(buildFrom) as (ShipObject & ShipObjectHandler) as ShipObjectHandler;
+        object.Modules = {};
+
+        let defaultModules = clone(getShipInfo(buildFrom.Ship).proto.Modules);
+        modules.forEach(m => {
+            let slot = m.Slot.toLowerCase();
+            object.Modules[slot] = new Module(m);
+            delete defaultModules[slot];
+        });
+        values(defaultModules).forEach(m => object.Modules[m.Slot] = new Module(m));
     }
 
     /**
@@ -178,10 +188,14 @@ export default class Ship {
             return undefined;
         }
 
-        let c = chain(this._Modules)
-
+        let c;
+        if (typeof slot === 'string') {
+            c = chain([ this._object.Modules[slot] ]);
+        } else {
+            c = chain(this._object.Modules).values();
         if (slot) {
             c = c.filter(m => m.isOnSlot(slot));
+        }
         }
 
         if (type) {
@@ -206,13 +220,36 @@ export default class Ship {
         if (!slots && !type) {
             return [];
         }
-        let ms = chain(this._Modules);
 
+        if (typeof slots === 'string') {
+            let m = this.getModule(slots, type);
+            if (includeEmpty || m._object.Item) {
+                return [ m ];
+            }
+            return [];
+        }
+
+        if (slots instanceof RegExp) {
+            slots = [ slots ];
+        }
+
+        let ms = chain(this._object.Modules).values();
         if (!includeEmpty) {
             ms = ms.filter(m => !m.isEmpty());
         }
         if (slots) {
-            ms = ms.filter(module => module.isOnSlot(slots));
+            let ss : string[] = [], rs : RegExp[] = [];
+            slots.forEach(slot => {
+                if (typeof slot === 'string') {
+                    ss.push(slot);
+                } else {
+                    rs.push(slot);
+                }
+            });
+            ms = ms.filter(
+                module => module._object.Slot in ss
+                    || matchesAny(module._object.Item, ...rs)
+            );
         }
         if (type) {
             ms = ms.filter(m => Boolean(m._object.Item.match(type)));
@@ -648,9 +685,9 @@ export default class Ship {
      * @returns Loadout-event-style ship build.
      */
     toJSON(): ShipObject {
-        let r = clone(this._object);
-        (r as ShipObject).Modules = map(this._Modules, m => m.toJSON());
-        return (r as ShipObject);
+        let r = clone(this._object) as (ShipObject & ShipObjectHandler) as ShipObject;
+        r.Modules = map(values(this._object.Modules), m => m.toJSON());
+        return r;
     }
 
     /**

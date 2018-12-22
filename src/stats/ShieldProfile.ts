@@ -7,7 +7,7 @@
  */
 import { Ship } from "..";
 import { ScaleMulCalculator, diminishingDamageMultiplier } from "../helper";
-import { clone, assign } from 'lodash';
+import { clone, assign, values } from 'lodash';
 import CachedCalculator from "./CachedCalculator";
 import { EFFECTIVE_SYS_RATE } from "../module-stats";
 
@@ -243,7 +243,7 @@ export default class ShieldProfile extends CachedCalculator {
                 boosterThermDamage *= 1 - booster.get('thermres', modified);
             });
 
-        let shieldAddition = ship._Modules.filter(m => m.isEnabled()).reduce(
+        let shieldAddition = values(ship._object.Modules).filter(m => m.isEnabled()).reduce(
             (reduced, module) => reduced + module.get('shieldaddition', modified),
             0
         );

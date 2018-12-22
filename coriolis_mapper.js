@@ -464,17 +464,7 @@ function consumeShip(entry) {
             ShipId: 0,
             ShipName: '',
             ShipIdent: '',
-            Modules: [
-                // Give lightweight armour to ship
-                _.assign(
-                    _.clone(
-                        MODULES[
-                            `${SHIP_TO_ARMOUR[shipName] || shipName}_Armour_Grade1`.toLowerCase()
-                        ].proto
-                    ),
-                    { Slot: 'Armour' }
-                ),
-            ],
+            Modules: {},
         },
         props: _.mapKeys(
             _.pickBy(ship.properties, modulePropsPicker),
@@ -489,23 +479,31 @@ function consumeShip(entry) {
     j.meta.militarySizes = {};
     j.meta.passengerSlots = {};
 
+    // Give lightweight armour to ship
+    let armour = _.assign(
+        _.clone(
+            MODULES[
+                `${SHIP_TO_ARMOUR[shipName] || shipName}_Armour_Grade1`.toLowerCase()
+            ].proto
+        ),
+        { Slot: 'Armour' }
+    );
+    j.proto.Modules.armour = armour;
+
     // Add core slots with default modules
-    let cores = _.chain(CORE_SLOTS)
-        .forEach((slot, i) => {
-            slot = slot.toLowerCase();
-            j.meta.coreSizes[slot] = ship.slots.standard[i];
-        })
-        .map((slot, i) => {
-            let defaultType = ship.defaults.standard[i]; // is of form /\d\w/
-            let size = defaultType[0];
-            let rating = RATING_MAP[defaultType[1]];
-            let moduleKey = `${CORE_ITEM_MAP[i]}_Size${size}_Class${rating}`;
-            let module = _.clone(MODULES[moduleKey.toLowerCase()].proto);
-            module.Slot = slot;
-            return module;
-        })
-        .value();
-    j.proto.Modules.push(...cores);
+    CORE_SLOTS.forEach((slot, i) => {
+        slot = slot.toLowerCase();
+        j.meta.coreSizes[slot] = ship.slots.standard[i];
+
+        let defaultType = ship.defaults.standard[i]; // is of form /\d\w/
+        let size = defaultType[0];
+        let rating = RATING_MAP[defaultType[1]];
+        let moduleKey = `${CORE_ITEM_MAP[i]}_Size${size}_Class${rating}`;
+        let module = _.clone(MODULES[moduleKey.toLowerCase()].proto);
+        module.Slot = slot;
+
+        j.proto.Modules[slot] = module;
+    });
 
     // Add internal slots with default modules
     let slotIndexOffset = ship.properties.name == 'type_9_heavy' ? 1 : 0;
@@ -528,17 +526,15 @@ function consumeShip(entry) {
         }
         return key;
     };
-    let internals = _.chain(ship.slots.internal)
-        .map(internalToSlot)
-        .map((slot, i) => {
+    ship.slots.internal.map(internalToSlot)
+        .forEach((slot, i) => {
             let defaultId = ship.defaults.internal[i];
             let module = defaultId ? _.clone(ID_TO_MODULE[defaultId].proto)
                 : { Slot: '', On: true, Item: '', Priority: 1 };
             module.Slot = slot;
-            return module;
-        })
-        .value();
-    j.proto.Modules.push(...internals);
+
+            j.proto.Modules[slot] = module;
+        });
 
     // Add hardpoint and utility slots slots with default modules
     let hardpointCounters = [ 1, 1, 1, 1, 1 ];
@@ -547,18 +543,16 @@ function consumeShip(entry) {
         hardpointCounters[hardpoint]++;
         return slot;
     };
-    let hardpoints = _.chain(ship.slots.hardpoints)
-        .map(hardpointToSlot)
-        .map((slot, i) => {
+    ship.slots.hardpoints.map(hardpointToSlot)
+        .forEach((slot, i) => {
             let hardpointId = ship.defaults.hardpoints[i];
             // default IDs for hardpoints happen to be integers
             let module = hardpointId ? _.clone(ID_TO_MODULE_HP[String(hardpointId)].proto)
                 : { Slot: '', On: true, Item: '', Priority: 1 };
             module.Slot = slot;
-            return module;
-        })
-        .value();
-    j.proto.Modules.push(...hardpoints);
+
+            j.proto.Modules[slot] = module;
+        });
 
     SHIPS[Ship.toLowerCase()] = j;
 }

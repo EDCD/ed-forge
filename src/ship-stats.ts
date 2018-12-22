@@ -5,6 +5,7 @@
 /**
 * Ignore
 */
+import { values } from 'lodash';
 import { Ship } from ".";
 import JumpRangeProfile from "./stats/JumpRangeProfile";
 import SpeedProfile from "./stats/SpeedProfile";
@@ -25,7 +26,7 @@ export interface ShipStatisticsCalculator {
 }
 
 export function TOTAL_MASS(ship: Ship, modified: boolean): number {
-    return ship.getBaseProperty('mass') + ship._Modules.reduce(
+    return ship.getBaseProperty('mass') + values(ship._object.Modules).reduce(
         (reduced, module) => reduced + (module.get('mass', modified) || 0),
         0
     );
@@ -40,21 +41,21 @@ export function LADEN_TOTAL_MASS(ship: Ship, modified: boolean): number {
 }
 
 export function CARGO_CAPACITY(ship: Ship, modified: boolean): number {
-    return ship._Modules.reduce(
+    return values(ship._object.Modules).reduce(
         (reduced, module) => reduced + (module.get('cargo', modified) || 0),
         0
     );
 }
 
 export function FUEL_CAPACITY(ship: Ship, modified: boolean): number {
-    return ship._Modules.reduce(
+    return values(ship._object.Modules).reduce(
         (reduced, module) => reduced + (module.get('fuel', modified) || 0),
         0
     );
 }
 
 export function JUMP_BOOST(ship: Ship, modified: boolean): number {
-    return ship._Modules.reduce(
+    return values(ship._object.Modules).reduce(
         (reduced, module) => reduced + (module.get('jumpboost', modified) || 0),
         0
     );
