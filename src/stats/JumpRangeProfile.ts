@@ -5,70 +5,89 @@
 /**
  * Ignore
  */
-import { JUMP_BOOST, LADEN_TOTAL_MASS } from '../ship-stats';
 import Ship from '../Ship';
-import CachedCalculator from './CachedCalculator';
+import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
+import { values } from 'lodash';
+import { FUEL_CALCULATOR, LADEN_MASS_CALCULATOR } from '.';
+
+function getJumpBoost(ship: Ship, modified: boolean): number {
+    return values(ship._object.Modules).reduce(
+        (reduced, module) => reduced + (module.get('jumpboost', modified) || 0),
+        0
+    );
+}
 
 export interface JumpRangeMetrics {
     jumpRange: number;
     totalRange: number;
+    jumpBoost: number;
 }
 
-export default class JumpRangeProfile extends CachedCalculator {
+function getJumpRangeMetrics(jumpBoost: number, ship: Ship, modified: boolean): JumpRangeMetrics {
+    let fsd = ship.getFSD();
+    let optMass = fsd.get('optmass', modified);
+    let mass = LADEN_MASS_CALCULATOR.calculate(ship, modified);
+
+    let maxFuelPerJump = fsd.get('maxfuel', modified);
+    let fuelMul = fsd.get('fuelmul', modified);
+    let fuelPower = fsd.get('fuelpower', modified);
+    let fuel = FUEL_CALCULATOR.calculate(ship, modified);
+
+    let jumpRange = 0;
+    let totalRange = 0;
+    // If there is no fuel, loopCount will be zero so jumpRange will as well
+    let loopCount = Math.ceil(fuel / maxFuelPerJump);
+    let fuelPerJump = 0;
+    for (let i = 0; i < loopCount; i++) {
+        // decrease mass and fuel by fuel from last jump
+        mass -= fuelPerJump;
+        fuel -= fuelPerJump;
+        fuelPerJump = Math.min(fuel, maxFuelPerJump);
+        let thisJump = Math.pow(fuelPerJump / fuelMul, 1 / fuelPower)
+            * optMass / mass + jumpBoost;
+        if (i == 0) {
+            jumpRange = thisJump;
+        }
+        totalRange += thisJump;
+    }
+
+    return { jumpRange, totalRange, jumpBoost };
+}
+
+export default class JumpRangeProfile {
+    private _jumpBoost: ShipPropsCacheLine<number>;
+    private _jumpRangeMetrics: ShipPropsCacheLine<JumpRangeMetrics>;
+
+    constructor() {
+        this._jumpBoost = new ShipPropsCacheLine<number>({
+            type: [ /GuardianFSDBooster/i, ],
+            props: [ 'jumpboost', ]
+        });
+        this._jumpRangeMetrics = new ShipPropsCacheLine<JumpRangeMetrics>(
+            LADEN_MASS_CALCULATOR, FUEL_CALCULATOR, {
+                type: [ /HyperDrive/i, ],
+                props: [ 'optmass', 'maxfuel', 'fuelmul', 'fuelpower', 'Fuel', ],
+            }
+        );
+    }
+
     /**
-     * Get the jump range metrics of a ship
+     * Get the jump range metrics of a ship.
      * @param ship Ship
      * @param modified True if modifications should be taken into account
      * @returns Jump range metrics of the ship
      */
     getJumpRangeMetrics(ship: Ship, modified: boolean): JumpRangeMetrics {
-        let fsd = ship.getFSD();
-        let optMass = fsd.get('optmass', modified);
-        let mass = ship.get(LADEN_TOTAL_MASS, modified);
-
-        let maxFuelPerJump = fsd.get('maxfuel', modified);
-        let fuelMul = fsd.get('fuelmul', modified);
-        let fuelPower = fsd.get('fuelpower', modified);
-        let fuel = ship.getFuel(modified);
-
-        let jumpBoost = ship.get(JUMP_BOOST, modified);
-
-        return this.get(maxFuelPerJump, fuelMul, fuelPower, fuel, optMass, mass,
-            jumpBoost);
-    }
-
-    /**
-     * Calculate the jump range metrics of this ship.
-     * @param maxFuelPerJump Maximal amount of fuel to be used per jump
-     * @param fuelMul Inverted effectiveness multiplier for fuel
-     * @param fuelPower Inverted power to the effective fuel used
-     * @param fuel Available fuel
-     * @param optMass
-     * @param mass
-     * @param jumpBoost
-     * @return Jump range metrics
-     */
-    get(maxFuelPerJump: number, fuelMul: number, fuelPower: number, fuel: number,
-        optMass: number, mass: number, jumpBoost: number): JumpRangeMetrics {
-        let jumpRange = 0;
-        let totalRange = 0;
-        // If there is no fuel, loopCount will be zero so jumpRange will as well
-        let loopCount = Math.ceil(fuel / maxFuelPerJump);
-        let fuelPerJump = 0;
-        for (let i = 0; i < loopCount; i++) {
-            // decrease mass and fuel by fuel from last jump
-            mass -= fuelPerJump;
-            fuel -= fuelPerJump;
-            fuelPerJump = Math.min(fuel, maxFuelPerJump);
-            let thisJump = Math.pow(fuelPerJump / fuelMul, 1 / fuelPower)
-                * optMass / mass + jumpBoost;
-            if (i == 0) {
-                jumpRange = thisJump;
-            }
-            totalRange += thisJump;
-        }
-
-        return { jumpRange, totalRange };
+        let jumpBoost = this._jumpBoost.get(
+            ship,
+            getJumpBoost,
+            [ ship, modified ]
+        );
+        return this._jumpRangeMetrics.get(
+            ship,
+            getJumpRangeMetrics,
+            [ jumpBoost, ship, modified ]
+        );
     }
 
     /**

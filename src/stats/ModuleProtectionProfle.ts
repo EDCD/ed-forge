@@ -6,29 +6,53 @@
  * Ignore
  */
 import { Ship } from "..";
+import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
 
 export interface ModuleProtectionMetrics {
     moduleArmour: number;
     moduleProtection: number;
 }
 
+/**
+ * Calculate module protection metrics for the given ship.
+ * @param ship Ship to get the metrics for
+ * @param modified True when modifications should be taken into account
+ * @returns Module protection metrics
+ */
+function getModuleProtectionMetrics(ship: Ship, modified: boolean): ModuleProtectionMetrics {
+    let moduleArmour = 0;
+    let moduleProtection = 1;
+    // By calling .isEnabled we filter out guardian MRPs being turned off
+    ship.getMRPs().filter(m => m.isEnabled()).forEach(m => {
+        moduleArmour += m.get('integrity', modified);
+        moduleProtection *= 1 - m.get('protection', modified);
+    });
+
+    return { moduleArmour, moduleProtection };
+}
+
 export default class ModuleProtectionProfile {
+    private _protectionMetrics: ShipPropsCacheLine<ModuleProtectionMetrics>;
+
+    constructor() {
+        this._protectionMetrics = new ShipPropsCacheLine<ModuleProtectionMetrics>({
+            type: [ /ModuleReinforcement/i, ],
+            props: [ 'integrity', 'protection', ],
+        });
+    }
+
     /**
      * Get the module protection metrics for the given ship
      * @param ship Ship to get the metrics for
      * @param modified True when modifications should be taken into account
      * @returns Module protection metrics
      */
-    getModuleProtectionMetrics(ship: Ship, modified: boolean): ModuleProtectionMetrics {
-        let moduleArmour = 0;
-        let moduleProtection = 1;
-        // By calling .isEnabled we filter out guardian MRPs being turned off
-        ship.getMRPs().filter(m => m.isEnabled()).forEach(m => {
-            moduleArmour += m.get('integrity', modified);
-            moduleProtection *= 1 - m.get('protection', modified);
-        });
-
-        return { moduleArmour, moduleProtection };
+    getMetrics(ship: Ship, modified: boolean): ModuleProtectionMetrics {
+        return this._protectionMetrics.get(
+            ship,
+            getModuleProtectionMetrics,
+            [ ship, modified ]
+        );
     }
 
     /**
@@ -39,7 +63,7 @@ export default class ModuleProtectionProfile {
      * @returns Module protection value
      */
     getModuleProtection(ship: Ship, modified: boolean): number {
-        return this.getModuleProtectionMetrics(ship, modified).moduleProtection;
+        return this.getMetrics(ship, modified).moduleProtection;
     }
 
     /**
@@ -50,6 +74,6 @@ export default class ModuleProtectionProfile {
      * @return Module armour value
      */
     getModuleArmour(ship: Ship, modified: boolean): number {
-        return this.getModuleProtectionMetrics(ship, modified).moduleArmour;
+        return this.getMetrics(ship, modified).moduleArmour;
     }
 }

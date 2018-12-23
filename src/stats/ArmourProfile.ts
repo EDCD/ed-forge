@@ -5,9 +5,9 @@
 /**
  * Ignore
  */
-import CachedCalculator from "./CachedCalculator";
 import { Ship } from "..";
 import { diminishingDamageMultiplier } from "../helper";
+import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
 
 /**
  * Damage multipliers for a given resistance type.
@@ -52,7 +52,68 @@ function diminishingArmourRes(res: number): number {
     return diminishingDamageMultiplier(0.7, res);
 }
 
-export default class ArmourProfile extends CachedCalculator {
+function getArmourMetrics(ship: Ship, modified: boolean): ArmourMetrics {
+    let alloys = ship.getAlloys();
+
+    let baseArmour = ship.getBaseProperty('basearmour');
+    let hullBoost = alloys.get('hullboost', modified);
+    let explDamage = 1 - alloys.get('explres', modified);
+    let kinDamage = 1 - alloys.get('kinres', modified);
+    let thermDamage = 1 - alloys.get('thermres', modified);
+    let causDamage = 1 - alloys.get('causres', modified);
+    let hrpReinforcement = 0;
+    let hrpExplDamage = 1;
+    let hrpKinDamage = 1;
+    let hrpThermDamage = 1;
+    let hrpCausDamage = 1;
+    // By calling .isEnabled we filter out guardian HRPs being turned off
+    ship.getHRPs().filter(m => m.isEnabled()).forEach(m => {
+        hrpReinforcement += m.get('hullreinforcement', modified);
+        hrpExplDamage *= 1 - m.get('explres', modified);
+        hrpKinDamage *= 1 - m.get('kinres', modified);
+        hrpThermDamage *= 1 - m.get('thermres', modified);
+        hrpCausDamage *= 1 - m.get('causres', modified);
+    });
+
+    let boostedArmour = baseArmour * (1 + hullBoost);
+    return {
+        base: baseArmour,
+        byAlloys: boostedArmour,
+        byHRPs: hrpReinforcement,
+        armour: boostedArmour + hrpReinforcement,
+        explosive: {
+            byAlloys: explDamage,
+            byHRPs: hrpExplDamage,
+            damageMultiplier: diminishingArmourRes(explDamage * hrpExplDamage),
+        },
+        kinetic: {
+            byAlloys: kinDamage,
+            byHRPs: hrpKinDamage,
+            damageMultiplier: diminishingArmourRes(kinDamage * hrpKinDamage),
+        },
+        thermal: {
+            byAlloys: thermDamage,
+            byHRPs: hrpThermDamage,
+            damageMultiplier: diminishingArmourRes(thermDamage * hrpThermDamage),
+        },
+        caustic: {
+            byAlloys: causDamage,
+            byHRPs: hrpCausDamage,
+            damageMultiplier: diminishingArmourRes(causDamage * hrpCausDamage),
+        },
+    };
+}
+
+export default class ArmourProfile {
+    private _armourMetrics : ShipPropsCacheLine<ArmourMetrics>;
+
+    constructor() {
+        this._armourMetrics = new ShipPropsCacheLine<ArmourMetrics>({
+            type: [ /Armour/i, /HullReinforcement/i ],
+            props: [ 'hullboost', 'explres', 'kinres', 'thermres', 'causres', 'hullreinforcement' ],
+        });
+    }
+
     /**
      * Prepare arguments for the armour metrics and calculate them using a
      * cache.
@@ -61,79 +122,11 @@ export default class ArmourProfile extends CachedCalculator {
      * @returns Armour metrics of the ship
      */
     getArmourMetrics(ship: Ship, modified: boolean): ArmourMetrics {
-        let alloys = ship.getAlloys();
-
-        let baseArmour = ship.getBaseProperty('basearmour');
-        let hullBoost = alloys.get('hullboost', modified);
-        let explDamage = 1 - alloys.get('explres', modified);
-        let kinDamage = 1 - alloys.get('kinres', modified);
-        let thermDamage = 1 - alloys.get('thermres', modified);
-        let causDamage = 1 - alloys.get('causres', modified);
-        let hrpReinforcement = 0;
-        let hrpExplDamage = 1;
-        let hrpKinDamage = 1;
-        let hrpThermDamage = 1;
-        let hrpCausDamage = 1;
-        // By calling .isEnabled we filter out guardian HRPs being turned off
-        ship.getHRPs().filter(m => m.isEnabled()).forEach(m => {
-            hrpReinforcement += m.get('hullreinforcement', modified);
-            hrpExplDamage *= 1 - m.get('explres', modified);
-            hrpKinDamage *= 1 - m.get('kinres', modified);
-            hrpThermDamage *= 1 - m.get('thermres', modified);
-            hrpCausDamage *= 1 - m.get('causres', modified);
-        });
-
-        return this.get(baseArmour, hullBoost, explDamage, kinDamage,
-            causDamage, thermDamage, hrpReinforcement, hrpExplDamage,
-            hrpKinDamage, hrpThermDamage, hrpCausDamage);
-    }
-
-    /**
-     * Calculate armour metrics
-     * @param baseArmour Base armour of the ship
-     * @param hullBoost Hull boost from alloys
-     * @param explDamage Explosive damage multiplier from alloys
-     * @param kinDamage Kinetic damage multiplier from alloys
-     * @param thermDamage Thermal damage multiplier form alloys
-     * @param causDamage Caustic damage multiplier from alloys
-     * @param hrpReinforcement Armour addition from HRPs
-     * @param hrpExplDamage Explosive damage multiplier from HRPs
-     * @param hrpKinDamage Kinetic damage multiplier from HRPs
-     * @param hrpThermDamage Thermal damage multiplier from HRPs
-     * @param hrpCausDamage Caustic damage mutliplier from HRPs
-     * @returns Armour metrics
-     */
-    get(baseArmour: number, hullBoost: number, explDamage: number,
-        kinDamage: number, thermDamage: number, causDamage: number,
-        hrpReinforcement: number, hrpExplDamage: number, hrpKinDamage: number,
-        hrpThermDamage: number, hrpCausDamage: number): ArmourMetrics {
-        let boostedArmour = baseArmour * (1 + hullBoost);
-        return {
-            base: baseArmour,
-            byAlloys: boostedArmour,
-            byHRPs: hrpReinforcement,
-            armour: boostedArmour + hrpReinforcement,
-            explosive: {
-                byAlloys: explDamage,
-                byHRPs: hrpExplDamage,
-                damageMultiplier: diminishingArmourRes(explDamage * hrpExplDamage),
-            },
-            kinetic: {
-                byAlloys: kinDamage,
-                byHRPs: hrpKinDamage,
-                damageMultiplier: diminishingArmourRes(kinDamage * hrpKinDamage),
-            },
-            thermal: {
-                byAlloys: thermDamage,
-                byHRPs: hrpThermDamage,
-                damageMultiplier: diminishingArmourRes(thermDamage * hrpThermDamage),
-            },
-            caustic: {
-                byAlloys: causDamage,
-                byHRPs: hrpCausDamage,
-                damageMultiplier: diminishingArmourRes(causDamage * hrpCausDamage),
-            },
-        };
+        return this._armourMetrics.get(
+            ship,
+            getArmourMetrics,
+            [ ship, modified ]
+        );
     }
 
     /**

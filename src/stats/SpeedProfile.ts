@@ -6,9 +6,10 @@
  * Ignore
  */
 import Ship from "../Ship";
-import { ScaleMulCalculator } from "../helper";
-import { LADEN_TOTAL_MASS } from "../ship-stats";
 import autoBind from "auto-bind";
+import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
+import { LADEN_MASS_CALCULATOR } from ".";
+import { scaleMul } from "../helper";
 
 /**
  * Calculate the speed multiplier provided by pips to eng.
@@ -35,9 +36,35 @@ function getBoostMultiplier(ship: Ship): number {
     return ship.getBaseProperty('boost') * ship.getBaseProperty('speed');
 }
 
-export default class SpeedProfile extends ScaleMulCalculator {
+/**
+ * Calculate the speed multiplier for the given ship which can be applied to
+ * base-speed values.
+ * @param ship Ship to get the speed multiplier for
+ * @param modified True when modifications should be taken into account
+ * @returns Speed multiplier
+ */
+function getSpeedMultiplier(ship: Ship, modified: boolean): number {
+    let thrusters = ship.getThrusters();
+    return scaleMul(
+        thrusters.get('minmul', modified),
+        thrusters.get('optmul', modified),
+        thrusters.get('maxmul', modified),
+        thrusters.get('minmass', modified),
+        thrusters.get('optmass', modified),
+        thrusters.get('maxmass', modified),
+        LADEN_MASS_CALCULATOR.calculate(ship, modified)
+    );
+}
+
+export default class SpeedProfile {
+    private _multiplier: ShipPropsCacheLine<number> = new ShipPropsCacheLine<number>(
+        LADEN_MASS_CALCULATOR, {
+            type: [ /Engine/i, ],
+            props: [ 'minmul', 'optmul', 'maxmul', 'minmass', 'optmass', 'maxmass', ],
+        }
+    );
+
     constructor() {
-        super();
         autoBind(this);
     }
 
@@ -48,18 +75,12 @@ export default class SpeedProfile extends ScaleMulCalculator {
      * @param modified True when modifications should be taken into account
      * @returns Speed multiplier
      */
-    getSpeedMultiplier(ship: Ship, modified: boolean): number {
-        let thrusters = ship.getThrusters();
-        let minMul = thrusters.get('minmul', modified);
-        let optMul = thrusters.get('optmul', modified);
-        let maxMul = thrusters.get('maxmul', modified);
-        let minMass = thrusters.get('minmass', modified);
-        let optMass = thrusters.get('optmass', modified);
-        let maxMass = thrusters.get('maxmass', modified);
-        let mass = ship.get(LADEN_TOTAL_MASS, modified);
-
-        return this.get(minMul, optMul, maxMul, minMass, optMass, maxMass, mass)
-            * getEngMultiplier(ship) * getBoostMultiplier(ship);
+    getMultiplier(ship: Ship, modified: boolean): number {
+        return this._multiplier.get(
+            ship,
+            getSpeedMultiplier,
+            [ ship, modified ]
+        ) * getEngMultiplier(ship) * getBoostMultiplier(ship);
     }
 
     /**
@@ -70,7 +91,7 @@ export default class SpeedProfile extends ScaleMulCalculator {
      * @returns Top speed
      */
     getSpeed(ship: Ship, modified: boolean): number {
-        return this.getSpeedMultiplier(ship, modified) * ship.getBaseProperty('speed');
+        return this.getMultiplier(ship, modified) * ship.getBaseProperty('speed');
     }
 
     /**
@@ -81,7 +102,7 @@ export default class SpeedProfile extends ScaleMulCalculator {
      * @returns Max pitch speed
      */
     getPitch(ship: Ship, modified: boolean) {
-        return this.getSpeedMultiplier(ship, modified) * ship.getBaseProperty('pitch');
+        return this.getMultiplier(ship, modified) * ship.getBaseProperty('pitch');
     }
 
     /**
@@ -92,7 +113,7 @@ export default class SpeedProfile extends ScaleMulCalculator {
      * @returns Max yaw speed
      */
     getYaw(ship: Ship, modified: boolean) {
-        return this.getSpeedMultiplier(ship, modified) * ship.getBaseProperty('yaw');
+        return this.getMultiplier(ship, modified) * ship.getBaseProperty('yaw');
     }
 
     /**
@@ -103,6 +124,6 @@ export default class SpeedProfile extends ScaleMulCalculator {
      * @returns Max roll speed
      */
     getRoll(ship: Ship, modified: boolean) {
-        return this.getSpeedMultiplier(ship, modified) * ship.getBaseProperty('roll');
+        return this.getMultiplier(ship, modified) * ship.getBaseProperty('roll');
     }
 }

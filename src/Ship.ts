@@ -653,17 +653,6 @@ export default class Ship extends DiffEmitter {
     }
 
     /**
-     * Return the amount of cargo currently loaded
-     * @param modified True when modifications should be taken into account - as
-     * of writing this documentation, this argument should have no effect but
-     * change in future
-     * @return Amount of cargo currently loaded
-     */
-    getCargo(modified: boolean = true): number {
-        return Math.min(this.state.Cargo, this.get(CARGO_CAPACITY, modified));
-    }
-
-    /**
      * Set the amount of cargo currently loaded. Will be sanitized if it is
      * lower than zero or above what can be carried.
      * @param cargo Cargo to be set; will be sanitized
@@ -672,17 +661,6 @@ export default class Ship extends DiffEmitter {
         cargo = Math.max(0, cargo);
         cargo = Math.min(cargo, this.get(CARGO_CAPACITY, true));
         this._writeState('Cargo', cargo);
-    }
-
-    /**
-     * Get the number of fuel currently in all tanks
-     * @param modified True when modifications should be taken into account - as
-     * of writing this documentation, this argument should have no effect but
-     * change in future
-     * @returns Tons of fuel in all tanks
-     */
-    getFuel(modified: boolean = true) {
-        return Math.min(this.state.Fuel, this.get(FUEL_CAPACITY, modified));
     }
 
     /**

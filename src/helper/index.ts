@@ -3,11 +3,6 @@
 */
 
 /**
-* Ignore
-*/
-import CachedCalculator from "../stats/CachedCalculator";
-
-/**
  * Check whether a string matches any of the given regular expressions.
  * @param string String to match
  * @param regs Regular expressions to match against
@@ -40,13 +35,6 @@ export function scaleMul(minMul: number, optMul: number, maxMul: number,
     let exp = Math.log((optMul - minMul) / (maxMul - minMul));
     exp /= Math.log(Math.min(1, (max - opt) / (max - min)));
     return minMul + Math.pow(base, exp) * (maxMul - minMul);
-}
-
-/**
- * Implements [[scaleMul]] as a cached method.
- */
-export class ScaleMulCalculator extends CachedCalculator {
-    get = scaleMul;
 }
 
 /**
