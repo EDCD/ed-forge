@@ -1,9 +1,21 @@
+/**
+ * @module Helper
+ */
+
+/**
+ * Ignore.
+ */
 import { DiffEvent } from "./DiffEmitter";
 import { getModuleInfo } from "../data/items";
 import { chain, get, keys } from 'lodash';
 import { matchesAny } from ".";
 import ShipCacheLine, { Dependable } from "./ShipCacheLine";
 
+/**
+ * Describes matching diff events for modules. A diff event matches if it leads
+ * to a change of one of properties given in [[props]] and the module matches
+ * one of the regexes for [[slot]] and/or [[type]] (if given).
+ */
 export interface ModuleDiffDescriptor {
     slot?: RegExp[];
     type?: RegExp[];
@@ -22,11 +34,29 @@ function disjunct<T>(array: T[], otherArray: T[]): boolean {
     return undefined === chain(array).intersection(otherArray).head().value();
 }
 
+/**
+ * Regex to match a path of a [[DiffEvent]] and check whether it changed a
+ * module. If it matches, the first capture group will hold the module's slot
+ * and the second one the path to the value of the module that changed.
+ */
 const MODULE_DIFF_PATH = /Modules\.([^\.]+)\.(.+)/;
 
+/**
+ * Extends [[ShipCacheLine]] to only change, when certain specified module
+ * properties change.
+ */
 export default class ShipPropsCacheLine<T> extends ShipCacheLine<T> {
     private _diffDescriptors : ModuleDiffDescriptor[] = [];
 
+    /**
+     * Create a new cache line and state its dependencies. When a dependency is
+     * of type [[ShipCacheLine]] or [[Dependable]], behavior is the same as for
+     * [[ShipCacheLine]]. If it is a string, the cache will be flushed whenever
+     * a property named equally of any module changes. If it is of type
+     * [[ModuleDiffDescriptor]] it will flush the cache when a diff events
+     * matches the descriptor.
+     * @param dependencies Dependencies that this cache relies upon
+     */
     constructor(...dependencies: (string | ModuleDiffDescriptor | ShipCacheLine<any> | Dependable)[]) {
         super(...dependencies.filter(
             dep => dep instanceof ShipCacheLine || (typeof dep === 'object' && 'dependencies' in dep)
@@ -45,6 +75,11 @@ export default class ShipPropsCacheLine<T> extends ShipCacheLine<T> {
         }
     }
 
+    /**
+     * Check a list of diff events for whether the cache has to be flushed as
+     * described in [[constructor]] and flush the cache accordingly.
+     * @param events Events to check
+     */
     protected _checkDescriptors(...events: DiffEvent[]) {
         // No checks necessary if cache is not valid
         if (this._cache === undefined) {
