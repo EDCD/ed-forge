@@ -366,7 +366,7 @@ export default class Module {
         }
 
         if (typeof slot === 'string') {
-            return this._object.Slot === slot.toLocaleLowerCase();
+            return this._object.Slot === slot.toLowerCase();
         } else if (slot instanceof RegExp) {
             return Boolean(this._object.Slot.match(slot));
         } else { // Array
