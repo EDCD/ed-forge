@@ -301,7 +301,7 @@ const MODULES = {
 };
 
 const META_KEYS = [ 'eddbID', 'edID', 'class', 'rating', 'fighterHangars',
-    'manufacturer', 'crew' ];
+    'manufacturer', 'crew', 'retailCost' ];
 let NOT_PROPS_KEYS = [ 'rating', 'class', 'eddbID', 'id', 'edID', 'symbol',
     'grp', 'mount', 'damagedist', 'name' ];
 const SHIP_TO_ARMOUR = {

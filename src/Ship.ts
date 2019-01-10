@@ -107,14 +107,13 @@ export default class Ship {
      */
     constructor(buildFrom: string | ShipObject) {
         autoBind(this);
-
         if (typeof buildFrom === 'string') {
             buildFrom = decompress<ShipObject>(buildFrom);
         }
 
-        if (!validateShipJson(buildFrom)) {
-            throw new ImportExportError('Ship build is not valid');
-        }
+        // if (!validateShipJson(buildFrom)) {
+        //     throw new ImportExportError('Ship build is not valid');
+        // }
 
         this._object = clone(buildFrom);
         this._Modules = map(
@@ -142,6 +141,15 @@ export default class Ship {
     }
 
     /**
+     * Read an arbitrary object property of this ship's corresponding properties.
+     * @param property Property name
+     * @returns Property value
+     */
+    public readProp(property: string): any {
+        return getShipProperty(this._object.Ship, property);
+    }
+
+    /**
      * Write an arbitrary value to an arbitrary object property of this ship's
      * corresponding json. Fields that are required to be set on valid builds
      * are protected and can only be written by invoking the corresponding
@@ -166,6 +174,7 @@ export default class Ship {
      * first module that matches the RegExp is returned. Order is not
      * guaranteed.
      * @param slot The slot of the module.
+     * @param type
      * @returns Returns the first matching module or undefined if no matching
      * one can be found.
      */
@@ -335,7 +344,7 @@ export default class Ship {
      * @param modified False to retrieve default value
      * @returns Property value
      */
-    get(property: string, modified: boolean = true): number {
+    get(property: string, modified: boolean = true): any {
         return getShipProperty(this._object.Ship, property);
     }
 

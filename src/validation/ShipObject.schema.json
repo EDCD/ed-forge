@@ -19,18 +19,15 @@
         },
         "Modules": {
             "description": "All modules installed on this ship.",
-            "type": "array",
+            "type": "object",
             "items": {
                 "$ref": "https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json"
             },
-            "minItems": 1,
-            "uniqueItems": true
+            "uniqueItems": false
         }
     },
     "required": [
         "Ship",
-        "ShipName",
-        "ShipIdent",
         "Modules"
     ]
 }
