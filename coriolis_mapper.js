@@ -75,7 +75,7 @@ function leadingZero(number) {
  * @returns {*} value.toLowerCase() if value is a string; value otherwise
  */
 function jsonReplacer(key, value) {
-    if (typeof value === 'string' && key !== 'rating') {
+    if (typeof value === 'string' && key !== 'rating' && key !== 'ukName' && key !== 'ukDiscript') {
         return value.toLowerCase();
     }
     return value;
@@ -301,7 +301,7 @@ const MODULES = {
 };
 
 const META_KEYS = [ 'eddbID', 'edID', 'class', 'rating', 'fighterHangars',
-    'manufacturer', 'crew' ];
+    'manufacturer', 'crew', 'retailCost', 'ukName', 'ukDiscript' ];
 let NOT_PROPS_KEYS = [ 'rating', 'class', 'eddbID', 'id', 'edID', 'symbol',
     'grp', 'mount', 'damagedist', 'name' ];
 const SHIP_TO_ARMOUR = {
@@ -550,7 +550,6 @@ function consumeShip(entry) {
             let module = hardpointId ? _.clone(ID_TO_MODULE_HP[String(hardpointId)].proto)
                 : { Slot: '', On: true, Item: '', Priority: 1 };
             module.Slot = slot;
-
             j.proto.Modules[slot] = module;
         });
 

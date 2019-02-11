@@ -1,10 +1,10 @@
 /**
-* @module Compression
-*/
+ * @module Compression
+ */
 
 /**
-* Ignore
-*/
+ * Ignore
+ */
 import pako from 'pako';
 
 /**
@@ -13,9 +13,9 @@ import pako from 'pako';
  * @returns Compressed string
  */
 export function compress(json: object): string {
-  const string = JSON.stringify(json);
-  const deflated = pako.deflate(string, { to: 'string' });
-  return encodeURIComponent(Buffer.from(deflated).toString('base64'));
+    const string = JSON.stringify(json);
+    const deflated = pako.gzip(string)
+    return Buffer.from(deflated).toString('base64');
 }
 
 /**
@@ -24,7 +24,6 @@ export function compress(json: object): string {
  * @returns Decompressed json
  */
 export function decompress<T extends object>(str: string): T {
-  const decoded = Buffer.from(decodeURIComponent(str), 'base64');
-  const inflated = pako.inflate(decoded, { to: 'string' });
-  return JSON.parse(inflated);
+    const data = pako.ungzip(new Buffer(str, 'base64'), { to: 'string' });
+    return JSON.parse(data);
 }

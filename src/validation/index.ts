@@ -17,11 +17,11 @@ const VALIDATOR = new Ajv({ schemas: [MODULE_SCHEMA, SHIP_SCHEMA]});
  * @param json Object to verify
  * @returns True if given object is a valid ship build
  */
-export function validateShipJson(json: object): boolean {
+export function validateShipJson(json: object): any {
     return VALIDATOR.validate(
         'https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ShipObject.schema.json',
         json
-    ) as boolean;
+    );
 }
 
 /**
@@ -30,11 +30,11 @@ export function validateShipJson(json: object): boolean {
  * @param json Object to verify
  * @returns True if this is a valid module
  */
-export function validateModuleJson(json: object): boolean {
+export function validateModuleJson(json: object): any {
     return VALIDATOR.validate(
         'https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json',
         json
-    ) as boolean;
+    );
 }
 
 function varIsSpecified(object: any, v: string): boolean {

@@ -8,7 +8,7 @@
   "watch": {
     "build_light": {
       "patterns": [
-        "src/**/*.js"
+        "src/**/*.ts"
       ],
       "runOnChangeOnly": true
     }
@@ -21,9 +21,6 @@
     "release": "np",
     "watch": "npm run build && npm-watch build_light"
   },
-  "files": [
-    "lib"
-  ],
   "dependencies": {
     "ajv": "^6.5.4",
     "auto-bind": "^1.2.1",

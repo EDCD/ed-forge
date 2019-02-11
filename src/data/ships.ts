@@ -15,6 +15,7 @@ import * as SHIPS from './ships.json';
  * @param ship Ship ID
  */
 export function assertValidShip(ship: string) {
+    ship = ship.toLowerCase();
     if (!SHIPS[ship]) {
         throw new UnknownRestrictedError(`Don't know ship ${ship}`);
     }
@@ -26,6 +27,7 @@ export function assertValidShip(ship: string) {
  * @returns Ship info object
  */
 export function getShipInfo(ship: string): ShipInfo {
+    ship = ship.toLowerCase();
     assertValidShip(ship);
     return SHIPS[ship];
 }

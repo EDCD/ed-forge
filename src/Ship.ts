@@ -119,26 +119,31 @@ export default class Ship extends DiffEmitter {
     constructor(buildFrom: string | ShipObject) {
         super();
         autoBind(this);
-
         if (typeof buildFrom === 'string') {
             buildFrom = decompress<ShipObject>(buildFrom);
         }
 
-        if (!validateShipJson(buildFrom)) {
-            throw new ImportExportError('Ship build is not valid');
-        }
+        // if (!validateShipJson(buildFrom)) {
+        //     throw new ImportExportError('Ship build is not valid');
+        // }
 
         let modules = buildFrom.Modules;
-        let object = clone(buildFrom) as (ShipObject & ShipObjectHandler) as ShipObjectHandler;
-        object.Modules = {};
-
-        let defaultModules = clone(getShipInfo(buildFrom.Ship).proto.Modules);
+        this._object = (clone(buildFrom) as (ShipObject &
+            ShipObjectHandler)) as ShipObjectHandler;
+        this._object.Modules = {};
+        // let defaultModules = clone(getShipInfo(buildFrom.Ship).proto.Modules);
+        console.log(this._object.Modules);
+        // console.log(defaultModules);
         modules.forEach(m => {
             let slot = m.Slot.toLowerCase();
-            object.Modules[slot] = new Module(m);
-            delete defaultModules[slot];
+            m.Slot = slot;
+            this._object.Modules[slot] = new Module(m, this);
+            // delete defaultModules[slot];
         });
-        values(defaultModules).forEach(m => object.Modules[m.Slot] = new Module(m));
+        // values(defaultModules).forEach(
+        //     m => (this._object.Modules[m.Slot] = new Module(m, this))
+        // );
+
         values(this._object.Modules).forEach(m => m.on(
             'diff', (...args) => {
                 args = args.map(diff => {
@@ -168,6 +173,15 @@ export default class Ship extends DiffEmitter {
     }
 
     /**
+     * Read an arbitrary object property of this ship's corresponding properties.
+     * @param property Property name
+     * @returns Property value
+     */
+    public readProp(property: string): any {
+        return getShipProperty(this._object.Ship, property);
+    }
+
+    /**
      * Write an arbitrary value to an arbitrary object property of this ship's
      * corresponding json. Fields that are required to be set on valid builds
      * are protected and can only be written by invoking the corresponding
@@ -192,6 +206,7 @@ export default class Ship extends DiffEmitter {
      * first module that matches the RegExp is returned. Order is not
      * guaranteed.
      * @param slot The slot of the module.
+     * @param type
      * @returns Returns the first matching module or undefined if no matching
      * one can be found.
      */
@@ -202,6 +217,7 @@ export default class Ship extends DiffEmitter {
 
         let c;
         if (typeof slot === 'string') {
+            slot = slot.toLowerCase();
             c = chain([ this._object.Modules[slot] ]);
         } else {
             c = chain(this._object.Modules).values();
@@ -234,6 +250,7 @@ export default class Ship extends DiffEmitter {
         }
 
         if (typeof slots === 'string') {
+            slots = slots.toLowerCase();
             let m = this.getModule(slots, type);
             if (includeEmpty || m._object.Item) {
                 return [ m ];
@@ -260,7 +277,7 @@ export default class Ship extends DiffEmitter {
             });
             ms = ms.filter(
                 module => module._object.Slot in ss
-                    || matchesAny(module._object.Item, ...rs)
+                    || matchesAny(module._object.Slot, ...rs)
             );
         }
         if (type) {

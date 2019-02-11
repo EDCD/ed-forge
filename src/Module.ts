@@ -154,6 +154,15 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+         * Read an arbitrary object property of this ship's corresponding meta properties.
+         * @param property Property name
+         * @returns Property value
+         */
+    readMeta(property: string): any {
+        return getModuleInfo(this._object.Item).meta[property] || '';
+    }
+
+    /**
      * Write an arbitrary value to an arbitrary object property of this module's
      * corresponding json. Fields that are required to be set on valid modules
      * are protected and can only be written by invoking the corresponding
@@ -413,6 +422,7 @@ export default class Module extends DiffEmitter {
      * @param slot Slot to assign.
      */
     setSlot(slot: string) {
+        slot = slot.toLowerCase();
         if (!this._ship) {
             throw new IllegalStateError(
                 `Can't assign slot to ${slot} for unknown ship`
@@ -447,7 +457,7 @@ export default class Module extends DiffEmitter {
      */
     setEnabled(on: boolean) {
         // if an module does not consume power, it is always on
-        if (this.get('power')) {
+        if (this.get('PowerDraw')) {
             this._writeObject('On', on);
         }
     }

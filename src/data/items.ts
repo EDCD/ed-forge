@@ -19,6 +19,7 @@ import * as MODULES from './modules.json';
  * @param id Item id
  */
 export function assertValidModule(id: string) {
+    id = id.toLowerCase();
     if (!MODULES[id]) {
         throw new UnknownRestrictedError(`Don't know module ${id}`);
     }
@@ -30,6 +31,7 @@ export function assertValidModule(id: string) {
  * @returns Information object
  */
 export function getModuleInfo(item: string): ModuleInformation {
+    item = item.toLowerCase();
     assertValidModule(item);
     return MODULES[item];
 }
