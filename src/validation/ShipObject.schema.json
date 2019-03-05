@@ -19,7 +19,7 @@
         },
         "Modules": {
             "description": "All modules installed on this ship.",
-            "type": "object",
+            "type": "array",
             "items": {
                 "$ref": "https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json"
             },
