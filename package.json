@@ -8,9 +8,9 @@
   "watch": {
     "build_light": {
       "patterns": [
-        "src/**/*.ts",
-        "src/**/*.json"
+        "src"
       ],
+      "extensions": "ts,json",
       "runOnChangeOnly": true
     }
   },
