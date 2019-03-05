@@ -11,7 +11,7 @@ import {validateModuleJson, moduleVarIsSpecified} from './validation';
 import {compress, decompress} from './compression';
 import Factory from './data';
 import {itemFitsSlot, getClass, getModuleProperty, getRating, getModuleInfo} from './data/items';
-import {getSlotSize} from './data/slots';
+import { getSlotSize, REG_CORE_SLOT } from './data/slots';
 import {IllegalStateError, NotImplementedError} from './errors';
 import Ship from './Ship';
 import {getBlueprintProps, calculateModifier, PropertyMap} from './data/blueprints';
@@ -315,6 +315,19 @@ export default class Module extends DiffEmitter {
 
         this._prepareObjectChange('Engineering.ExperimentalEffect', name);
         this.setBlueprintProgress(); // this will commit prepare changes
+    }
+
+    /**
+     * Clear all modifications and resets the slot completely. If the slot is a
+     * core internal slot, the item won't get changed.
+     */
+    reset() {
+        if (!this._object.Slot.match(REG_CORE_SLOT)) {
+            this._object.Item = '';
+        }
+        this._object.Priority = 1;
+        this._object.On = true;
+        delete this._object.Engineering;
     }
 
     /**

@@ -128,12 +128,10 @@ export default class Ship extends DiffEmitter {
         validateShipJson(buildFrom);
 
         let modules = buildFrom.Modules;
-        this._object = (clone(buildFrom) as (ShipObject &
-            ShipObjectHandler)) as ShipObjectHandler;
+        this._object = (
+            clone(buildFrom) as (ShipObject & ShipObjectHandler)
+        ) as ShipObjectHandler;
         this._object.Modules = {};
-        // let defaultModules = clone(getShipInfo(buildFrom.Ship).proto.Modules);
-        console.log(this._object.Modules);
-        // console.log(defaultModules);
         modules.forEach(m => {
             let slot = m.Slot.toLowerCase();
             try { assertValidSlot(slot) } catch {
@@ -142,11 +140,16 @@ export default class Ship extends DiffEmitter {
             }
             m.Slot = slot;
             this._object.Modules[slot] = new Module(m, this);
-            // delete defaultModules[slot];
         });
-        // values(defaultModules).forEach(
-        //     m => (this._object.Modules[m.Slot] = new Module(m, this))
-        // );
+
+        // Check missing modules - journal builds don't include those
+        values(getShipInfo(buildFrom.Ship).proto.Modules).forEach(m => {
+            let slot = m.Slot.toLowerCase();
+            if (!this._object.Modules[slot]) {
+                this._object.Modules[slot] = new Module(m, this);
+                this._object.Modules[slot].reset();
+            }
+        });
 
         values(this._object.Modules).forEach(m => m.on(
             'diff', (...args) => {
