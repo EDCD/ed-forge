@@ -5,6 +5,7 @@
 /**
  * Ignore
  */
+import autoBind from 'auto-bind';
 import { Ship } from "..";
 import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
 
@@ -32,13 +33,13 @@ function getModuleProtectionMetrics(ship: Ship, modified: boolean): ModuleProtec
 }
 
 export default class ModuleProtectionProfile {
-    private _protectionMetrics: ShipPropsCacheLine<ModuleProtectionMetrics>;
+    private _protectionMetrics: ShipPropsCacheLine<ModuleProtectionMetrics> = new ShipPropsCacheLine({
+        type: [ /ModuleReinforcement/i, ],
+        props: [ 'integrity', 'protection', ],
+    });
 
     constructor() {
-        this._protectionMetrics = new ShipPropsCacheLine<ModuleProtectionMetrics>({
-            type: [ /ModuleReinforcement/i, ],
-            props: [ 'integrity', 'protection', ],
-        });
+        autoBind(this);
     }
 
     /**

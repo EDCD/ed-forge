@@ -5,6 +5,7 @@
 /**
  * Ignore
  */
+import autoBind from 'auto-bind';
 import { Ship, Module } from "..";
 import { scaleMul, diminishingDamageMultiplier } from "../helper";
 import { clone, assign, values } from 'lodash';
@@ -305,44 +306,36 @@ function getRechargeMetrics(
 }
 
 export default class ShieldProfile {
-    private _shieldStrength: ShipPropsCacheLine<number>;
-    private _shieldAddition: ShipPropsCacheLine<number>;
-    private _shieldMetrics: ShipPropsCacheLine<ShieldMetrics>;
-    private _scbAddition: ShipPropsCacheLine<number>;
-    private _rechargeMetrics: ShipPropsCacheLine<RechargeMetrics>;
+    private _shieldStrength: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
+        type: [ /ShieldGenerator/i ],
+        props: [ 'minmul', 'optmul', 'maxmul', 'minmass', 'optmass', 'maxmass' ],
+    });
+    private _shieldAddition: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
+        type: [ /GuardianShieldReinforcement/i, ],
+        props: [ 'shieldaddition' ],
+    });
+    private _shieldMetrics: ShipPropsCacheLine<ShieldMetrics> = new ShipPropsCacheLine(
+        this._shieldStrength, {
+            type: [ /ShieldGenerator/i, /ShieldBooster/i, ],
+            props: [ 'explres', 'kinres', 'thermres', 'shieldboost' ],
+        }
+    );
+    private _scbAddition: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
+        type: [ /ShieldCellBank/i, ],
+        props: [ 'ammo', 'clip', 'duration', 'shieldreinforcement', ],
+    });
+    private _rechargeMetrics: ShipPropsCacheLine<RechargeMetrics> = new ShipPropsCacheLine(
+        this._shieldMetrics, {
+            type: [ /ShieldGenerator/i ],
+            props: [ 'regen', 'brokenregen' ],
+        }, {
+            type: [ /PowerDistributor/i ],
+            props: [ 'syscap', 'sysrate' ],
+        }
+    );
 
     constructor() {
-        this._shieldStrength = new ShipPropsCacheLine<number>({
-            type: [ /ShieldGenerator/i ],
-            props: [ 'minmul', 'optmul', 'maxmul', 'minmass', 'optmass', 'maxmass' ],
-        });
-
-        this._shieldAddition = new ShipPropsCacheLine<number>({
-            type: [ /GuardianShieldReinforcement/i, ],
-            props: [ 'shieldaddition' ],
-        });
-
-        this._shieldMetrics = new ShipPropsCacheLine<ShieldMetrics>(
-            this._shieldStrength, {
-                type: [ /ShieldGenerator/i, /ShieldBooster/i, ],
-                props: [ 'explres', 'kinres', 'thermres', 'shieldboost' ],
-            }
-        );
-
-        this._scbAddition = new ShipPropsCacheLine<number>({
-            type: [ /ShieldCellBank/i, ],
-            props: [ 'ammo', 'clip', 'duration', 'shieldreinforcement', ],
-        });
-
-        this._rechargeMetrics = new ShipPropsCacheLine<RechargeMetrics>(
-            this._shieldMetrics, {
-                type: [ /ShieldGenerator/i ],
-                props: [ 'regen', 'brokenregen' ],
-            }, {
-                type: [ /PowerDistributor/i ],
-                props: [ 'syscap', 'sysrate' ],
-            }
-        );
+        autoBind(this);
     }
 
     /**

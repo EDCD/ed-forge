@@ -1,3 +1,4 @@
+import autoBind from 'auto-bind';
 import ShipStateCacheLine from "../helper/ShipStateCacheLine";
 import { Ship } from "..";
 import { CARGO_CAPACITY_CALCULATOR } from ".";
@@ -11,15 +12,14 @@ function getCargo(ship: Ship, modified: boolean) {
 }
 
 export default class Cargo {
-    private _cargo: ShipStateCacheLine<number>;
-    dependencies: EventEmitter[];
+    private _cargo: ShipStateCacheLine<number> = new ShipStateCacheLine(
+        CARGO_CAPACITY_CALCULATOR,
+        'Cargo'
+    );
+    dependencies: EventEmitter[] = [ this._cargo, ];
 
     constructor() {
-        this._cargo = new ShipStateCacheLine<number>(
-            CARGO_CAPACITY_CALCULATOR,
-            'Cargo'
-        );
-        this.dependencies = [ this._cargo, ];
+        autoBind(this);
     }
 
     calculate(ship: Ship, modified: boolean): number {

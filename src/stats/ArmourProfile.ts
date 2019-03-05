@@ -5,6 +5,7 @@
 /**
  * Ignore
  */
+import autoBind from 'auto-bind';
 import { Ship } from "..";
 import { diminishingDamageMultiplier } from "../helper";
 import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
@@ -105,13 +106,13 @@ function getArmourMetrics(ship: Ship, modified: boolean): ArmourMetrics {
 }
 
 export default class ArmourProfile {
-    private _armourMetrics : ShipPropsCacheLine<ArmourMetrics>;
+    private _armourMetrics : ShipPropsCacheLine<ArmourMetrics> = new ShipPropsCacheLine({
+        type: [ /Armour/i, /HullReinforcement/i ],
+        props: [ 'hullboost', 'explres', 'kinres', 'thermres', 'causres', 'hullreinforcement' ],
+    });
 
     constructor() {
-        this._armourMetrics = new ShipPropsCacheLine<ArmourMetrics>({
-            type: [ /Armour/i, /HullReinforcement/i ],
-            props: [ 'hullboost', 'explres', 'kinres', 'thermres', 'causres', 'hullreinforcement' ],
-        });
+        autoBind(this);
     }
 
     /**

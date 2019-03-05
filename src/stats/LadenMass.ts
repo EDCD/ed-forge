@@ -1,3 +1,4 @@
+import autoBind from 'auto-bind';
 import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
 import { UNLADEN_MASS_CALCULATOR, FUEL_CALCULATOR, CARGO_CALCULATOR } from ".";
 import { EventEmitter } from "events";
@@ -14,6 +15,10 @@ export default class LadenMass {
         UNLADEN_MASS_CALCULATOR, FUEL_CALCULATOR, CARGO_CALCULATOR
     );
     dependencies: EventEmitter[] = [ this._mass, ];
+
+    constructor() {
+        autoBind(this);
+    }
 
     calculate(ship: Ship, modified: boolean): number {
         return this._mass.get(

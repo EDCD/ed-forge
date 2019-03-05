@@ -1,3 +1,4 @@
+import autoBind from 'auto-bind';
 import ShipStateCacheLine from "../helper/ShipStateCacheLine";
 import { Ship } from "..";
 import { FUEL_CAPACITY_CALCULATOR } from ".";
@@ -11,15 +12,14 @@ function getFuel(ship: Ship, modified: boolean) {
 }
 
 export default class Fuel {
-    private _fuel: ShipStateCacheLine<number>;
-    dependencies: EventEmitter[];
+    private _fuel: ShipStateCacheLine<number> = new ShipStateCacheLine(
+        FUEL_CAPACITY_CALCULATOR,
+        'Fuel'
+    );
+    dependencies: EventEmitter[] = [ this._fuel, ];
 
     constructor() {
-        this._fuel = new ShipStateCacheLine<number>(
-            FUEL_CAPACITY_CALCULATOR,
-            'Fuel'
-        );
-        this.dependencies = [ this._fuel, ];
+        autoBind(this);
     }
 
     calculate(ship: Ship, modified: boolean): number {

@@ -5,6 +5,7 @@
 /**
  * Ignore
  */
+import autoBind from 'auto-bind';
 import Ship from '../Ship';
 import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
 import { values } from 'lodash';
@@ -55,20 +56,19 @@ function getJumpRangeMetrics(jumpBoost: number, ship: Ship, modified: boolean): 
 }
 
 export default class JumpRangeProfile {
-    private _jumpBoost: ShipPropsCacheLine<number>;
-    private _jumpRangeMetrics: ShipPropsCacheLine<JumpRangeMetrics>;
+    private _jumpBoost: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
+        type: [ /GuardianFSDBooster/i, ],
+        props: [ 'jumpboost', ]
+    });
+    private _jumpRangeMetrics: ShipPropsCacheLine<JumpRangeMetrics> = new ShipPropsCacheLine(
+        LADEN_MASS_CALCULATOR, FUEL_CALCULATOR, {
+            type: [ /HyperDrive/i, ],
+            props: [ 'optmass', 'maxfuel', 'fuelmul', 'fuelpower', 'Fuel', ],
+        }
+    );
 
     constructor() {
-        this._jumpBoost = new ShipPropsCacheLine<number>({
-            type: [ /GuardianFSDBooster/i, ],
-            props: [ 'jumpboost', ]
-        });
-        this._jumpRangeMetrics = new ShipPropsCacheLine<JumpRangeMetrics>(
-            LADEN_MASS_CALCULATOR, FUEL_CALCULATOR, {
-                type: [ /HyperDrive/i, ],
-                props: [ 'optmass', 'maxfuel', 'fuelmul', 'fuelpower', 'Fuel', ],
-            }
-        );
+        autoBind(this);
     }
 
     /**

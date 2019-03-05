@@ -1,3 +1,4 @@
+import autoBind from 'auto-bind';
 import ShipCacheLine from "../helper/ShipCacheLine";
 import { Ship } from "..";
 import { values } from 'lodash';
@@ -11,8 +12,12 @@ function getUnladenMass(ship: Ship, modified: boolean): number {
 }
 
 export default class UnladenMass {
-    private _moduleMass: ShipCacheLine<number> = new ShipCacheLine<number>();
+    private _moduleMass: ShipCacheLine<number> = new ShipCacheLine();
     dependencies: EventEmitter[] = [ this._moduleMass, ];
+
+    constructor() {
+        autoBind(this);
+    }
 
     calculate(ship: Ship, modified: boolean): number {
         return ship.getBaseProperty('hullmass') + this._moduleMass.get(

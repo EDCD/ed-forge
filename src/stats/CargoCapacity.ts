@@ -1,3 +1,4 @@
+import autoBind from 'auto-bind';
 import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
 import { Ship } from "..";
 import { values } from 'lodash';
@@ -11,15 +12,14 @@ function getCargoCapacity(ship: Ship, modified: boolean): number {
 }
 
 export default class CargoCapacity {
-    private _capacity: ShipPropsCacheLine<number>;
-    dependencies: EventEmitter[];
+    private _capacity: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
+        type: [ /CargoRack/i, ],
+        props: [ 'cargo', ]
+    });
+    dependencies: EventEmitter[] = [ this._capacity, ];
 
     constructor() {
-        this._capacity = new ShipPropsCacheLine<number>({
-            type: [ /CargoRack/i, ],
-            props: [ 'cargo', ]
-        });
-        this.dependencies = [ this._capacity, ];
+        autoBind(this);
     }
 
     calculate(ship: Ship, modified: boolean): number {
