@@ -6,35 +6,46 @@
 * Ignore
 */
 import Ajv from "ajv";
+import { ImportExportError } from '../errors';
 import * as SHIP_SCHEMA from './ShipObject.schema.json';
 import * as MODULE_SCHEMA from './ModuleObject.schema.json';
 
 const VALIDATOR = new Ajv({ schemas: [MODULE_SCHEMA, SHIP_SCHEMA]});
 
+function latestError(): string {
+    return JSON.stringify(VALIDATOR.errors[VALIDATOR.errors.length - 1], undefined, 2);
+}
+
 /**
  * Check whether a given object provides all fields necessary in order to be a
  * loadout-event-style ship build.
  * @param json Object to verify
- * @returns True if given object is a valid ship build
  */
-export function validateShipJson(json: object): any {
-    return VALIDATOR.validate(
+export function validateShipJson(json: object) {
+    let isValid = VALIDATOR.validate(
         'https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ShipObject.schema.json',
         json
     );
+
+    if (!isValid) {
+        throw new ImportExportError(`Ship build is not valid because ${latestError()}`);
+    }
 }
 
 /**
  * Check whether a given object provides all fields necessary in order to be a
  * loadout-event-style module.
  * @param json Object to verify
- * @returns True if this is a valid module
  */
-export function validateModuleJson(json: object): any {
-    return VALIDATOR.validate(
+export function validateModuleJson(json: object) {
+    let isValid = VALIDATOR.validate(
         'https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json',
         json
     );
+
+    if (!isValid) {
+        throw new ImportExportError(`Module is not valid because ${latestError()}`);
+    }
 }
 
 function varIsSpecified(object: any, v: string): boolean {

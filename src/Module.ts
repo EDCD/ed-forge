@@ -12,7 +12,7 @@ import {compress, decompress} from './compression';
 import Factory from './data';
 import {itemFitsSlot, getClass, getModuleProperty, getRating, getModuleInfo} from './data/items';
 import {getSlotSize} from './data/slots';
-import {IllegalStateError, ImportExportError, NotImplementedError} from './errors';
+import {IllegalStateError, NotImplementedError} from './errors';
 import Ship from './Ship';
 import {getBlueprintProps, calculateModifier, PropertyMap} from './data/blueprints';
 import { ModulePropertyCalculator, ModulePropertyCalculatorClass } from './module-stats';
@@ -32,9 +32,7 @@ function cloneModuleToJSON(module: (string | Module | ModuleObject)): ModuleObje
         }
         module = cloneDeep(module);
 
-        if (!validateModuleJson(module)) {
-            throw new ImportExportError('Module is not valid');
-        }
+        validateModuleJson(module);
     }
 
     return module;

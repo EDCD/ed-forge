@@ -13,7 +13,7 @@ import Module, { ModuleObject, Slot } from './Module';
 import {
     REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_UTILITY_SLOT
 } from './data/slots';
-import {ImportExportError, IllegalStateError, NotImplementedError} from './errors';
+import {IllegalStateError, NotImplementedError} from './errors';
 import {getShipProperty, getShipMetaProperty, getShipInfo} from './data/ships';
 import { ShipPropertyCalculator, ShipPropertyCalculatorClass, CARGO_CAPACITY, FUEL_CAPACITY } from './ship-stats';
 import { matchesAny } from './helper';
@@ -123,9 +123,7 @@ export default class Ship extends DiffEmitter {
             buildFrom = decompress<ShipObject>(buildFrom);
         }
 
-        // if (!validateShipJson(buildFrom)) {
-        //     throw new ImportExportError('Ship build is not valid');
-        // }
+        validateShipJson(buildFrom);
 
         let modules = buildFrom.Modules;
         this._object = (clone(buildFrom) as (ShipObject &
