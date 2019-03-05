@@ -3,6 +3,12 @@
 */
 
 /**
+ * Ignore.
+ */
+import { values } from 'lodash';
+import Module from "../Module";
+
+/**
  * Check whether a string matches any of the given regular expressions.
  * @param string String to match
  * @param regs Regular expressions to match against
@@ -50,4 +56,93 @@ export function diminishingDamageMultiplier(startAt, multiplier) {
         return multiplier;
     }
     return (startAt / 2) + 0.5 * multiplier;
+}
+
+/**
+ * Reduce a property for a list of modules with a given function. Only take
+ * values into account that are not NaN.
+ * @param modules List or map of modules to reduce props for
+ * @param prop Property name
+ * @param modified Should modifications be taken into account?
+ * @param filters Filters to apply to the modules
+ * @param fn Reduce function
+ * @param initial Initial value
+ * @returns Reduced value
+ */
+function _moduleReduce<T>(modules: Module[] | { [key: string]: Module },
+    prop: string, modified: boolean, filters: Array<(Module) => boolean>,
+    fn: (number, T) => T, initial: T | undefined): T {
+        // apply all filters
+        let props = filters.concat([m => !m.isEmpty()]).reduce(
+            (mods, fn) => mods.filter(fn), values(modules)
+        // get the properties
+        ).map(m => m.get(prop, modified)).filter(v => !isNaN(v));
+        // reduce the properties
+        return props.reduce(fn, initial);
+    }
+
+/**
+ * Reduce a property for a list of modules with a given function. Only take
+ * values into account that are not NaN.
+ * @param modules List or map of modules to reduce props for
+ * @param prop Property name
+ * @param modified Should modifications be taken into account?
+ * @param fn Reduce function
+ * @param initial Initial value
+ * @returns Reduced value
+ */
+export function moduleReduce<T>(modules: Module[] | { [key: string]: Module },
+    prop: string, modified: boolean, fn: (number, T) => T,
+    initial: T | undefined): T {
+        return _moduleReduce(modules, prop, modified, [], fn, initial);
+    }
+
+/**
+ * Reduce a property for a list of modules with a given function. Only take
+ * values into account that are not NaN and only from modules that are enabled.
+ * @param modules List or map of modules to reduce props for
+ * @param prop Property name
+ * @param modified Should modifications be taken into account?
+ * @param filters Filters to apply to the modules
+ * @param fn Reduce function
+ * @param initial Initial value
+ * @returns Reduced value
+ */
+export function moduleReduceEnabled<T>(modules: Module[] | { [key: string]: Module },
+    prop: string, modified: boolean, fn: (number, T) => T,
+    initial: T | undefined): T {
+        return _moduleReduce(
+            modules, prop, modified, [m => m.isEnabled()],
+            fn, initial
+        );
+    }
+
+/**
+ * Adds two numbers.
+ * @param x One number
+ * @param y Another number
+ * @returns Sum
+ */
+export function add(x: number, y: number): number {
+    return y + x;
+}
+
+/**
+ * Multiplies two numbers.
+ * @param x One number
+ * @param y Another number
+ * @return Product
+ */
+export function mult(x: number, y: number): number {
+    return y * x;
+}
+
+/**
+ * Return `y * (1 - x)`.
+ * @param x Value to be complemented
+ * @param y Base number
+ * @returns Complementary product
+ */
+export function complMult(x: number, y: number): number {
+    return y * (1 - x);
 }

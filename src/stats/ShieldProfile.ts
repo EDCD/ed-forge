@@ -8,9 +8,10 @@
 import autoBind from 'auto-bind';
 import { Ship, Module } from "..";
 import { scaleMul, diminishingDamageMultiplier } from "../helper";
-import { clone, assign, values } from 'lodash';
+import { clone, assign } from 'lodash';
 import { EFFECTIVE_SYS_RATE } from "../module-stats";
 import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
+import { moduleReduceEnabled, add, complMult } from '../helper';
 
 /**
  * Damage multipliers against a given resistance type.
@@ -175,10 +176,7 @@ function getBaseShieldStrength(shieldGenerator: Module, ship: Ship, modified: bo
 }
 
 function getShieldAddition(ship: Ship, modified: boolean): number {
-    return values(ship._object.Modules).filter(m => m.isEnabled()).reduce(
-        (reduced, module) => reduced + (module.get('shieldaddition', modified) || 0),
-        0
-    );
+    return moduleReduceEnabled(ship._object.Modules, 'shieldaddition', modified, add, 0);
 }
 
 function getShieldMetrics(
@@ -189,17 +187,11 @@ function getShieldMetrics(
     let kinDamage = 1 - shieldGenerator.get('kinres', modified);
     let thermDamage = 1 - shieldGenerator.get('thermres', modified);
 
-    let boost = 0;
-    let boosterExplDamage = 0;
-    let boosterKinDamage = 0;
-    let boosterThermDamage = 0;
-    ship.getShieldBoosters().filter(booster => booster.isEnabled())
-        .forEach(booster => {
-            boost += booster.get('shieldboost', modified);
-            boosterExplDamage *= 1 - booster.get('explres', modified);
-            boosterKinDamage *= 1 - booster.get('kinres', modified);
-            boosterThermDamage *= 1 - booster.get('thermres', modified);
-        });
+    let sbs = ship.getShieldBoosters();
+    let boost = moduleReduceEnabled(sbs, 'shieldboost', modified, add, 0);
+    let boosterExplDamage = moduleReduceEnabled(sbs, 'explres', modified, complMult, 1);
+    let boosterKinDamage = moduleReduceEnabled(sbs, 'kinres', modified, complMult, 1);
+    let boosterThermDamage = moduleReduceEnabled(sbs, 'thermres', modified, complMult, 1);
 
     let byBoosters = baseShieldStrength * boost;
     let shieldStrength = baseShieldStrength + byBoosters + shieldAddition;
@@ -263,6 +255,7 @@ function getShieldMetrics(
 }
 
 function getSCBAddition(ship: Ship, modified: boolean): number {
+    // TODO: move into module property and map to that
     let bySCBs = ship.getSCBs().reduce(
         (reduced, m) => reduced + m.get('shieldreinforcement', modified)
             * m.get('duration', modified)

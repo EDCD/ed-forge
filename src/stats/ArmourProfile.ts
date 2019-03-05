@@ -7,7 +7,7 @@
  */
 import autoBind from 'auto-bind';
 import { Ship } from "..";
-import { diminishingDamageMultiplier } from "../helper";
+import { diminishingDamageMultiplier, moduleReduceEnabled, add, complMult } from "../helper";
 import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
 
 /**
@@ -62,19 +62,13 @@ function getArmourMetrics(ship: Ship, modified: boolean): ArmourMetrics {
     let kinDamage = 1 - alloys.get('kinres', modified);
     let thermDamage = 1 - alloys.get('thermres', modified);
     let causDamage = 1 - alloys.get('causres', modified);
-    let hrpReinforcement = 0;
-    let hrpExplDamage = 1;
-    let hrpKinDamage = 1;
-    let hrpThermDamage = 1;
-    let hrpCausDamage = 1;
-    // By calling .isEnabled we filter out guardian HRPs being turned off
-    ship.getHRPs().filter(m => m.isEnabled()).forEach(m => {
-        hrpReinforcement += m.get('hullreinforcement', modified);
-        hrpExplDamage *= 1 - m.get('explres', modified);
-        hrpKinDamage *= 1 - m.get('kinres', modified);
-        hrpThermDamage *= 1 - m.get('thermres', modified);
-        hrpCausDamage *= 1 - m.get('causres', modified);
-    });
+
+    let hrps = ship.getHRPs();
+    let hrpReinforcement = moduleReduceEnabled(hrps, 'hullreinforcement', modified, add, 0);
+    let hrpExplDamage = moduleReduceEnabled(hrps, 'explres', modified, complMult, 1);
+    let hrpKinDamage = moduleReduceEnabled(hrps, 'kinres', modified, complMult, 1);
+    let hrpThermDamage = moduleReduceEnabled(hrps, 'thermres', modified, complMult, 1);
+    let hrpCausDamage = moduleReduceEnabled(hrps, 'causres', modified, complMult, 1);
 
     let boostedArmour = baseArmour * (1 + hullBoost);
     return {

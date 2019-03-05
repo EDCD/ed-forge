@@ -1,14 +1,11 @@
 import autoBind from 'auto-bind';
 import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
 import { Ship } from "..";
-import { values } from 'lodash';
 import { EventEmitter } from "events";
+import { moduleReduce, add } from '../helper';
 
 function getCargoCapacity(ship: Ship, modified: boolean): number {
-    return values(ship._object.Modules).reduce(
-        (reduced, module) => reduced + (module.get('cargo', modified) || 0),
-        0
-    );
+    return moduleReduce(ship._object.Modules, 'cargo', modified, add, 0);
 }
 
 export default class CargoCapacity {

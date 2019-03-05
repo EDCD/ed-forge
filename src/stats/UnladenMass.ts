@@ -1,14 +1,11 @@
 import autoBind from 'auto-bind';
 import ShipCacheLine from "../helper/ShipCacheLine";
 import { Ship } from "..";
-import { values } from 'lodash';
 import { EventEmitter } from "events";
+import { moduleReduce, add } from '../helper';
 
 function getUnladenMass(ship: Ship, modified: boolean): number {
-    return values(ship._object.Modules).reduce(
-        (reduced, module) => reduced + (module.get('mass', modified) || 0),
-        0
-    );
+    return moduleReduce(ship._object.Modules, 'mass', modified, add, 0);
 }
 
 export default class UnladenMass {

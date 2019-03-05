@@ -8,6 +8,7 @@
 import autoBind from 'auto-bind';
 import { Ship } from "..";
 import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
+import { moduleReduceEnabled, add, complMult } from '../helper';
 
 export interface ModuleProtectionMetrics {
     moduleArmour: number;
@@ -21,13 +22,10 @@ export interface ModuleProtectionMetrics {
  * @returns Module protection metrics
  */
 function getModuleProtectionMetrics(ship: Ship, modified: boolean): ModuleProtectionMetrics {
-    let moduleArmour = 0;
-    let moduleProtection = 1;
-    // By calling .isEnabled we filter out guardian MRPs being turned off
-    ship.getMRPs().filter(m => m.isEnabled()).forEach(m => {
-        moduleArmour += m.get('integrity', modified);
-        moduleProtection *= 1 - m.get('protection', modified);
-    });
+    let mrps = ship.getMRPs();
+    // By checking.enabled we filter out guardian MRPs being turned off
+    let moduleArmour = moduleReduceEnabled(mrps, 'integrity', modified, add, 0);
+    let moduleProtection = moduleReduceEnabled(mrps, 'protection', modified, complMult, 1);
 
     return { moduleArmour, moduleProtection };
 }

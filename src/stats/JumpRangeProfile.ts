@@ -8,14 +8,11 @@
 import autoBind from 'auto-bind';
 import Ship from '../Ship';
 import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
-import { values } from 'lodash';
 import { FUEL_CALCULATOR, LADEN_MASS_CALCULATOR } from '.';
+import { moduleReduceEnabled, add } from '../helper';
 
 function getJumpBoost(ship: Ship, modified: boolean): number {
-    return values(ship._object.Modules).reduce(
-        (reduced, module) => reduced + (module.get('jumpboost', modified) || 0),
-        0
-    );
+    return moduleReduceEnabled(ship._object.Modules, 'jumpboost', modified, add, 0);
 }
 
 export interface JumpRangeMetrics {
