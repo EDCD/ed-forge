@@ -14,6 +14,7 @@ import {
     REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_UTILITY_SLOT
 } from './data/slots';
 import {IllegalStateError, NotImplementedError} from './errors';
+import { assertValidSlot } from './data/slots';
 import {getShipProperty, getShipMetaProperty, getShipInfo} from './data/ships';
 import { ShipPropertyCalculator, ShipPropertyCalculatorClass, CARGO_CAPACITY, FUEL_CAPACITY } from './ship-stats';
 import { matchesAny } from './helper';
@@ -103,6 +104,7 @@ const OBJECT_EVENT = 'diff';
  * An Elite: Dangerous ship build.
  */
 export default class Ship extends DiffEmitter {
+    public _liveryModules: ModuleObject[] = [];
     public _object: ShipObjectHandler = null;
     public state: ShipState = {
         PowerDistributor: cloneDeep(RESET_PIPS),
@@ -134,6 +136,10 @@ export default class Ship extends DiffEmitter {
         // console.log(defaultModules);
         modules.forEach(m => {
             let slot = m.Slot.toLowerCase();
+            try { assertValidSlot(slot) } catch {
+                this._liveryModules.push(clone(m));
+                return;
+            }
             m.Slot = slot;
             this._object.Modules[slot] = new Module(m, this);
             // delete defaultModules[slot];
@@ -712,6 +718,7 @@ export default class Ship extends DiffEmitter {
     toJSON(): ShipObject {
         let r = clone(this._object) as (ShipObject & ShipObjectHandler) as ShipObject;
         r.Modules = map(values(this._object.Modules), m => m.toJSON());
+        r.Modules = r.Modules.concat(this._liveryModules);
         return r;
     }
 

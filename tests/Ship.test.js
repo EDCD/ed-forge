@@ -1,12 +1,13 @@
 
 import { Ship } from '..';
+import { assertValidSlot } from '../lib/data/slots';
 
 import * as anacondaBuild from './fixtures/anaconda.json';
 
 let ship;
 beforeEach(() => {
     ship = new Ship(anacondaBuild);
-})
+});
 
 test('ship can be imported', () => {
     expect(ship).toBeTruthy();
@@ -14,7 +15,11 @@ test('ship can be imported', () => {
 
 test('modules are imported with correct items', () => {
     for (let module of anacondaBuild.Modules) {
-        expect(ship.getModule(module.Slot).getItem()).toEqual(module.Item);
+        let slot = module.Slot;
+        try { assertValidSlot(slot) } catch {
+            continue;
+        }
+        expect(ship.getModule(slot).getItem()).toEqual(module.Item);
     }
 });
 
