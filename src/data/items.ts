@@ -8,7 +8,7 @@
 import { getSlotSize, isPassengerSlot, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
     REG_HARDPOINT_SLOT, REG_UTILITY_SLOT
 } from './slots';
-import { UnknownRestrictedError } from '../errors';
+import { IllegalStateError, UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
 import { ModuleInformation } from '../types';
 
@@ -156,5 +156,9 @@ export function itemFitsSlot(item: string, ship: string, slot: string): boolean 
  * @returns Default property value
  */
 export function getModuleProperty(item: string, property: string): number {
+    if (!item) {
+        throw new IllegalStateError('Can\'t get module property for no item');
+    }
+
     return getModuleInfo(item).props[property];
 }
