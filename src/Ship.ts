@@ -16,7 +16,7 @@ import {
 import {IllegalStateError, NotImplementedError} from './errors';
 import { assertValidSlot } from './data/slots';
 import {getShipProperty, getShipMetaProperty, getShipInfo} from './data/ships';
-import { ShipPropertyCalculator, ShipPropertyCalculatorClass, CARGO_CAPACITY, FUEL_CAPACITY } from './ship-stats';
+import { ShipPropertyCalculator, ShipPropertyCalculatorClass, CARGO_CAPACITY, FUEL_CAPACITY, ShipMetricsCalculator } from './ship-stats';
 import { matchesAny } from './helper';
 import DiffEmitter from './helper/DiffEmitter';
 
@@ -534,8 +534,8 @@ export default class Ship extends DiffEmitter {
      * @param statistics
      * @param modified
      */
-    getStatistics(statistics: string, modified: boolean = true) {
-        throw new NotImplementedError();
+    getMetrics<T>(calculator: ShipMetricsCalculator<T>, modified: boolean = true): T {
+        return calculator(this, modified);
     }
 
     /**

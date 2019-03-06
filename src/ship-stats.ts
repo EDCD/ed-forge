@@ -13,6 +13,10 @@ import {
     UNLADEN_MASS_CALCULATOR,
     LADEN_MASS_CALCULATOR
 } from './stats';
+import { ShieldMetricsWithRecharge } from "./stats/ShieldProfile";
+import { ArmourMetrics } from "./stats/ArmourProfile";
+import { JumpRangeMetrics } from "./stats/JumpRangeProfile";
+import { ModuleProtectionMetrics } from "./stats/ModuleProtectionProfle";
 
 export interface ShipPropertyCalculatorClass {
     calculate(ship: Ship, modified: boolean): number;
@@ -20,6 +24,10 @@ export interface ShipPropertyCalculatorClass {
 
 export interface ShipPropertyCalculator {
     (ship: Ship, modified?: boolean): number
+}
+
+export interface ShipMetricsCalculator<T> {
+    (ship: Ship, modified?: boolean): T
 }
 
 export const UNLADEN_MASS: ShipPropertyCalculatorClass = UNLADEN_MASS_CALCULATOR;
@@ -30,6 +38,7 @@ export const CARGO_CAPACITY: ShipPropertyCalculatorClass = CARGO_CAPACITY_CALCUL
 
 export const FUEL_CAPACITY: ShipPropertyCalculatorClass = FUEL_CAPACITY_CALCULATOR;
 
+export const JUMP_METRICS: ShipMetricsCalculator<JumpRangeMetrics> = JUMP_CALCULATOR.getJumpRangeMetrics;
 export const JUMP_RANGE: ShipPropertyCalculator = JUMP_CALCULATOR.getJumpRange;
 export const TOTAL_RANGE: ShipPropertyCalculator = JUMP_CALCULATOR.getTotalRange;
 
@@ -38,6 +47,7 @@ export const YAW: ShipPropertyCalculator = SPEED_CALCULATOR.getYaw;
 export const ROLL: ShipPropertyCalculator = SPEED_CALCULATOR.getRoll;
 export const PITCH: ShipPropertyCalculator = SPEED_CALCULATOR.getPitch;
 
+export const SHIELD_METRICS: ShipMetricsCalculator<ShieldMetricsWithRecharge> = SHIELD_METRICS_CALCULATOR.getShieldMetrics;
 export const SHIELD_STRENGTH: ShipPropertyCalculator = SHIELD_METRICS_CALCULATOR.getStrength;
 export const EXPL_SHIELD_RES: ShipPropertyCalculator = SHIELD_METRICS_CALCULATOR.getExplosiveResistance;
 export const EXPL_SHIELD_STRENGTH: ShipPropertyCalculator = SHIELD_METRICS_CALCULATOR.getExplosiveStrength;
@@ -46,6 +56,7 @@ export const KIN_SHIELD_STRENGTH: ShipPropertyCalculator = SHIELD_METRICS_CALCUL
 export const THERM_SHIELD_RES: ShipPropertyCalculator = SHIELD_METRICS_CALCULATOR.getThermalResistance;
 export const THERM_SHIELD_STRENGTH: ShipPropertyCalculator = SHIELD_METRICS_CALCULATOR.getThermalStrength;
 
+export const ARMOUR_METRICS: ShipMetricsCalculator<ArmourMetrics> = ARMOUR_METRICS_CALCULATOR.getArmourMetrics;
 export const ARMOUR: ShipPropertyCalculator = ARMOUR_METRICS_CALCULATOR.getArmour;
 export const EXPL_ARMOUR_RES: ShipPropertyCalculator = ARMOUR_METRICS_CALCULATOR.getExplosiveResistance;
 export const EXPL_ARMOUR: ShipPropertyCalculator = ARMOUR_METRICS_CALCULATOR.getExplosiveArmour;
@@ -56,5 +67,6 @@ export const THERM_ARMOUR: ShipPropertyCalculator = ARMOUR_METRICS_CALCULATOR.ge
 export const CAUS_ARMOUR_RES: ShipPropertyCalculator = ARMOUR_METRICS_CALCULATOR.getCausticResistance;
 export const CAUS_ARMOUR: ShipPropertyCalculator = ARMOUR_METRICS_CALCULATOR.getCausticArmour;
 
+export const MODULE_PROTECTION_METRICS: ShipMetricsCalculator<ModuleProtectionMetrics> = MODULE_PROTECTION_CALCULATOR.getMetrics;
 export const MODULE_ARMOUR: ShipPropertyCalculator = MODULE_PROTECTION_CALCULATOR.getModuleProtection;
 export const MODULE_PROTECTION: ShipPropertyCalculator = MODULE_PROTECTION_CALCULATOR.getModuleProtection;

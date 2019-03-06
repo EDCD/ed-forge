@@ -66,3 +66,23 @@ test('can calculate module protection metrics', () => {
     expect(ship.get(MODULE_ARMOUR)).not.toBeNaN();
     expect(ship.get(MODULE_PROTECTION)).not.toBeNaN();
 });
+
+test('can calculate shield metrics', () => {
+    const { SHIELD_METRICS } = ShipProps;
+    expect(ship.getMetrics(SHIELD_METRICS)).toMatchObject({});
+});
+
+test('can calculate armour metrics', () => {
+    const { ARMOUR_METRICS } = ShipProps;
+    expect(ship.getMetrics(ARMOUR_METRICS)).toMatchObject({});
+});
+
+test('can calculate jump metrics', () => {
+    const { JUMP_METRICS } = ShipProps;
+    expect(ship.getMetrics(JUMP_METRICS)).toMatchObject({});
+});
+
+test('can calculate module protection metrics', () => {
+    const { MODULE_PROTECTION_METRICS } = ShipProps;
+    expect(ship.getMetrics(MODULE_PROTECTION_METRICS)).toMatchObject({});
+});
