@@ -40,9 +40,9 @@ export default class ShipCacheLine<T> extends EventEmitter {
         autoBind(this);
         dependencies.forEach(dep => {
             if (dep instanceof ShipCacheLine) {
-                dep.on('flush', this._invalidate)
+                dep.on('flush', () => this._invalidate())
             } else {
-                dep.dependencies.forEach(dep => dep.on('flush', this._invalidate));
+                dep.dependencies.forEach(dep => dep.on('flush', () => this._invalidate()));
             }
         });
     }
