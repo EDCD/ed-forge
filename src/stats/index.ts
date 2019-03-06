@@ -10,12 +10,14 @@ import Fuel from "./Fuel";
 import UnladenMass from "./UnladenMass";
 import LadenMass from "./LadenMass";
 
+// IMPORTANT: some of these intance rely on other instances in this module if an
+// instance depends on others, make sure to export it after its dependencies
 export const UNLADEN_MASS_CALCULATOR = new UnladenMass();
-export const LADEN_MASS_CALCULATOR = new LadenMass();
-export const CARGO_CALCULATOR = new Cargo();
 export const CARGO_CAPACITY_CALCULATOR = new CargoCapacity();
-export const FUEL_CALCULATOR = new Fuel();
+export const CARGO_CALCULATOR = new Cargo();
 export const FUEL_CAPACITY_CALCULATOR = new FuelCapacity();
+export const FUEL_CALCULATOR = new Fuel();
+export const LADEN_MASS_CALCULATOR = new LadenMass();
 export const JUMP_CALCULATOR = new JumpRangeProfile();
 export const SPEED_CALCULATOR = new SpeedProfile();
 export const SHIELD_METRICS_CALCULATOR = new ShieldProfile();
