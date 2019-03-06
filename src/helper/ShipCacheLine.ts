@@ -84,8 +84,12 @@ export default class ShipCacheLine<T> extends EventEmitter {
     get(ship: Ship, fn: (...args: any[]) => T, args: any[]): T {
         if (this._ship != ship) {
             this._invalidate();
-            this._ship.removeListener(this._listenTo, this._checkDescriptors);
-            ship.on(this._listenTo, this._checkDescriptors);
+            if (this._ship) {
+                this._ship.removeListener(this._listenTo, this._checkDescriptors);
+            }
+            if (ship) {
+                ship.on(this._listenTo, this._checkDescriptors);
+            }
             this._ship = ship;
         }
         if (!this._cache) {
