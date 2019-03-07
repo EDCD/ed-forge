@@ -1,3 +1,10 @@
+/**
+ * @module StatGetters
+ */
+
+/**
+ * Ignore
+ */
 import autoBind from 'auto-bind';
 import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
 import { UNLADEN_MASS_CALCULATOR, FUEL_CALCULATOR, CARGO_CALCULATOR } from ".";

@@ -1,3 +1,10 @@
+/**
+ * @module StatGetters
+ */
+
+/**
+ * Ignore
+ */
 import CargoCapacity from "./CargoCapacity";
 import FuelCapacity from "./FuelCapacity";
 import JumpRangeProfile from "./JumpRangeProfile";

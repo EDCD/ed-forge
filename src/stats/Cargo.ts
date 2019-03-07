@@ -1,3 +1,10 @@
+/**
+ * @module StatGetters
+ */
+
+/**
+ * Ignore
+ */
 import autoBind from 'auto-bind';
 import ShipStateCacheLine from "../helper/ShipStateCacheLine";
 import { Ship } from "..";
