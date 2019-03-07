@@ -71,7 +71,7 @@ export function diminishingDamageMultiplier(startAt, multiplier) {
  */
 function _moduleReduce<T>(modules: Module[] | { [key: string]: Module },
     prop: string, modified: boolean, filters: Array<(Module) => boolean>,
-    fn: (number, T) => T, initial: T | undefined): T {
+    fn: (acc: T, v: number) => T, initial: T | undefined): T {
         // apply all filters
         let props = filters.concat([m => !m.isEmpty()]).reduce(
             (mods, fn) => mods.filter(fn), values(modules)
@@ -92,7 +92,7 @@ function _moduleReduce<T>(modules: Module[] | { [key: string]: Module },
  * @returns Reduced value
  */
 export function moduleReduce<T>(modules: Module[] | { [key: string]: Module },
-    prop: string, modified: boolean, fn: (number, T) => T,
+    prop: string, modified: boolean, fn: (acc: T, v: number) => T,
     initial: T | undefined): T {
         return _moduleReduce(modules, prop, modified, [], fn, initial);
     }
@@ -109,7 +109,7 @@ export function moduleReduce<T>(modules: Module[] | { [key: string]: Module },
  * @returns Reduced value
  */
 export function moduleReduceEnabled<T>(modules: Module[] | { [key: string]: Module },
-    prop: string, modified: boolean, fn: (number, T) => T,
+    prop: string, modified: boolean, fn: (acc: T, v: number) => T,
     initial: T | undefined): T {
         return _moduleReduce(
             modules, prop, modified, [m => m.isEnabled()],
@@ -124,7 +124,7 @@ export function moduleReduceEnabled<T>(modules: Module[] | { [key: string]: Modu
  * @returns Sum
  */
 export function add(x: number, y: number): number {
-    return y + x;
+    return x + y;
 }
 
 /**
@@ -134,7 +134,7 @@ export function add(x: number, y: number): number {
  * @return Product
  */
 export function mult(x: number, y: number): number {
-    return y * x;
+    return x * y;
 }
 
 /**
@@ -144,5 +144,5 @@ export function mult(x: number, y: number): number {
  * @returns Complementary product
  */
 export function complMult(x: number, y: number): number {
-    return y * (1 - x);
+    return x * (1 - y);
 }
