@@ -449,7 +449,7 @@ export default class Ship extends DiffEmitter {
      * which are just a slot.
      * @returns Hardpoint modules
      */
-    getHardpoints(type: string, includeEmpty: boolean = false): Module[] {
+    getHardpoints(type?: string, includeEmpty: boolean = false): Module[] {
         return this.getModules(REG_HARDPOINT_SLOT, type, includeEmpty, true);
     }
 
@@ -460,7 +460,7 @@ export default class Ship extends DiffEmitter {
      * which are just a slot.
      * @returns Utility modules
      */
-    getUtilities(type: string, includeEmpty: boolean = false): Module[] {
+    getUtilities(type?: string, includeEmpty: boolean = false): Module[] {
         return this.getModules(REG_UTILITY_SLOT, type, includeEmpty, true);
     }
 
