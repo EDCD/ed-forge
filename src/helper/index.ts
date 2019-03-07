@@ -118,6 +118,58 @@ export function moduleReduceEnabled<T>(modules: Module[] | { [key: string]: Modu
     }
 
 /**
+ * Calculate the mean of a property for a list of modules with a given function.
+ * Only take values into account that are not NaN.
+ * @param modules List or map of modules to reduce props for
+ * @param prop Property name
+ * @param modified Should modifications be taken into account?
+ * @param filters Filters to apply to the modules
+ * @param initial Initial value
+ * @returns Mean value
+ */
+function _moduleMean(modules: Module[] | { [key: string]: Module },
+    prop: string, modified: boolean, filters: Array<(Module) => boolean>): number {
+        let fn = (acc: number[], v: number): number[] => {
+            let [ reduced, len ] = acc;
+            return [ reduced  + v, len + 1 ];
+        }
+
+        let [ reduced, len ] = _moduleReduce<number[]>(
+            modules, prop, modified, filters, fn, [ 0, 0 ]
+        );
+        return reduced / len;
+    }
+
+/**
+ * Calculate the mean of a property for a list of modules with a given function.
+ * Only take values into account that are not NaN.
+ * @param modules List or map of modules to reduce props for
+ * @param prop Property name
+ * @param modified Should modifications be taken into account?
+ * @param initial Initial value
+ * @returns Mean value
+ */
+export function moduleMean(modules: Module[] | { [key: string]: Module },
+    prop: string, modified: boolean): number {
+        return _moduleMean(modules, prop, modified, []);
+    }
+
+/**
+ * Calculate the mean of a property for a list of modules with a given function.
+ * Only take values into account that are not NaN and only from modules that are
+ * enabled.
+ * @param modules List or map of modules to reduce props for
+ * @param prop Property name
+ * @param modified Should modifications be taken into account?
+ * @param initial Initial value
+ * @returns Mean value
+ */
+export function moduleMeanEnabled(modules: Module[] | { [key: string]: Module },
+    prop: string, modified: boolean): number {
+        return _moduleMean(modules, prop, modified, [m => m.isEnabled()]);
+    }
+
+/**
  * Adds two numbers.
  * @param x One number
  * @param y Another number
