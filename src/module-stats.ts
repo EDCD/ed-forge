@@ -28,6 +28,7 @@ import { IllegalStateError } from "./errors";
      * sense of what is better.
      */
     higherbetter?: boolean,
+    getter?: ModulePropertyCalculator | ModulePropertyCalculatorClass;
 }
 
 const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
@@ -42,19 +43,19 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'causres': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },
     'clip': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'damage': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'dps': { 'higherbetter': true },
-    'dpe': { 'higherbetter': true },
+    'damagepersecond': { 'higherbetter': true, },
+    'damageperenergy': { 'higherbetter': true, },
     'distdraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'duration': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'eff': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'engcap': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'engrate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'eps': {},
+    'energypersecond': { 'higherbetter': false, },
     'expldamage': { 'method': 'overwrite' },
     'explres': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
     'facinglimit': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'falloff': {},
-    'hps': {},
+    'heatpersecond': {},
     'hullboost': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
     'hullreinforcement': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'integrity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -67,7 +68,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'optmul': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'pgen': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'piercing': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'power': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'powerdraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'protection': { 'method': 'multiplicative', 'higherbetter': true },
     'range': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'ranget': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -76,7 +77,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'rof': { 'higherbetter': true },  // actually modified
     'scanrate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'scantime': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'sdps': {},
+    'sustaineddamagerpersecond': {},
     'shield': {},
     'shieldaddition': {},
     'shieldboost': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
