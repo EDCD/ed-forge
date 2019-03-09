@@ -131,7 +131,7 @@ export default class Module extends DiffEmitter {
                 let modifiers = object.Engineering.Modifiers;
                 handler.Engineering.Modifiers = {};
                 modifiers.forEach(modifier => {
-                    handler.Engineering.Modifiers[modifier.Label] = modifier;
+                    handler.Engineering.Modifiers[modifier.Label.toLowerCase()] = modifier;
                 });
             }
             this._object = handler;
@@ -198,7 +198,7 @@ export default class Module extends DiffEmitter {
         if (this._object.Engineering && this._object.Engineering.Modifiers[property]) {
             return this._object.Engineering.Modifiers[property].Value;
         }
-        return getModuleProperty(this._object.Item, property);
+        return getModuleProperty(this._object.Item, property.toLowerCase());
     }
 
     getModifier(property: string): number | null {
@@ -232,6 +232,7 @@ export default class Module extends DiffEmitter {
             );
         }
 
+        property = property.toLowerCase();
         let propertyPath = `Engineering.Modifiers.${property}`;
         if (this._object.Engineering.Modifiers[property]) {
             this._writeObject(`${propertyPath}.Value`, value);
@@ -256,6 +257,7 @@ export default class Module extends DiffEmitter {
             );
         }
 
+        property = property.toLowerCase();
         this._prepare(DIFF_EVENT, this._object, `Engineering.Modifiers.${property}`);
         delete this._object.Engineering.Modifiers[property];
         this._commitObjectChanges();
