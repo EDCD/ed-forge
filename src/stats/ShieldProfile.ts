@@ -164,7 +164,7 @@ function getRechargeTime(rechargeSize: number, rechargeRate: number,
 }
 
 function getBaseShieldStrength(shieldGenerator: Module, ship: Ship, modified: boolean) {
-    return scaleMul(
+    return ship.getBaseProperty('baseshieldstrength') * scaleMul(
         shieldGenerator.get('minmul', modified),
         shieldGenerator.get('optmul', modified),
         shieldGenerator.get('maxmul', modified),
