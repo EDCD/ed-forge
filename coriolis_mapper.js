@@ -3,48 +3,46 @@ const { Modules, Ships, Modifications } = require('coriolis-data/dist');
 const fs = require('fs');
 const _ = require('lodash');
 
-let SHIP_FD_NAME_TO_CORIOLIS_NAME = {
-  'Adder': 'adder',
-  'Anaconda': 'anaconda',
-  'Asp': 'asp',
-  'Asp_Scout': 'asp_scout',
-  'BelugaLiner': 'beluga',
-  'CobraMkIII': 'cobra_mk_iii',
-  'CobraMkIV': 'cobra_mk_iv',
-  'Cutter': 'imperial_cutter',
-  'DiamondBackXL': 'diamondback_explorer',
-  'DiamondBack': 'diamondback',
-  'Dolphin': 'dolphin',
-  'Eagle': 'eagle',
-  'Empire_Courier': 'imperial_courier',
-  'Empire_Eagle': 'imperial_eagle',
-  'Empire_Trader': 'imperial_clipper',
-  'Federation_Corvette': 'federal_corvette',
-  'Federation_Dropship': 'federal_dropship',
-  'Federation_Dropship_MkII': 'federal_assault_ship',
-  'Federation_Gunship': 'federal_gunship',
-  'FerDeLance': 'fer_de_lance',
-  'Hauler': 'hauler',
-  'Independant_Trader': 'keelback',
-  'Krait_MkII': 'krait_mkii',
-  'Mamba': 'mamba',
-  'Krait_Light': 'krait_phantom',
-  'Orca': 'orca',
-  'Python': 'python',
-  'SideWinder': 'sidewinder',
-  'Type6': 'type_6_transporter',
-  'Type7': 'type_7_transport',
-  'Type9': 'type_9_heavy',
-  'Type9_Military': 'type_10_defender',
-  'TypeX': 'alliance_chieftain',
-  'TypeX_2': 'alliance_crusader',
-  'TypeX_3': 'alliance_challenger',
-  'Viper': 'viper',
-  'Viper_MkIV': 'viper_mk_iv',
-  'Vulture': 'vulture'
+let SHIP_CORIOLIS_TO_FD = {
+  'adder': 'Adder',
+  'anaconda': 'Anaconda',
+  'asp': 'Asp',
+  'asp_scout': 'Asp_Scout',
+  'beluga': 'BelugaLiner',
+  'cobra_mk_iii': 'CobraMkIII',
+  'cobra_mk_iv': 'CobraMkIV',
+  'imperial_cutter': 'Cutter',
+  'diamondback_explorer': 'DiamondBackXL',
+  'diamondback': 'DiamondBack',
+  'dolphin': 'Dolphin',
+  'eagle': 'Eagle',
+  'imperial_courier': 'Empire_Courier',
+  'imperial_eagle': 'Empire_Eagle',
+  'imperial_clipper': 'Empire_Trader',
+  'federal_corvette': 'Federation_Corvette',
+  'federal_dropship': 'Federation_Dropship',
+  'federal_assault_ship': 'Federation_Dropship_MkII',
+  'federal_gunship': 'Federation_Gunship',
+  'fer_de_lance': 'FerDeLance',
+  'hauler': 'Hauler',
+  'keelback': 'Independant_Trader',
+  'krait_mkii': 'Krait_MkII',
+  'mamba': 'Mamba',
+  'krait_phantom': 'Krait_Light',
+  'orca': 'Orca',
+  'python': 'Python',
+  'sidewinder': 'SideWinder',
+  'type_6_transporter': 'Type6',
+  'type_7_transport': 'Type7',
+  'type_9_heavy': 'Type9',
+  'type_10_defender': 'Type9_Military',
+  'alliance_chieftain': 'TypeX',
+  'alliance_crusader': 'TypeX_2',
+  'alliance_challenger': 'TypeX_3',
+  'viper': 'Viper',
+  'viper_mk_iv': 'Viper_MkIV',
+  'vulture': 'Vulture'
 };
-
-SHIP_FD_NAME_TO_CORIOLIS_NAME = _.invertBy(SHIP_FD_NAME_TO_CORIOLIS_NAME)
 
 // Will be set in consumeModule; hardpoints and other modules don't share ids
 const ID_TO_MODULE = {};
@@ -456,8 +454,8 @@ NOT_PROPS_KEYS = [ 'name', 'luxuryCabins', 'class', 'manufacturer',
     'fighterHangars', 'crew' ];
 
 function consumeShip(entry) {
-	let [shipName, ship] = entry;
-	const Ship = SHIP_FD_NAME_TO_CORIOLIS_NAME[shipName][0];
+    let [shipName, ship] = entry;
+    const Ship = SHIP_CORIOLIS_TO_FD[shipName][0];
     let j = {
         proto: {
             Ship: Ship,
