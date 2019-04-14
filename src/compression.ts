@@ -24,6 +24,6 @@ export function compress(json: object): string {
  * @returns Decompressed json
  */
 export function decompress<T extends object>(str: string): T {
-    const data = pako.ungzip(new Buffer(str, 'base64'), { to: 'string' });
+    const data = pako.ungzip(Buffer.from(str, 'base64'), { to: 'string' });
     return JSON.parse(data);
 }
