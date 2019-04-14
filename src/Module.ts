@@ -12,10 +12,10 @@ import {compress, decompress} from './compression';
 import Factory from './data';
 import {itemFitsSlot, getClass, getModuleProperty, getRating, getModuleInfo} from './data/items';
 import { getSlotSize, REG_CORE_SLOT } from './data/slots';
-import {IllegalStateError, NotImplementedError} from './errors';
+import {IllegalStateError, NotImplementedError, UnknownRestrictedError} from './errors';
 import Ship from './Ship';
 import {getBlueprintProps, calculateModifier, PropertyMap} from './data/blueprints';
-import { ModulePropertyCalculator, ModulePropertyCalculatorClass } from './module-stats';
+import MODULE_STATS, { ModulePropertyCalculator, ModulePropertyCalculatorClass } from './module-stats';
 import DiffEmitter from './helper/DiffEmitter';
 
 /**
@@ -131,7 +131,12 @@ export default class Module extends DiffEmitter {
                 let modifiers = object.Engineering.Modifiers;
                 handler.Engineering.Modifiers = {};
                 modifiers.forEach(modifier => {
-                    handler.Engineering.Modifiers[modifier.Label.toLowerCase()] = modifier;
+                    let label = modifier.Label.toLowerCase();
+                    // Only store stats that don't have a getter
+                    let stats = MODULE_STATS[label];
+                    if (stats && !stats.getter) {
+                        handler.Engineering.Modifiers[label] = modifier;
+                    }
                 });
             }
             this._object = handler;
@@ -189,16 +194,27 @@ export default class Module extends DiffEmitter {
      *      does not apply to this type of module, e.g. "ammo" on a cargo rack.
      */
     get(property: string | ModulePropertyCalculator | ModulePropertyCalculatorClass, modified: boolean = true): (number | null | undefined) {
+        if (typeof property === 'string') {
+            property = property.toLowerCase();
+            let stats = MODULE_STATS[property];
+            if (!stats) {
+                throw new UnknownRestrictedError(`Don't know property ${property}`);
+            }
+
+            let getter = MODULE_STATS[property].getter;
+            if (getter) {
+                property = getter;
+            } else {
+                if (this._object.Engineering && this._object.Engineering.Modifiers[property]) {
+                    return this._object.Engineering.Modifiers[property].Value;
+                }
+                return getModuleProperty(this._object.Item, property);
+            }
+        }
         if (typeof property === 'object') {
             return property.calculate(this, modified);
-        }
-        if (typeof property === 'function') {
-            return property(this, modified);
-        }
-        if (this._object.Engineering && this._object.Engineering.Modifiers[property]) {
-            return this._object.Engineering.Modifiers[property].Value;
-        }
-        return getModuleProperty(this._object.Item, property.toLowerCase());
+        } // else: function
+        return property(this, modified);
     }
 
     getModifier(property: string): number | null {
@@ -341,6 +357,12 @@ export default class Module extends DiffEmitter {
         if (this._object.Engineering) {
             r.Engineering = clone(this._object.Engineering) as (BlueprintObject & BlueprintObjectHandler) as BlueprintObject;
             r.Engineering.Modifiers = values(this._object.Engineering.Modifiers);
+            for (let stat in MODULE_STATS) {
+                let getter = MODULE_STATS[stat].getter
+                if (getter) {
+                    r.Engineering.Modifiers[stat] = this.get(getter, true);
+                }
+            }
         }
         return r;
     }
