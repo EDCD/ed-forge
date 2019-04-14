@@ -33,7 +33,7 @@ function getBoostMultiplier(ship: Ship): number {
         return 1;
     }
 
-    return ship.getBaseProperty('boost') * ship.getBaseProperty('speed');
+    return ship.getBaseProperty('boost');
 }
 
 /**
