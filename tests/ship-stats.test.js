@@ -67,6 +67,20 @@ test('can calculate module protection metrics', () => {
     expect(ship.get(MODULE_PROTECTION)).not.toBeNaN();
 });
 
+test('can calculate damage metrics (individually)', () => {
+    const { DPS, SDPS, EPS, DPE, HPS, ABS_DMG_PORTION, EXPL_DMG_PORTION,
+        KIN_DMG_PORTION, THERM_DMG_PORTION } = ShipProps;
+    expect(ship.get(DPS)).not.toBeNaN();
+    expect(ship.get(SDPS)).not.toBeNaN();
+    expect(ship.get(EPS)).not.toBeNaN();
+    expect(ship.get(DPE)).not.toBeNaN();
+    expect(ship.get(HPS)).not.toBeNaN();
+    expect(ship.get(ABS_DMG_PORTION)).not.toBeNaN();
+    expect(ship.get(EXPL_DMG_PORTION)).not.toBeNaN();
+    expect(ship.get(KIN_DMG_PORTION)).not.toBeNaN();
+    expect(ship.get(THERM_DMG_PORTION)).not.toBeNaN();
+});
+
 test('can calculate shield metrics', () => {
     const { SHIELD_METRICS } = ShipProps;
     expect(ship.getMetrics(SHIELD_METRICS)).toMatchObject({});
@@ -85,4 +99,9 @@ test('can calculate jump metrics', () => {
 test('can calculate module protection metrics', () => {
     const { MODULE_PROTECTION_METRICS } = ShipProps;
     expect(ship.getMetrics(MODULE_PROTECTION_METRICS)).toMatchObject({});
+});
+
+test('can calculate damage metrics', () => {
+    const { DAMAGE_METRICS } = ShipProps;
+    expect(ship.getMetrics(DAMAGE_METRICS)).toMatchObject({});
 });

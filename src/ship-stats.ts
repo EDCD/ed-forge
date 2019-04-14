@@ -11,12 +11,14 @@ import {
     SPEED_CALCULATOR, SHIELD_METRICS_CALCULATOR, ARMOUR_METRICS_CALCULATOR,
     MODULE_PROTECTION_CALCULATOR,
     UNLADEN_MASS_CALCULATOR,
-    LADEN_MASS_CALCULATOR
+    LADEN_MASS_CALCULATOR,
+    DAMAGE_PROFILE_CALCULATOR
 } from './stats';
 import { ShieldMetricsWithRecharge } from "./stats/ShieldProfile";
 import { ArmourMetrics } from "./stats/ArmourProfile";
 import { JumpRangeMetrics } from "./stats/JumpRangeProfile";
 import { ModuleProtectionMetrics } from "./stats/ModuleProtectionProfle";
+import { DamageProfile } from "./stats/DamageProfile";
 
 export interface ShipPropertyCalculatorClass {
     calculate(ship: Ship, modified: boolean): number;
@@ -70,3 +72,14 @@ export const CAUS_ARMOUR: ShipPropertyCalculator = ARMOUR_METRICS_CALCULATOR.get
 export const MODULE_PROTECTION_METRICS: ShipMetricsCalculator<ModuleProtectionMetrics> = MODULE_PROTECTION_CALCULATOR.getMetrics;
 export const MODULE_ARMOUR: ShipPropertyCalculator = MODULE_PROTECTION_CALCULATOR.getModuleProtection;
 export const MODULE_PROTECTION: ShipPropertyCalculator = MODULE_PROTECTION_CALCULATOR.getModuleProtection;
+
+export const DAMAGE_METRICS: ShipMetricsCalculator<DamageProfile> = DAMAGE_PROFILE_CALCULATOR.calculate;
+export const DPS: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
+export const SDPS: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
+export const EPS: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
+export const DPE: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
+export const HPS: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
+export const ABS_DMG_PORTION: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getAbsDamagePortion;
+export const EXPL_DMG_PORTION: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getExplDamagePortion;
+export const KIN_DMG_PORTION: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getKinDamagePortion;
+export const THERM_DMG_PORTION: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getThermDamagePortion;

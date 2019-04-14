@@ -16,6 +16,7 @@ import Cargo from "./Cargo";
 import Fuel from "./Fuel";
 import UnladenMass from "./UnladenMass";
 import LadenMass from "./LadenMass";
+import DamageProfileCalculator from "./DamageProfile";
 
 // IMPORTANT: some of these intance rely on other instances in this module if an
 // instance depends on others, make sure to export it after its dependencies
@@ -30,3 +31,4 @@ export const SPEED_CALCULATOR = new SpeedProfile();
 export const SHIELD_METRICS_CALCULATOR = new ShieldProfile();
 export const ARMOUR_METRICS_CALCULATOR = new ArmourProfile();
 export const MODULE_PROTECTION_CALCULATOR = new ModuleProtectionProfile();
+export const DAMAGE_PROFILE_CALCULATOR = new DamageProfileCalculator();
