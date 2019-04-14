@@ -40,6 +40,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'burst': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
     'burstint': { 'method': 'multiplicative', 'higherbetter': false }, // actually modified
     'burstrof': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
+    'cargo': {},
     'causres': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },
     'clip': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'damage': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -55,6 +56,9 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'explres': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
     'facinglimit': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'falloff': {},
+    'fuel': {},
+    'fuelmul': {},
+    'fuelpower': {},
     'heatpersecond': { 'higherbetter': false, 'getter': HPS, },
     'hullboost': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
     'hullreinforcement': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -64,6 +68,10 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'kinres': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
     'mass': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'maxfuel': {},
+    'maxmass': {},
+    'maxmul': {},
+    'minmass': {},
+    'minmul': {},
     'optmass': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'optmul': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'pgen': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -75,6 +83,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'regen': {},
     'reload': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'rof': { 'higherbetter': true },  // actually modified
+    'roundspershot': {},
     'scanrate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'scantime': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'sustaineddamagerpersecond': { 'higherbetter': true, 'getter': SDPS, },
