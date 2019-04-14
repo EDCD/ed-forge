@@ -455,7 +455,7 @@ NOT_PROPS_KEYS = [ 'name', 'luxuryCabins', 'class', 'manufacturer',
 
 function consumeShip(entry) {
     let [shipName, ship] = entry;
-    const Ship = SHIP_CORIOLIS_TO_FD[shipName][0];
+    const Ship = SHIP_CORIOLIS_TO_FD[shipName];
     let j = {
         proto: {
             Ship: Ship,
