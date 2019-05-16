@@ -3,7 +3,7 @@ const { Modules, Ships, Modifications } = require('coriolis-data/dist');
 const fs = require('fs');
 const _ = require('lodash');
 const {
-    SHIP_CORIOLIS_TO_FD, MODULES_REGEX, ARMOUR_TO_SHIP
+    SHIP_CORIOLIS_TO_FD, MODULES_REGEX, ARMOUR_TO_SHIP, CAT_CORIOLIS_TO_FD
 } = require('./scripts/coriolis-mappings');
 
 
@@ -52,10 +52,29 @@ function writeDataJSON(filename, json) {
     );
 }
 
-// ------------------------------
-//  Create src/data/modules.json
-// ------------------------------
+// --------------------------------------------------------------
+//  Create src/data/modules.json and src/data/module_cache.json
+// --------------------------------------------------------------
 
+// Create a map for modules mapping to blueprints that can be applied to them
+const TYPES_TO_BLUEPRINTS = _.chain(Modifications.modules)
+    .mapValues(o => _.keys(o.blueprints))
+    .entries()
+    .flatMap(entry => {
+        let [k, v] = entry;
+        v = _.map(v, bprnt => bprnt.toLowerCase());
+        let applicableTypes = CAT_CORIOLIS_TO_FD[k];
+        if (applicableTypes === undefined) {
+            return [];
+        } else {
+            return _.zip(applicableTypes, _.fill(_.range(applicableTypes.length), v));
+        }
+    })
+    .fromPairs()
+    .value();
+
+// Initialize the empty cache to hold an empty object for each item type
+const MODULE_CACHE = {};
 const MODULES = {
     // Empty module
     '': {
@@ -69,15 +88,40 @@ const MODULES = {
 };
 
 const META_KEYS = [ 'eddbID', 'edID', 'class', 'rating', 'fighterHangars',
-    'manufacturer', 'crew', 'retailCost', 'ukName', 'ukDiscript' ];
+    'manufacturer', 'crew', 'retailCost', 'ukName', 'ukDiscript', 'pp' ];
 let NOT_PROPS_KEYS = [ 'rating', 'class', 'eddbID', 'id', 'edID', 'symbol',
-    'grp', 'mount', 'damagedist', 'name' ];
+    'grp', 'mount', 'damagedist', 'name', 'pp', 'missile' ];
 
 function modulePropsPicker(value, key) {
     return !NOT_PROPS_KEYS.includes(key);
 }
 
 function consumeModule(module) {
+    const moduleKey = module.symbol.toLowerCase();
+    let path = _.chain(_.entries(MODULES_REGEX)).map(entry => {
+            let [type, reg] = entry;
+            let groups = reg.groups || [1, 2];
+            reg = reg.r || reg;
+
+            let m = moduleKey.match(reg);
+            if (m) {
+                let path = groups.map(index => m[index] || '');
+                if (type === 'ARMOUR') {
+                    path[0] = ARMOUR_TO_SHIP[path[0]] || path[0];
+                }
+                path.unshift(type);
+                return path;
+            }
+            return null;
+        })
+        .filter(Boolean)
+        .first()
+        .value();
+
+    // Use Object function as custom setter to ensure no array are created
+    _.setWith(MODULE_CACHE, path, moduleKey, Object);
+    let [ type ] = path;
+
     let j = {
         proto: {
             Slot: '',
@@ -86,7 +130,7 @@ function consumeModule(module) {
             Priority: 1
         },
         props: _.pickBy(module, modulePropsPicker),
-        meta: _.defaults(_.pick(module, META_KEYS), { 'class': 0 }),
+        meta: _.defaults(_.pick(module, META_KEYS), { 'class': 0, 'applicable': TYPES_TO_BLUEPRINTS[type] || [] }),
     };
 
     let dist = module.damagedist;
@@ -112,7 +156,7 @@ function consumeModule(module) {
         j.props.burstint = 1 / rof;
     }
 
-    MODULES[module.symbol.toLowerCase()] = j;
+    MODULES[moduleKey] = j;
     (module.symbol.match(/Hpt_/i) ? ID_TO_MODULE_HP : ID_TO_MODULE)[module.id] = j;
 }
 
@@ -140,34 +184,6 @@ _.chain([ Modules.internal, Modules.standard, Modules.hardpoints ])
     .commit();
 
 writeDataJSON('modules.json', MODULES);
-
-// -----------------------------------
-//  Create src/data/module_cache.json
-// -----------------------------------
-
-const MODULE_CACHE = {};
-
-_.forEach(_.entries(MODULES_REGEX), entry => {
-    let [regKey, reg] = entry;
-    MODULE_CACHE[regKey] = {};
-    let groups = reg.groups || [1, 2];
-    reg = reg.r || reg;
-
-    _.forEach(_.keys(MODULES), moduleKey => {
-        let m = moduleKey.match(reg);
-        if (m) {
-            let path = groups.map(index => m[index] || '');
-            if (regKey === 'ARMOUR') {
-                path[0] = ARMOUR_TO_SHIP[path[0]] || path[0];
-            }
-            if (!MODULE_CACHE[regKey][path[0]]) {
-                MODULE_CACHE[regKey][path[0]] = {};
-            }
-            MODULE_CACHE[regKey][path[0]][path[1]] = moduleKey;
-        }
-    });
-});
-
 writeDataJSON('module_cache.json', MODULE_CACHE);
 
 // ----------------------------
