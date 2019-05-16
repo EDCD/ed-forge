@@ -143,12 +143,13 @@ const MODULES_REGEX = {
         r: /^Hpt_PulseLaserBurst_(\w+)_(\w+)_Scatter$/i,
         groups: [2, 1],
     },
+    DecontaminationLimpet: /^Int_DroneControl_Decontamination_Size(\d)_Class(\d)$/i,
     Disruptor: {
         r: /^Hpt_PulseLaser_(\w+)_(\w+)_Disruptor$/i,
         groups: [2, 1],
     },
     DockingComputer: /^Int_DockingComputer_Standard$/i,
-    DumbfireRack: /^Hpt_ATDumbfireMissile_Fixed_(\w+)$/i,
+    DumbfireRack: /^Hpt_DumbfireMissileRack_Fixed_(\w+)$/i,
     ECM: /^Hpt_ElectronicCountermeasure_Tiny$/i,
     Enforcer: {
         r: /^Hpt_MultiCannon_(\w+)_(\w+)_Strong$/i,
@@ -174,7 +175,7 @@ const MODULES_REGEX = {
         r: /^Hpt_DumbfireMissileRack_(\w+)_(\w+)_Lasso$/i,
         groups: [2, 1],
     },
-    FSDInterdicotr: /^Int_FSDInterdictor_Size(\d)_Class(\d)$/i,
+    FSDInterdictor: /^Int_FSDInterdictor_Size(\d)_Class(\d)$/i,
     FSDBooster: /^Int_GuardianFSDBooster_Size(\d)$/i,
     FuelScoop: /^Int_FuelScoop_Size(\d)_Class(\d)$/i,
     FuelTransferLimpet: /^Int_DroneControl_FuelTransfer_Size(\d)_Class(\d)$/i,
@@ -194,7 +195,7 @@ const MODULES_REGEX = {
         groups: [2, 1],
     },
     GuardianSRP: /^Int_GuardianShieldReinforcement_Size(\d)_Class(\d)$/i,
-    HatchBreakerLimper: /^Int_DroneControl_ResourceSiphon_Size(\d)_Class(\d)$/i,
+    HatchBreakerLimpet: /^Int_DroneControl_ResourceSiphon_Size(\d)_Class(\d)$/i,
     HeatSinkLauncher: /^Hpt_HeatSinkLauncher_Turret_Tiny$/i,
     HRP: /^Int_HullReinforcement_Size(\d)_Class(\d)$/i,
     ImperialHammer: {
@@ -236,7 +237,7 @@ const MODULES_REGEX = {
         r: /^Hpt_PlasmaAccelerator_(\w+)_(\w+)$/i,
         groups: [2, 1],
     },
-    PointDefence: /^Hpt_ChaffLauncher_Tiny$/i,
+    PointDefence: /^Hpt_PlasmaPointDefence_Turret_Tiny$/i,
     PrismaticShieldGen: /^Int_ShieldGenerator_Size(\d)_Class(\d)_Strong$/i,
     ProspectorLimpet: /^Int_DroneControl_Prospector_Size(\d)_Class(\d)$/i,
     PulseLaser: {
@@ -265,7 +266,7 @@ const MODULES_REGEX = {
         groups: [-1, 1],
     },
     SCB: /^Int_ShieldCellBank_Size(\d)_Class(\d)$/i,
-    SeekerRack: /^Hpt_ATDumbfireMissile_Turret_(\w+)/i,
+    SeekerRack: /^Hpt_BasicMissileRack_Turret_(\w+)/i,
     ShockCannon: {
         r: /^Hpt_PlasmaShockCannon_(\w+)_(\w+)$/i,
         groups: [2, 1],
