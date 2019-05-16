@@ -186,6 +186,7 @@ module.exports.MODULES_REGEX = {
         r: /^Hpt_Slugshot_(\w+)_(\w+)_Range$/i,
         groups: [2, 1],
     },
+    PlaneterayApproachSuite: /^Int_PlanetApproachSuite$/i,
     PlasmaAcc: {
         r: /^Hpt_PlasmaAccelerator_(\w+)_(\w+)$/i,
         groups: [2, 1],
@@ -219,7 +220,7 @@ module.exports.MODULES_REGEX = {
         groups: [-1, 1],
     },
     SCB: /^Int_ShieldCellBank_Size(\d)_Class(\d)$/i,
-    SeekerRack: /^Hpt_BasicMissileRack_Turret_(\w+)/i,
+    SeekerRack: /^Hpt_BasicMissileRack_Fixed_(\w+)/i,
     ShockCannon: {
         r: /^Hpt_PlasmaShockCannon_(\w+)_(\w+)$/i,
         groups: [2, 1],
