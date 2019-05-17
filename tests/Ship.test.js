@@ -12,6 +12,10 @@ function randomString(length = -1) {
     return str.substring(0, strLen);
 }
 
+function prec2(number) {
+    return Math.round(number * 100) / 100;
+}
+
 let ship;
 beforeEach(() => {
     ship = new Ship(anacondaBuild);
@@ -21,26 +25,33 @@ test('ship can be imported', () => {
     expect(ship).toBeTruthy();
 });
 
-test('modules are imported with correct items', () => {
+describe('modules are imported with correct items', () => {
     for (let module of anacondaBuild.Modules) {
         let slot = module.Slot;
         try { assertValidSlot(slot) } catch {
             continue;
         }
-        expect(ship.getModule(slot).getItem()).toEqual(module.Item);
+        test(`Slot ${slot} has the right item`, () => {
+            expect(ship.getModule(slot).getItem()).toEqual(module.Item);
+        });
     }
 });
 
-test('modules are imported with correct blueprints', () => {
+describe('modules are imported with correct blueprints', () => {
     for (let module of anacondaBuild.Modules) {
         if (!module.Engineering) {
             continue;
         }
 
-        let importedModule = ship.getModule(module.Slot);
         for (let modifier of module.Engineering.Modifiers) {
             let { Label, Value } = modifier;
-            expect(importedModule.get(Label)).toEqual(Value);
+            if (Label === 'DamageType') { // we ignore non-number mods for now
+                continue;
+            }
+            test(`${Label} on ${module.Slot} with ${module.Item} is modified correctly`, () => {
+                let importedModule = ship.getModule(module.Slot);
+                expect(prec2(importedModule.get(Label))).toEqual(prec2(Value));
+            });
         }
     }
 });

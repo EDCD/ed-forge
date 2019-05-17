@@ -33,7 +33,7 @@ test('can calculate speed metrics', () => {
     expect(ship.get(PITCH)).not.toBeNaN();
 });
 
-test('can calcuate shield metrics', () => {
+test('can calcuate shield metrics (individually)', () => {
     const { SHIELD_STRENGTH, EXPL_SHIELD_RES, EXPL_SHIELD_STRENGTH,
         KIN_SHIELD_RES, KIN_SHIELD_STRENGTH, THERM_SHIELD_RES,
         THERM_SHIELD_STRENGTH } = ShipProps;
@@ -46,7 +46,7 @@ test('can calcuate shield metrics', () => {
     expect(ship.get(THERM_SHIELD_STRENGTH)).not.toBeNaN();
 });
 
-test('can calculate armour metrics', () => {
+test('can calculate armour metrics (individually)', () => {
     const { ARMOUR, EXPL_ARMOUR_RES, EXPL_ARMOUR, KIN_ARMOUR_RES, KIN_ARMOUR,
         THERM_ARMOUR_RES, THERM_ARMOUR, CAUS_ARMOUR_RES,
         CAUS_ARMOUR } = ShipProps;
@@ -61,7 +61,7 @@ test('can calculate armour metrics', () => {
     expect(ship.get(CAUS_ARMOUR)).not.toBeNaN();
 });
 
-test('can calculate module protection metrics', () => {
+test('can calculate module protection metrics (individually)', () => {
     const { MODULE_ARMOUR, MODULE_PROTECTION } = ShipProps;
     expect(ship.get(MODULE_ARMOUR)).not.toBeNaN();
     expect(ship.get(MODULE_PROTECTION)).not.toBeNaN();
