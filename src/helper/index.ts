@@ -137,6 +137,9 @@ function _moduleMean(modules: Module[] | { [key: string]: Module },
         let [ reduced, len ] = _moduleReduce<number[]>(
             modules, prop, modified, filters, fn, [ 0, 0 ]
         );
+        if (len == 0) {
+            return 0;
+        }
         return reduced / len;
     }
 

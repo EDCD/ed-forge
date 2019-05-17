@@ -14,13 +14,15 @@ import { FeatureObject, ModuleInformation, BlueprintObject, ExperimentalObject }
 import * as BLUEPRINTS from './blueprints.json';
 import * as EXPERIMENTALS from './experimentals.json';
 
+const FALLOFF_KEY = 'falloff';
 const BLUEPRINT_EXTRAS = {
-    'Weapon_LongRange': (moduleInfo: ModuleInformation, propObject) => {
-        let falloff = propObject['range'].value;
-        let baseFalloff = moduleInfo.props['falloff'];
-        propObject['falloff'] = {
-            modifier: falloff / baseFalloff,
-            value: falloff
+    'weapon_longrange': (moduleInfo: ModuleInformation, propObject: PropertyMap) => {
+        let falloff = propObject['range'].Value;
+        let baseFalloff = moduleInfo.props[FALLOFF_KEY];
+        propObject[FALLOFF_KEY] = {
+            Label: FALLOFF_KEY,
+            Modifier: falloff / baseFalloff,
+            Value: falloff
         };
     },
 };

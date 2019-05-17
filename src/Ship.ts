@@ -479,6 +479,14 @@ export default class Ship extends DiffEmitter {
     }
 
     /**
+     * @param statistics
+     * @param modified
+     */
+    getMetrics<T>(calculator: ShipMetricsCalculator<T>, modified: boolean = true): T {
+        return calculator(this, modified);
+    }
+
+    /**
      * Returns one of the ship's constants, e.g. `hullmass`.
      * @param property Name of the property
      * @returns Value of the property
@@ -528,14 +536,6 @@ export default class Ship extends DiffEmitter {
      */
     getFormatted(property: string, modified: boolean = true, unit?: string, value?: number) {
         throw new NotImplementedError();
-    }
-
-    /**
-     * @param statistics
-     * @param modified
-     */
-    getMetrics<T>(calculator: ShipMetricsCalculator<T>, modified: boolean = true): T {
-        return calculator(this, modified);
     }
 
     /**

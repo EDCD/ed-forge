@@ -157,10 +157,11 @@ export default class Module extends DiffEmitter {
     }
 
     /**
-         * Read an arbitrary object property of this ship's corresponding meta properties.
-         * @param property Property name
-         * @returns Property value
-         */
+     * Read an arbitrary object property of this module's corresponding meta
+     * properties, e.g. eddbID, edID.
+     * @param property Property name
+     * @returns Property value
+     */
     readMeta(property: string): any {
         return getModuleInfo(this._object.Item).meta[property] || '';
     }
