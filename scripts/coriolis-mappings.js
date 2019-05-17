@@ -42,6 +42,138 @@ module.exports.SHIP_CORIOLIS_TO_FD = {
     'vulture': 'Vulture'
 };
 
+module.exports.PROP_CORIOLIS_TO_FD = {
+    'ammo': 'ammomaximum',
+    'angle': 'sensortargetscanangle',
+    'boot': 'boottime',
+    'brokenregen': 'brokenregenrate',
+    'burst': 'burstsize',
+    'burstrof': 'burstrateoffire',
+    'causres': 'causticresistance',
+    'clip': 'ammoclipsize',
+    'distdraw': [
+        {
+            'for' : /Hpt_/i,
+            'val': 'distributordraw',
+        },
+        {
+            'for': /Int_ShieldGenerator/i,
+            'val': 'energyperregen',
+        },
+    ],
+    'dpe': 'damageperenergy',
+    'dps': 'damagepersecond',
+    'duration': 'shieldbankduration',
+    'eff': 'heatefficiency',
+    'engcap': 'enginescapacity',
+    'engrate': 'enginesrecharge',
+    'eps': 'energypersecond',
+    'explres': 'explosiveresistance',
+    'facinglimit': 'fsdinterdictorfacinglimit',
+    'falloff': 'damagefalloffrange',
+    'fireint': 'fireintervall',
+    'hps': 'heatpersecond',
+    'hullreinforcement': 'defencemodifierhealthaddition',
+    'hullboost': 'defencemodifierhealthmultiplier',
+    'kinres': 'kineticresistance',
+    'maxmass': [
+        {
+            'for': /^Int_Engine/i,
+            'val': 'enginemaximalmass',
+        },
+        {
+            'for': /^Int_ShieldGenerator/i,
+            'val': 'shieldgenmaximalmass',
+        },
+    ],
+    'maxmul': [
+        {
+            'for': /^Int_Engine/i,
+            'val': 'enginemaxperformance',
+        },
+        {
+            'for': /^Int_ShieldGenerator/i,
+            'val': 'shieldgenmaxstrength',
+        },
+    ],
+    'minmass': [
+        {
+            'for': /^Int_Engine/i,
+            'val': 'engineminimalmass',
+        },
+        {
+            'for': /^Int_ShieldGenerator/i,
+            'val': 'shieldgenminimalmass',
+        },
+    ],
+    'minmul': [
+        {
+            'for': /^Int_Engine/i,
+            'val': 'engineminperformance',
+        },
+        {
+            'for': /^Int_ShieldGenerator/i,
+            'val': 'shieldgenminstrength',
+        },
+    ],
+    'optmass': [
+        {
+            'for': /^Int_Engine/i,
+            'val': 'engineoptimalmass',
+        },
+        {
+            'for': /^Int_HyperDrive/i,
+            'val': 'fsdoptimalmass',
+        },
+        {
+            'for': /^Int_ShieldGenerator/i,
+            'val': 'shieldgenoptimalmass',
+        },
+    ],
+    'optmul': [
+        {
+            'for': /^Int_Engine/i,
+            'val': 'engineoptperformance',
+        },
+        {
+            'for': /^Int_ShieldGenerator/i,
+            'val': 'shieldgenstrength',
+        },
+    ],
+    'pgen': 'powercapacity',
+    'piercing': 'armourpenetration',
+    'power': 'powerdraw',
+    'range': [
+        {
+            'for': /^Int_Sensors/i,
+            'val': 'range',
+        },
+        {
+            'for': /^Hpt_[a-zA-Z]+Scanner/i,
+            'val': 'scannerrange',
+        },
+        {
+            'for': /^(Hpt_)|(Int_DroneControl_)/i,
+            'val': 'maximumrange',
+        },
+    ],
+    'ranget': 'fsdinterdictorrange',
+    'regen': 'regenrate',
+    'reload': 'reloadtime',
+    'rof': 'rateoffire',
+    'scantime': 'scannertimetoscan',
+    'shieldreinforcement': 'shieldbankreinforcement',
+    'spinup': 'shieldbankspinup',
+    'sdps': 'sustaineddamagerpersecond',
+    'shieldboost': 'defencemodifiershieldmultiplier',
+    'syscap': 'systemscapacity',
+    'sysrate': 'systemsrecharge',
+    'thermload': 'thermalload',
+    'thermres': 'thermicresistance',
+    'wepcap': 'weaponscapacity',
+    'weprate': 'weaponsrecharge',
+};
+
 /**
  * Following regexes will parse modules for the module cache. The function which
  * create the cache expects matching group 1 to represent the class of the item

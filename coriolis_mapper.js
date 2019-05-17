@@ -3,9 +3,33 @@ const { Modules, Ships, Modifications } = require('coriolis-data/dist');
 const fs = require('fs');
 const _ = require('lodash');
 const {
-    SHIP_CORIOLIS_TO_FD, MODULES_REGEX, ARMOUR_TO_SHIP, CAT_CORIOLIS_TO_FD
+    SHIP_CORIOLIS_TO_FD, MODULES_REGEX, ARMOUR_TO_SHIP, CAT_CORIOLIS_TO_FD,
+    PROP_CORIOLIS_TO_FD,
 } = require('./scripts/coriolis-mappings');
 
+/**
+ * Returns an object key mapper that maps coriolis module prop names to FDev
+ * ones.
+ * @param {String} type Module type
+ * @return {(any, String) => String} Mapper function
+ */
+function modulePropsMapper(type) {
+    return (v, k) => {
+        let mapped = PROP_CORIOLIS_TO_FD[k];
+        let t = typeof mapped;
+        if (t === 'string') {
+            return mapped;
+        } else if (t === 'object') {
+            let v =  _.chain(mapped)
+                .filter((descr) => Boolean(type.match(descr.for)))
+                .map((descr) => descr.val)
+                .head();
+            return v;
+        } else {
+            return k;
+        }
+    };
+}
 
 // Will be set in consumeModule; hardpoints and other modules don't share ids
 const ID_TO_MODULE = {};
@@ -151,6 +175,7 @@ function consumeModule(module) {
     _.setWith(MODULE_CACHE, path, moduleKey, Object);
     let [ type ] = path;
 
+    let mapper = modulePropsMapper(module.symbol);
     let j = {
         proto: {
             Slot: '',
@@ -158,7 +183,7 @@ function consumeModule(module) {
             Item: module.symbol,
             Priority: 1
         },
-        props: _.pickBy(module, modulePropsPicker),
+        props: _.mapKeys(_.pickBy(module, modulePropsPicker), mapper),
         meta: _.defaults(_.pick(module, META_KEYS), {
             'class': 0,
             'applicable': TYPES_TO_BLUEPRINTS[type] || [],
@@ -169,24 +194,18 @@ function consumeModule(module) {
     let dist = module.damagedist;
     if (dist) {
         // Init damage dist
-        j.props.thermdamage = 0;
-        j.props.expldamage = 0;
-        j.props.kindamage = 0;
-        j.props.absdamage = 0;
+        j.props.thermicdamageportion = 0;
+        j.props.explosivedamageportion = 0;
+        j.props.kineticdamageportion = 0;
+        j.props.absolutedamageportion = 0;
         for (let type in dist) {
             switch (type) {
-                case "T": j.props.thermdamage = dist.T;
-                case "E": j.props.expldamage = dist.E;
-                case "K": j.props.kindamage = dist.K;
-                case "A": j.props.absdamage = dist.A;
+                case "T": j.props.thermicdamageportion = dist.T;
+                case "E": j.props.explosivedamageportion = dist.E;
+                case "K": j.props.kineticdamageportion = dist.K;
+                case "A": j.props.absolutedamageportion = dist.A;
             }
         }
-    }
-
-    let rof = module.rof;
-    if (rof) {
-        delete j.props.rof;
-        j.props.burstint = 1 / rof;
     }
 
     MODULES[moduleKey] = j;
@@ -367,13 +386,15 @@ function consumeBlueprint(blueprintObject) {
         return; // This can happen for blueprints that by now have been removed,
                 // e.g. detailed surface scanner mods.
     }
+    let mapper = modulePropsMapper(forModules[0]); // assume for is uniform
     let grades = _.keys(blueprintObject['grades']);
     for (let grade of grades) {
-        let gradeFeatures = blueprintObject['grades'][grade]['features'];
+        let gradeFeatures = _.mapKeys(blueprintObject['grades'][grade]['features'], mapper);
         let rof = gradeFeatures['rateoffire'];
         if (rof) {
             delete gradeFeatures['rateoffire'];
-            gradeFeatures['burstint'] = rof.map(x => -1 * x);
+            // rof actually modifies fire interval
+            gradeFeatures['fireintervall'] = rof.map(x => -1 * x);
         }
         features[grade] = gradeFeatures;
     }
@@ -414,36 +435,45 @@ function consumeExperimental(head) {
     if (!key.startsWith('special_')) {
         return;
     }
+    let name = key.toLowerCase();
+    let forModules = SPECIALS_TO_MODULES[name];
+    if (!forModules) {
+        return; // This can happen for blueprints that by now have been removed,
+                // e.g. detailed surface scanner mods.
+    }
+    // assume forModules is uniform
+    features = _.mapKeys(features, modulePropsMapper(forModules[0]));
 
     let damageDist = features['damagedist'];
     if (damageDist) {
         delete features['damagedist'];
         let newDamageTypes = {
-            'absdamage': 0,
-            'kindamage': 0,
-            'expldamage': 0,
-            'thermdamage': 0,
+            'absolutedamageportion': 0,
+            'kineticdamageportion': 0,
+            'explosivedamageportion': 0,
+            'thermicdamageportion': 0,
         };
         for (let type of _.keys(damageDist)) {
             let damageType;
             switch (type) {
-                case 'A': damageType = 'absdamage';
-                case 'K': damageType = 'kindamage';
-                case 'E': damageType = 'expldamage';
-                case 'T': damageType = 'thermdamage';
+                case 'A': damageType = 'absolutedamageportion';
+                case 'K': damageType = 'kineticdamageportion';
+                case 'E': damageType = 'explosivedamageportion';
+                case 'T': damageType = 'thermicdamageportion';
             }
             newDamageTypes[damageType] = damageDist[type];
         }
         _.assign(features, newDamageTypes);
     }
 
-    let rof = features['rof'];
+    // rof special effects actually modify fire intervall without any changes
+    let rof = features['rateoffire'];
     if (rof) {
-        delete features['rof'];
-        features['burstint'] = -1 * rof;
+        delete features['rateoffire'];
+        features['fireintervall'] = rof;
     }
 
-    for (let resKey of ['thermres', 'kinres', 'explres', 'causres']) {
+    for (let resKey of ['thermicresistance', 'kineticresistance', 'explosiveresistance', 'causticresistance']) {
         let res = features[resKey];
         if (res) {
             features[resKey] = res / 100;
@@ -451,10 +481,9 @@ function consumeExperimental(head) {
     }
 
     features = _.mapValues(features, val => [ val , val ]);
-    let name = key.toLowerCase();
     EXPERIMENTALS[name] = {
         features,
-        for: SPECIALS_TO_MODULES[name] || [],
+        for: forModules,
     };
 }
 

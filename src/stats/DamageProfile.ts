@@ -40,10 +40,10 @@ function getDamageProfile(hardpoints: Module[], modified: boolean): DamageProfil
         dpe: moduleReduceEnabled(hardpoints, 'damageperenergy', modified, add, 0),
         hps: moduleReduceEnabled(hardpoints, 'heatpersecond', modified, add, 0),
         types: {
-            abs: moduleMeanEnabled(hardpoints, 'absdamage', modified),
-            expl: moduleMeanEnabled(hardpoints, 'expldamage', modified),
-            kin: moduleMeanEnabled(hardpoints, 'kindamage', modified),
-            therm: moduleMeanEnabled(hardpoints, 'thermdamage', modified),
+            abs: moduleMeanEnabled(hardpoints, 'absolutedamageportion', modified),
+            expl: moduleMeanEnabled(hardpoints, 'explosivedamageportion', modified),
+            kin: moduleMeanEnabled(hardpoints, 'kineticdamageportion', modified),
+            therm: moduleMeanEnabled(hardpoints, 'thermicdamageportion', modified),
         },
     };
 }
@@ -52,8 +52,8 @@ export default class DamageProfileCalculator {
     private _damageProfile: ShipPropsCacheLine<DamageProfile> = new ShipPropsCacheLine({
         slot: [ REG_HARDPOINT_SLOT, ],
         props: [
-            'damage', 'roundspershot', 'rof', 'clip', 'reload', 'distdraw',
-            'thermload', 'absdamage', 'expldamage', 'kindamage', 'thermdamage',
+            'damage', 'roundspershot', 'rateoffire', 'ammoclipsize', 'reloadtime', 'distributordraw',
+            'thermalload', 'absolutedamageportion', 'explosivedamageportion', 'kineticdamageportion', 'thermicdamageportion',
         ],
     });
 

@@ -46,12 +46,12 @@ function getBoostMultiplier(ship: Ship): number {
 function getSpeedMultiplier(ship: Ship, modified: boolean): number {
     let thrusters = ship.getThrusters();
     return scaleMul(
-        thrusters.get('minmul', modified),
-        thrusters.get('optmul', modified),
-        thrusters.get('maxmul', modified),
-        thrusters.get('minmass', modified),
-        thrusters.get('optmass', modified),
-        thrusters.get('maxmass', modified),
+        thrusters.get('engineminperformance', modified),
+        thrusters.get('engineoptperformance', modified),
+        thrusters.get('enginemaxperformance', modified),
+        thrusters.get('engineminimalmass', modified),
+        thrusters.get('engineoptimalmass', modified),
+        thrusters.get('enginemaximalmass', modified),
         LADEN_MASS_CALCULATOR.calculate(ship, modified)
     );
 }
@@ -60,7 +60,7 @@ export default class SpeedProfile {
     private _multiplier: ShipPropsCacheLine<number> = new ShipPropsCacheLine<number>(
         LADEN_MASS_CALCULATOR, {
             type: [ /Engine/i, ],
-            props: [ 'minmul', 'optmul', 'maxmul', 'minmass', 'optmass', 'maxmass', ],
+            props: [ 'engineminperformance', 'engineoptperformance', 'enginemaxperformance', 'engineminimalmass', 'engineoptimalmass', 'enginemaximalmass', ],
         }
     );
 

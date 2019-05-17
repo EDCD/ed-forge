@@ -57,18 +57,18 @@ function getArmourMetrics(ship: Ship, modified: boolean): ArmourMetrics {
     let alloys = ship.getAlloys();
 
     let baseArmour = ship.getBaseProperty('basearmour');
-    let hullBoost = alloys.get('hullboost', modified);
-    let explDamage = 1 - alloys.get('explres', modified);
-    let kinDamage = 1 - alloys.get('kinres', modified);
-    let thermDamage = 1 - alloys.get('thermres', modified);
-    let causDamage = 1 - alloys.get('causres', modified);
+    let hullBoost = alloys.get('defencemodifierhealthmultiplier', modified);
+    let explDamage = 1 - alloys.get('explosiveresistance', modified);
+    let kinDamage = 1 - alloys.get('kineticresistance', modified);
+    let thermDamage = 1 - alloys.get('thermicresistance', modified);
+    let causDamage = 1 - alloys.get('causticresistance', modified);
 
     let hrps = ship.getHRPs();
-    let hrpReinforcement = moduleReduceEnabled(hrps, 'hullreinforcement', modified, add, 0);
-    let hrpExplDamage = moduleReduceEnabled(hrps, 'explres', modified, complMult, 1);
-    let hrpKinDamage = moduleReduceEnabled(hrps, 'kinres', modified, complMult, 1);
-    let hrpThermDamage = moduleReduceEnabled(hrps, 'thermres', modified, complMult, 1);
-    let hrpCausDamage = moduleReduceEnabled(hrps, 'causres', modified, complMult, 1);
+    let hrpReinforcement = moduleReduceEnabled(hrps, 'defencemodifierhealthaddition', modified, add, 0);
+    let hrpExplDamage = moduleReduceEnabled(hrps, 'explosiveresistance', modified, complMult, 1);
+    let hrpKinDamage = moduleReduceEnabled(hrps, 'kineticresistance', modified, complMult, 1);
+    let hrpThermDamage = moduleReduceEnabled(hrps, 'thermicresistance', modified, complMult, 1);
+    let hrpCausDamage = moduleReduceEnabled(hrps, 'causticresistance', modified, complMult, 1);
 
     let boostedArmour = baseArmour * (1 + hullBoost);
     return {
@@ -102,7 +102,7 @@ function getArmourMetrics(ship: Ship, modified: boolean): ArmourMetrics {
 export default class ArmourProfile {
     private _armourMetrics : ShipPropsCacheLine<ArmourMetrics> = new ShipPropsCacheLine({
         type: [ /Armour/i, /HullReinforcement/i ],
-        props: [ 'hullboost', 'explres', 'kinres', 'thermres', 'causres', 'hullreinforcement' ],
+        props: [ 'defencemodifierhealthmultiplier', 'explosiveresistance', 'kineticresistance', 'thermicresistance', 'causticresistance', 'defencemodifierhealthaddition' ],
     });
 
     constructor() {

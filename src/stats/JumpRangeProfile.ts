@@ -23,7 +23,7 @@ export interface JumpRangeMetrics {
 
 function getJumpRangeMetrics(jumpBoost: number, ship: Ship, modified: boolean): JumpRangeMetrics {
     let fsd = ship.getFSD();
-    let optMass = fsd.get('optmass', modified);
+    let optMass = fsd.get('fsdoptimalmass', modified);
     let mass = LADEN_MASS_CALCULATOR.calculate(ship, modified);
 
     let maxFuelPerJump = fsd.get('maxfuel', modified);
@@ -60,7 +60,7 @@ export default class JumpRangeProfile {
     private _jumpRangeMetrics: ShipPropsCacheLine<JumpRangeMetrics> = new ShipPropsCacheLine(
         LADEN_MASS_CALCULATOR, FUEL_CALCULATOR, {
             type: [ /HyperDrive/i, ],
-            props: [ 'optmass', 'maxfuel', 'fuelmul', 'fuelpower', 'Fuel', ],
+            props: [ 'fsdoptimalmass', 'maxfuel', 'fuelmul', 'fuelpower', 'fuel', ],
         }
     );
 

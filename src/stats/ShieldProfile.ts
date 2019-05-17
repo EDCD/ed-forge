@@ -165,12 +165,12 @@ function getRechargeTime(rechargeSize: number, rechargeRate: number,
 
 function getBaseShieldStrength(shieldGenerator: Module, ship: Ship, modified: boolean) {
     return ship.getBaseProperty('baseshieldstrength') * scaleMul(
-        shieldGenerator.get('minmul', modified),
-        shieldGenerator.get('optmul', modified),
-        shieldGenerator.get('maxmul', modified),
-        shieldGenerator.get('minmass', modified),
-        shieldGenerator.get('optmass', modified),
-        shieldGenerator.get('maxmass', modified),
+        shieldGenerator.get('shieldgenminstrength', modified),
+        shieldGenerator.get('shieldgenstrength', modified),
+        shieldGenerator.get('shieldgenmaxstrength', modified),
+        shieldGenerator.get('shieldgenminimalmass', modified),
+        shieldGenerator.get('shieldgenoptimalmass', modified),
+        shieldGenerator.get('shieldgenmaximalmass', modified),
         ship.getBaseProperty('hullmass')
     );
 }
@@ -183,15 +183,15 @@ function getShieldMetrics(
     shieldGenerator: Module, baseShieldStrength: number, shieldAddition: number,
     ship: Ship, modified: boolean
 ): ShieldMetrics {
-    let explDamage = 1 - shieldGenerator.get('explres', modified);
-    let kinDamage = 1 - shieldGenerator.get('kinres', modified);
-    let thermDamage = 1 - shieldGenerator.get('thermres', modified);
+    let explDamage = 1 - shieldGenerator.get('explosiveresistance', modified);
+    let kinDamage = 1 - shieldGenerator.get('kineticresistance', modified);
+    let thermDamage = 1 - shieldGenerator.get('thermicresistance', modified);
 
     let sbs = ship.getShieldBoosters();
-    let boost = moduleReduceEnabled(sbs, 'shieldboost', modified, add, 0);
-    let boosterExplDamage = moduleReduceEnabled(sbs, 'explres', modified, complMult, 1);
-    let boosterKinDamage = moduleReduceEnabled(sbs, 'kinres', modified, complMult, 1);
-    let boosterThermDamage = moduleReduceEnabled(sbs, 'thermres', modified, complMult, 1);
+    let boost = moduleReduceEnabled(sbs, 'defencemodifiershieldmultiplier', modified, add, 0);
+    let boosterExplDamage = moduleReduceEnabled(sbs, 'explosiveresistance', modified, complMult, 1);
+    let boosterKinDamage = moduleReduceEnabled(sbs, 'kineticresistance', modified, complMult, 1);
+    let boosterThermDamage = moduleReduceEnabled(sbs, 'thermicresistance', modified, complMult, 1);
 
     let byBoosters = baseShieldStrength * boost;
     let shieldStrength = baseShieldStrength + byBoosters + shieldAddition;
@@ -257,9 +257,9 @@ function getShieldMetrics(
 function getSCBAddition(ship: Ship, modified: boolean): number {
     // TODO: move into module property and map to that
     let bySCBs = ship.getSCBs().reduce(
-        (reduced, m) => reduced + m.get('shieldreinforcement', modified)
+        (reduced, m) => reduced + m.get('shieldbankreinforcement', modified)
             * m.get('duration', modified)
-            * (m.get('ammo', modified) + m.get('clip', modified)),
+            * (m.get('ammomaximum', modified) + m.get('ammoclipsize', modified)),
         0
     );
 
@@ -277,17 +277,17 @@ function getRechargeMetrics(
     shieldStrength: number, shieldGenerator: Module, powerDistributor: Module,
     modified: boolean
 ): RechargeMetrics {
-    let distributorDraw = shieldGenerator.get('distdraw', modified);
-    let distributorCap = powerDistributor.get('syscap', modified);
+    let distributorDraw = shieldGenerator.get('energyperregen', modified);
+    let distributorCap = powerDistributor.get('systemscapacity', modified);
     let distributorRecharge = powerDistributor.get(EFFECTIVE_SYS_RATE, modified);
     let distributorEnabled = powerDistributor.isEnabled();
 
     let { recharge, minRecharge } = getRechargeTime(
-        shieldStrength / 2, shieldGenerator.get('regen', modified),
+        shieldStrength / 2, shieldGenerator.get('regenrate', modified),
         distributorDraw, distributorCap, distributorRecharge, distributorEnabled
     );
     let recoverTimes = getRechargeTime(
-        shieldStrength / 2, shieldGenerator.get('brokenregen', modified),
+        shieldStrength / 2, shieldGenerator.get('brokenregenrate', modified),
         distributorDraw, distributorCap, distributorRecharge, distributorEnabled
     );
 
@@ -301,7 +301,7 @@ function getRechargeMetrics(
 export default class ShieldProfile {
     private _shieldStrength: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
         type: [ /ShieldGenerator/i ],
-        props: [ 'minmul', 'optmul', 'maxmul', 'minmass', 'optmass', 'maxmass' ],
+        props: [ 'shieldgenminstrength', 'shieldgenstrength', 'shieldgenmaxstrength', 'shieldgenminimalmass', 'shieldgenoptimalmass', 'shieldgenmaximalmass' ],
     });
     private _shieldAddition: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
         type: [ /GuardianShieldReinforcement/i, ],
@@ -310,20 +310,20 @@ export default class ShieldProfile {
     private _shieldMetrics: ShipPropsCacheLine<ShieldMetrics> = new ShipPropsCacheLine(
         this._shieldStrength, {
             type: [ /ShieldGenerator/i, /ShieldBooster/i, ],
-            props: [ 'explres', 'kinres', 'thermres', 'shieldboost' ],
+            props: [ 'explosiveresistance', 'kineticresistance', 'thermicresistance', 'defencemodifiershieldmultiplier' ],
         }
     );
     private _scbAddition: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
         type: [ /ShieldCellBank/i, ],
-        props: [ 'ammo', 'clip', 'duration', 'shieldreinforcement', ],
+        props: [ 'ammomaximum', 'ammoclipsize', 'duration', 'shieldbankreinforcement', ],
     });
     private _rechargeMetrics: ShipPropsCacheLine<RechargeMetrics> = new ShipPropsCacheLine(
         this._shieldMetrics, {
             type: [ /ShieldGenerator/i ],
-            props: [ 'regen', 'brokenregen' ],
+            props: [ 'regenrate', 'brokenregenrate' ],
         }, {
             type: [ /PowerDistributor/i ],
-            props: [ 'syscap', 'sysrate' ],
+            props: [ 'systemscapacity', 'systemsrecharge' ],
         }
     );
 

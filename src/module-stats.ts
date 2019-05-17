@@ -9,6 +9,12 @@ import { Ship } from ".";
 import Module from "./Module";
 import { IllegalStateError } from "./errors";
 
+function getReciprocal(prop: string): ModulePropertyCalculator {
+    return (module, modified) => {
+        return 1 / module.get(prop, modified);
+    }
+}
+
 /**
  * Stores meta data about module properties.
  */
@@ -32,75 +38,91 @@ import { IllegalStateError } from "./errors";
 }
 
 const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
-    'ammo': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'absdamage': { 'method': 'overwrite' },
-    'angle': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'boot': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'brokenregen': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'burst': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
-    'burstint': { 'method': 'multiplicative', 'higherbetter': false }, // actually modified
-    'burstrof': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
+    'ammoclipsize': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'ammomaximum': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'armourpenetration': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'absolutedamageportion': { 'method': 'overwrite' },
+    'sensortargetscanangle': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'boottime': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'brokenregenrate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'burstsize': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
+    'burstintervall': { 'method': 'multiplicative', 'higherbetter': false, 'getter': getReciprocal('burstrateoffire') }, // actually modified
+    'burstrateoffire': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
     'cargo': {},
-    'causres': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },
-    'clip': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'causticresistance': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },
     'damage': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'damagepersecond': { 'higherbetter': true, 'getter': DPS, },
+    'damagefalloffrange': {},
     'damageperenergy': { 'higherbetter': true, 'getter': DPE, },
-    'distdraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'duration': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'eff': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'engcap': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'engrate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'damagepersecond': { 'higherbetter': true, 'getter': DPS, },
+    'defencemodifierhealthaddition': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'defencemodifierhealthmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'defencemodifiershieldaddition': {},
+    'defencemodifiershieldmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'distributordraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'dss_patchradius': {}, // TODO: modified, but how?
+    'enginescapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'enginesrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'energypersecond': { 'higherbetter': false, 'getter': EPS, },
-    'expldamage': { 'method': 'overwrite' },
-    'explres': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
-    'facinglimit': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'falloff': {},
+    // for shields
+    'energyperregen': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'engineheatrate': {}, // TODO: modified but find out how
+    'enginemaximalmass': {},
+    'enginemaxperformance': {},
+    'engineminimalmass': {},
+    'engineminperformance': {},
+    'engineoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'engineoptperformance': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'explosivedamageportion': { 'method': 'overwrite' },
+    'explosiveresistance': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'fireintervall': { 'method': 'multiplicative', 'higherbetter': false }, // actually modified
+    'fsdinterdictorfacinglimit': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'fsdinterdictorrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'fsdoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'fuel': {},
     'fuelmul': {},
     'fuelpower': {},
+    'heatefficiency': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'heatpersecond': { 'higherbetter': false, 'getter': HPS, },
-    'hullboost': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
-    'hullreinforcement': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'integrity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'jitter': { 'method': 'additive', 'higherbetter': false },  // actually modified
-    'kindamage': { 'method': 'overwrite' },
-    'kinres': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'jumpboost': {},
+    'kineticdamageportion': { 'method': 'overwrite' },
+    'kineticresistance': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
     'mass': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'maxfuel': {},
-    'maxmass': {},
-    'maxmul': {},
-    'minmass': {},
-    'minmul': {},
-    'optmass': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'optmul': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'pgen': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'piercing': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    // For weapons
+    'maximumrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'powercapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'powerdraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'protection': { 'method': 'multiplicative', 'higherbetter': true },
+    // For sensors
     'range': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'ranget': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'regen': {},
-    'reload': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'rof': { 'higherbetter': true },  // actually modified
+    'rateoffire': { 'higherbetter': true, 'getter': ROF },  // actually modified
+    'regenrate': {},
+    'reloadtime': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'roundspershot': {},
-    'scanrate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'scantime': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'sustaineddamagerpersecond': { 'higherbetter': true, 'getter': SDPS, },
-    'shield': {},
-    'shieldaddition': {},
-    'shieldboost': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
-    'shieldreinforcement': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'scannertimetoscan': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    // For utility scanners
+    'scannerrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified,
+    'shieldbankduration': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'shieldbankheat': {}, // TODO: modified, but how?
+    'shieldbankreinforcement': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'shieldbankspinup': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'shieldgenmaximalmass': {},
+    'shieldgenmaxstrength': {},  // actually modified
+    'shieldgenminimalmass': {},
+    'shieldgenminstrength': {},  // actually modified
+    'shieldgenoptimalmass':  { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'shieldgenstrength': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'shotspeed': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'spinup': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'syscap': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'sysrate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'thermdamage': { 'method': 'overwrite' },
-    'thermload': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'thermres': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
-    'wepcap': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'weprate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'jumpboost': {}
+    'sustaineddamagerpersecond': { 'higherbetter': true, 'getter': SDPS, },
+    'systemscapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'systemsrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'thermalload': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'thermicdamageportion': { 'method': 'overwrite' },
+    'thermicresistance': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'weaponscapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'weaponsrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
 };
 export default MODULE_STATS;
 
@@ -125,7 +147,7 @@ export function EFFECTIVE_SYS_RATE(module: Module, modified: boolean): number {
     if (!module._ship) {
         throw new IllegalStateError();
     }
-    return module.get('sysrate', modified)
+    return module.get('systemsrecharge', modified)
         * getPdRechargeMultiplier(module._ship);
 }
 
@@ -133,7 +155,7 @@ export function EFFECTIVE_ENG_RATE(module: Module, modified: boolean): number {
     if (!module._ship) {
         throw new IllegalStateError();
     }
-    return module.get('engrate', modified)
+    return module.get('enginesrecharge', modified)
         * getPdRechargeMultiplier(module._ship);
 }
 
@@ -141,21 +163,28 @@ export function EFFECTIVE_WEP_RATE(module: Module, modified: boolean): number {
     if (!module._ship) {
         throw new IllegalStateError();
     }
-    return module.get('weprate', modified)
+    return module.get('weaponsrecharge', modified)
         * getPdRechargeMultiplier(module._ship);
+}
+
+export function ROF(module: Module, modified: boolean): number {
+    let fireInt = module.get('fireintervall', modified);
+    let burstInt = module.get('burstintervall', modified) || 0;
+    let burstSize = module.get('burstsize', modified) || 1;
+    return 1 / (burstInt * burstSize + fireInt);
 }
 
 export function DPS(module: Module, modified: boolean): number {
     let damage = module.get('damage', modified);
     let roundsPerShot = module.get('roundspershot', modified) || 1;
-    let rateOfFire = module.get('rof', modified) || 1;
+    let rateOfFire = module.get('rateoffire', modified) || 1;
 
     return damage * roundsPerShot * rateOfFire;
 }
 
 export function SDPS(module: Module, modified: boolean): number {
     let dps = DPS(module, modified);
-    let clipSize = module.get('clip', modified);
+    let clipSize = module.get('ammoclipsize', modified);
     // If auto-loader is applied, effective clip size will be nearly doubled
     // as you get one reload for every two shots fired.
     if (clipSize) {
@@ -164,15 +193,15 @@ export function SDPS(module: Module, modified: boolean): number {
         ) {
             clipSize += clipSize - 1;
         }
-        let timeToDeplete = clipSize / module.get('rof', modified);
-        dps *= timeToDeplete / (timeToDeplete + module.get('reload', modified));
+        let timeToDeplete = clipSize / module.get('rateoffire', modified);
+        dps *= timeToDeplete / (timeToDeplete + module.get('reloadtime', modified));
     }
     return dps;
 }
 
 export function EPS(module: Module, modified: boolean): number {
-    let distDraw = module.get('distdraw', modified);
-    let rof = module.get('rof', modified) || 1;
+    let distDraw = module.get('distributordraw', modified);
+    let rof = module.get('rateoffire', modified) || 1;
     return distDraw * rof;
 }
 
@@ -181,8 +210,8 @@ export function DPE(module: Module, modified: boolean): number {
 }
 
 export function HPS(module: Module, modified: boolean): number {
-    let thermalLoad = module.get('thermload', modified);
+    let thermalLoad = module.get('thermalload', modified);
     // We don't use rpshot here as dist draw is per combined shot
-    let rof = module.get('rof', modified) || 1;
+    let rof = module.get('rateoffire', modified) || 1;
     return thermalLoad * rof;
 }

@@ -14,10 +14,10 @@ import { FeatureObject, ModuleInformation, BlueprintObject, ExperimentalObject }
 import * as BLUEPRINTS from './blueprints.json';
 import * as EXPERIMENTALS from './experimentals.json';
 
-const FALLOFF_KEY = 'falloff';
+const FALLOFF_KEY = 'damagefalloffrange';
 const BLUEPRINT_EXTRAS = {
     'weapon_longrange': (moduleInfo: ModuleInformation, propObject: PropertyMap) => {
-        let falloff = propObject['range'].Value;
+        let falloff = propObject['maximumrange'].Value;
         let baseFalloff = moduleInfo.props[FALLOFF_KEY];
         propObject[FALLOFF_KEY] = {
             Label: FALLOFF_KEY,
