@@ -9,7 +9,7 @@ import {UnknownRestrictedError} from '../errors';
 import MODULE_STATS from '../module-stats';
 import { getModuleInfo, getModuleProperty } from './items';
 import { ModifierObject } from '../Module';
-import { FeatureObject, ModuleInformation } from '../types';
+import { FeatureObject, ModuleInformation, BlueprintObject, ExperimentalObject } from '../types';
 
 import * as BLUEPRINTS from './blueprints.json';
 import * as EXPERIMENTALS from './experimentals.json';
@@ -42,8 +42,8 @@ export type PropertyMap = { [ property: string ]: ModifierObject }
 export function getBlueprintProps(module: string, name: string,
     grade: number = 1, progress: number = 0, experimentalName?: string): PropertyMap {
     let moduleInfo = getModuleInfo(module);
-    let blueprint = BLUEPRINTS[name];
-    let experimental = EXPERIMENTALS[experimentalName];
+    let blueprint : BlueprintObject = BLUEPRINTS[name];
+    let experimental : ExperimentalObject = EXPERIMENTALS[experimentalName];
     if (!blueprint) {
         throw new UnknownRestrictedError(`Don't know blueprint ${name}`);
     }
@@ -56,7 +56,7 @@ export function getBlueprintProps(module: string, name: string,
         );
     }
 
-    let modifierObject = blueprint[grade];
+    let modifierObject = blueprint.features[grade];
     let propObject = applyBlueprintModifiers(moduleInfo, modifierObject,
         progress, {});
     if (BLUEPRINT_EXTRAS[name]) {
@@ -64,8 +64,8 @@ export function getBlueprintProps(module: string, name: string,
     }
 
     if (experimental) {
-        propObject = applyBlueprintModifiers(moduleInfo, experimental, progress,
-            propObject);
+        propObject = applyBlueprintModifiers(moduleInfo, experimental.features,
+            progress, propObject);
     }
 
     return propObject;

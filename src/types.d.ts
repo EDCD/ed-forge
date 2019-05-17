@@ -7,17 +7,29 @@ import { ShipObject } from "./Ship";
 type FeatureObject = { [ property: string ]: number[] };
 
 /**
- * Maps blueprint key to grades.
+ * Blueprint type: has features per grade and list of modules the blueprint can
+ * be applied to.
  */
-type BlueprintObject = { [ grade: string ]: FeatureObject };
+type BlueprintObject = {
+    features: { [ grade: string ]: FeatureObject },
+    for: [ string ],
+};
 
 declare module "src/data/blueprints.json" {
     const value: { [ blueprint: string ]: BlueprintObject };
     export default value;
 }
 
+/**
+ * Experimental type: has features and list of modules the special
+ */
+type ExperimentalObject = {
+    features: FeatureObject,
+    for: [ string ],
+};
+
 declare module "src/data/experimentals.json" {
-    const value: { [ experimental: string ]: FeatureObject };
+    const value: { [ experimental: string ]: ExperimentalObject };
     export default value;
 }
 

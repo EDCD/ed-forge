@@ -56,20 +56,49 @@ function writeDataJSON(filename, json) {
 //  Create src/data/modules.json and src/data/module_cache.json
 // --------------------------------------------------------------
 
+/**
+ * Inverts a mapping of categories to some list of values such that each of
+ * these values maps to a list of types that fall into the given category.
+ * Return value is a mapping as tuple.
+ * @param {[String, [String]]} entry Object entry as tuple
+ * @returns {[String, [String]]}
+ */
+function invertCatToEntries(entry) {
+    let [category, vals] = entry;
+    vals = _.map(vals, bprnt => bprnt.toLowerCase());
+    let applicableTypes = CAT_CORIOLIS_TO_FD[category];
+    if (applicableTypes === undefined) {
+        return [];
+    } else {
+        return _.zip(applicableTypes, _.fill(_.range(applicableTypes.length), vals));
+    }
+}
+
+/**
+ * Inverts a mapping of item type names to a list of values such that each of
+ * these values maps to a list of items of the given type.
+ * @param {[String, [String]]} entry Object entry as tuple
+ * @returns {[String, [String]]}
+ */
+function invertTypeToEntries(entry) {
+    let [ type, blueprints ] = entry;
+    let modulesOfThisType = _.chain(MODULE_CACHE[type]).values()
+        .flatMap(_.values)
+        .value();
+    return _.zip(blueprints, _.fill(_.range(blueprints.length), modulesOfThisType));
+}
+
 // Create a map for modules mapping to blueprints that can be applied to them
 const TYPES_TO_BLUEPRINTS = _.chain(Modifications.modules)
     .mapValues(o => _.keys(o.blueprints))
     .entries()
-    .flatMap(entry => {
-        let [k, v] = entry;
-        v = _.map(v, bprnt => bprnt.toLowerCase());
-        let applicableTypes = CAT_CORIOLIS_TO_FD[k];
-        if (applicableTypes === undefined) {
-            return [];
-        } else {
-            return _.zip(applicableTypes, _.fill(_.range(applicableTypes.length), v));
-        }
-    })
+    .flatMap(invertCatToEntries)
+    .fromPairs()
+    .value();
+const TYPES_TO_SPECIALS = _.chain(Modifications.modules)
+    .mapValues(o => o.specials)
+    .entries()
+    .flatMap(invertCatToEntries)
     .fromPairs()
     .value();
 
@@ -130,7 +159,11 @@ function consumeModule(module) {
             Priority: 1
         },
         props: _.pickBy(module, modulePropsPicker),
-        meta: _.defaults(_.pick(module, META_KEYS), { 'class': 0, 'applicable': TYPES_TO_BLUEPRINTS[type] || [] }),
+        meta: _.defaults(_.pick(module, META_KEYS), {
+            'class': 0,
+            'applicable': TYPES_TO_BLUEPRINTS[type] || [],
+            'applicable_specials': TYPES_TO_SPECIALS[type] || [],
+        }),
     };
 
     let dist = module.damagedist;
@@ -316,28 +349,46 @@ writeDataJSON('ships.json', SHIPS);
 //  Create src/data/blueprints.json
 // ---------------------------------
 
+const BLUEPRINTS_TO_MODULES = _.chain(TYPES_TO_BLUEPRINTS).entries()
+    // mapping of blueprints => [module]; but keys can repeat
+    .flatMap(invertTypeToEntries)
+    // group by keys to eliminate duplicates
+    .groupBy(x => x[0])
+    // values are now arrays of type [[key, [module]]]; remove key and flatmap
+    .mapValues(vals => _.flatMap(vals, val => val[1]))
+    .value();
 const BLUEPRINTS = {};
 
 function consumeBlueprint(blueprintObject) {
-    let details = {};
-    for (let grade of _.keys(blueprintObject['grades'])) {
-        let features = blueprintObject['grades'][grade]['features'];
-        let rof = features['rof'];
+    let name = blueprintObject['fdname'].toLowerCase();
+    let features = {};
+    let forModules = BLUEPRINTS_TO_MODULES[name];
+    if (!forModules) {
+        return; // This can happen for blueprints that by now have been removed,
+                // e.g. detailed surface scanner mods.
+    }
+    let grades = _.keys(blueprintObject['grades']);
+    for (let grade of grades) {
+        let gradeFeatures = blueprintObject['grades'][grade]['features'];
+        let rof = gradeFeatures['rateoffire'];
         if (rof) {
-            delete features['rof'];
-            features['burstint'] = rof.map(x => -1 * x);
+            delete gradeFeatures['rateoffire'];
+            gradeFeatures['burstint'] = rof.map(x => -1 * x);
         }
-        details[grade] = features;
+        features[grade] = gradeFeatures;
     }
 
     // ed-forge handles long range weapons differently
-    if (blueprintObject['fdname'] === 'Weapon_LongRange') {
-        for (let grade in details) {
-            delete details[grade]['fallofffromrange'];
+    if (name === 'weapon_longrange') {
+        for (let grade of grades) {
+            delete features[grade]['fallofffromrange'];
         }
     }
 
-    BLUEPRINTS[blueprintObject['fdname'].toLowerCase()] = details;
+    BLUEPRINTS[name] = {
+        features,
+        for: forModules,
+    };
 }
 
 _.mapValues(Modifications.blueprints, consumeBlueprint);
@@ -348,6 +399,14 @@ writeDataJSON('blueprints.json', BLUEPRINTS);
 //  Create src/data/experimentals.json
 // ------------------------------------
 
+const SPECIALS_TO_MODULES = _.chain(TYPES_TO_SPECIALS).entries()
+    // mapping of blueprints => [module]; but keys can repeat
+    .flatMap(invertTypeToEntries)
+    // group by keys to eliminate duplicates
+    .groupBy(x => x[0])
+    // values are now arrays of type [[key, [module]]]; remove key and flatmap
+    .mapValues(vals => _.flatMap(vals, val => val[1]))
+    .value();
 const EXPERIMENTALS = {};
 
 function consumeExperimental(head) {
@@ -392,7 +451,11 @@ function consumeExperimental(head) {
     }
 
     features = _.mapValues(features, val => [ val , val ]);
-    EXPERIMENTALS[key.toLowerCase()] = features;
+    let name = key.toLowerCase();
+    EXPERIMENTALS[name] = {
+        features,
+        for: SPECIALS_TO_MODULES[name] || [],
+    };
 }
 
 _.toPairs(Modifications.modifierActions).map(consumeExperimental);
