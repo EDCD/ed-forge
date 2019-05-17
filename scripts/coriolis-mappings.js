@@ -50,6 +50,8 @@ module.exports.SHIP_CORIOLIS_TO_FD = {
  * If class and/or rating aren't given, "" will be default value.
  */
 module.exports.MODULES_REGEX = {
+    AbrasionBlaster: /^Hpt_Mining_AbrBlstr_(\w+)_(\w+)$/i,
+    AdvancedDockingComputer: /^Int_DockingComputer_Advanced$/i,
     Armour: /^(\S+)_Armour_(\S+)$/i,
     Powerplant: /^Int_PowerPlant_Size(\d)_Class(\d)$/i,
     GuardianPowerplant: /^Int_GuardianPowerplant_Size(\d)$/i,
@@ -198,6 +200,10 @@ module.exports.MODULES_REGEX = {
         r: /^Hpt_PulseLaser_(\w+)_(\w+)$/i,
         groups: [2, 1],
     },
+    PulseWaveAnalyzer: {
+        r: /^Hpt_MRAScanner_Size0_Class(\d+)$/i,
+        groups: [-1, 1],
+    },
     RailGun: {
         r: /^Hpt_RailGun_(\w+)_(\w+)$/i,
         groups: [2, 1],
@@ -210,11 +216,13 @@ module.exports.MODULES_REGEX = {
         r: /^Hpt_BeamLaser_(\w+)_(\w+)_Heat$/i,
         groups: [2, 1],
     },
+    SeismicChargeLauncher: /^Hpt_Mining_SeismChrgWarhd_(\w+)_(\w+)$/i,
     ShieldBooster: {
         r: /^Hpt_ShieldBooster_Size0_Class(\d)$/i,
         groups: [-1, 1],
     },
     ShieldGen: /^Int_ShieldGenerator_Size(\d)_Class(\d)$/i,
+    SubsurfaceDisplacementMissile: /^Hpt_Mining_SubSurfDispMisle_(\w+)_(\w+)$/i,
     DiscoveryScanner: {
         r: /^Int_StellarBodyDiscoveryScanner_(\w+)$/i,
         groups: [-1, 1],
@@ -227,6 +235,7 @@ module.exports.MODULES_REGEX = {
     },
     ShockMine: /Hpt_MineLauncher_Fixed_Small_Impulse/i,
     ShutdownNeutralizer: /^Hpt_AntiUnknownShutdown_Tiny$/i,
+    SupercruiseAssist: /^Int_SupercruiseAssist$/i,
     SurfaceScanner: /^Int_DetailedSurfaceScanner_Tiny$/i,
     TorpedoPylon: /^Hpt_AdvancedTorpPylon_Fixed_(\w+)$/i,
     VehicleBay: /^Int_BuggyBay_Size(\d)_Class(\d)$/i,
@@ -238,6 +247,7 @@ module.exports.MODULES_REGEX = {
 };
 
 module.exports.CAT_CORIOLIS_TO_FD = {
+    'abl': ['AbrasionBlaster'],
     'am': ['AFM'],
     'bh': ['Armour'],
     'bl': ['BeamLaser', 'Retributor'],
@@ -248,7 +258,7 @@ module.exports.CAT_CORIOLIS_TO_FD = {
     'cr': ['CorrosionResistantCargoRack'],
     'rpl': ['RepairLimpet'],
     'cs': ['ManifestScanner'],
-    'dc': ['DockingComputer'],
+    'dc': ['DockingComputer', 'AdvancedDockingComputer'],
     'ec': ['ECM'],
     'fc': ['FragCannon', 'Pacifier'],
     'rfl': ['FlakLauncher'],
@@ -292,13 +302,17 @@ module.exports.CAT_CORIOLIS_TO_FD = {
     'po': ['PointDefence'],
     'pp': ['Powerplant'],
     'pv': ['VehicleBay'],
+    'pwa': ['PulseWaveAnalyzer'],
     'rf': ['Refinery'],
     'rg': ['RailGun', 'ImperialHammer'],
     's': ['Sensors'],
     'sb': ['ShieldBooster'],
+    'sdm': ['SubsurfaceDisplacementMissile'],
     'sfn': ['ShutdownNeutralizer'],
     'scb': ['SCB'],
+    'scl': ['SeismicChargeLauncher'],
     'sg': ['ShieldGen', 'PrismaticShieldGen'],
+    'sua': ['SupercruiseAssist'],
     'xs': ['XenoScanner'],
     't': ['Thrusters', 'EnhancedThrusters'],
     'tp': ['TorpedoPylon'],
