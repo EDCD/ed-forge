@@ -6,7 +6,7 @@
  * Ignore
  */
 import { Ship } from ".";
-import Module from "./Module";
+import Module, { ModifierObject } from "./Module";
 import { IllegalStateError } from "./errors";
 
 function getReciprocal(prop: string): ModulePropertyCalculator {
@@ -35,6 +35,12 @@ function getReciprocal(prop: string): ModulePropertyCalculator {
      */
     higherbetter?: boolean,
     getter?: ModulePropertyCalculator | ModulePropertyCalculatorClass;
+    /**
+     * If a property has an importer it won't be set when a module is imported.
+     * Instead, all other properties will be imported first, then all importers
+     * are invoked which delegate the obligation to import said property.
+     */
+    importer?: (module: Module, modifier: ModifierObject) => void;
 }
 
 const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
@@ -97,7 +103,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'protection': { 'method': 'multiplicative', 'higherbetter': true },
     // For sensors
     'range': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'rateoffire': { 'higherbetter': true, 'getter': ROF },  // actually modified
+    'rateoffire': { 'higherbetter': true, 'getter': ROF, 'importer': importROF },  // actually modified
     'regenrate': {},
     'reloadtime': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'roundspershot': {},
@@ -172,6 +178,14 @@ export function ROF(module: Module, modified: boolean): number {
     let burstInt = module.get('burstintervall', modified) || 0;
     let burstSize = module.get('burstsize', modified) || 1;
     return 1 / (burstInt * burstSize + fireInt);
+}
+
+function importROF(module: Module, modifier: ModifierObject) {
+    let burstInt = module.get('burstintervall', true) || 0;
+    let burstSize = module.get('burstsize', true) || 1;
+    let Value = (1 / modifier.Value) - (burstSize * burstInt);
+    let Label = 'fireintervall';
+    module._object.Engineering.Modifiers[Label] = { Label, Value };
 }
 
 export function DPS(module: Module, modified: boolean): number {

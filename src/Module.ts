@@ -5,7 +5,7 @@
 /**
 * Ignore
 */
-import {clamp, clone, cloneDeep, set, values} from 'lodash';
+import {clamp, clone, cloneDeep, set, values, forEach} from 'lodash';
 import autoBind from 'auto-bind';
 import {validateModuleJson, moduleVarIsSpecified} from './validation';
 import {compress, decompress} from './compression';
@@ -127,6 +127,8 @@ export default class Module extends DiffEmitter {
         if (buildFrom) {
             let object = cloneModuleToJSON(buildFrom) as ModuleObject & ModuleObjectHandler;
             let handler = object as ModuleObjectHandler;
+            // Remember modifiers that need to be imported with a function
+            let imported = [];
             if (object.Engineering) {
                 let modifiers = object.Engineering.Modifiers;
                 handler.Engineering.Modifiers = {};
@@ -134,12 +136,21 @@ export default class Module extends DiffEmitter {
                     let label = modifier.Label.toLowerCase();
                     // Only store stats that don't have a getter
                     let stats = MODULE_STATS[label];
-                    if (stats && !stats.getter) {
-                        handler.Engineering.Modifiers[label] = modifier;
+                    if (stats) {
+                        let importWith = stats.importer;
+                        if (importWith) {
+                            imported.push([importWith, modifier]);
+                        } else if (!stats.getter) {
+                            handler.Engineering.Modifiers[label] = modifier;
+                        }
                     }
                 });
             }
             this._object = handler;
+            forEach(imported, info => {
+                let [importWith, modifier] = info;
+                importWith(this, modifier);
+            })
         }
 
         this._trackFor(this._object, DIFF_EVENT);
