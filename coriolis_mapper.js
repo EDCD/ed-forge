@@ -90,7 +90,7 @@ function writeDataJSON(filename, json) {
 function invertCatToEntries(entry) {
     let [category, vals] = entry;
     vals = _.map(vals, bprnt => bprnt.toLowerCase());
-    let applicableTypes = CAT_CORIOLIS_TO_FD[category];
+    let applicableTypes = _.map(CAT_CORIOLIS_TO_FD[category], t => t.toLowerCase());
     if (applicableTypes === undefined) {
         return [];
     } else {
@@ -106,6 +106,7 @@ function invertCatToEntries(entry) {
  */
 function invertTypeToEntries(entry) {
     let [ type, blueprints ] = entry;
+    type = type.toLowerCase();
     let modulesOfThisType = _.chain(MODULE_CACHE[type]).values()
         .flatMap(_.values)
         .value();
@@ -154,6 +155,7 @@ function consumeModule(module) {
     const moduleKey = module.symbol.toLowerCase();
     let path = _.chain(_.entries(MODULES_REGEX)).map(entry => {
             let [type, reg] = entry;
+            type = type.toLowerCase();
             let groups = reg.groups || [1, 2];
             reg = reg.r || reg;
 
