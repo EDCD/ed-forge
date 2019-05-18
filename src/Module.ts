@@ -603,4 +603,19 @@ export default class Module extends DiffEmitter {
     private _commitObjectChanges() {
         this._commit(DIFF_EVENT);
     }
+
+    /**
+     * Reverts the module `by` number of steps into history.
+     * @param [by=1] Number of steps to revert
+     */
+    revert() {
+        super.revert(DIFF_EVENT, 1);
+    }
+
+    /**
+     * Clear the change history of this module.
+     */
+    clearHistory() {
+        super.clear(DIFF_EVENT);
+    }
 }
