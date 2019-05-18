@@ -131,6 +131,7 @@ export default class Ship extends DiffEmitter {
         this._object = (
             clone(buildFrom) as (ShipObject & ShipObjectHandler)
         ) as ShipObjectHandler;
+        this._object.Ship = this._object.Ship.toLowerCase()
         this._object.Modules = {};
         modules.forEach(m => {
             let slot = m.Slot.toLowerCase();
