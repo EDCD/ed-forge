@@ -271,7 +271,7 @@ function consumeShip(entry) {
             ShipId: 0,
             ShipName: '',
             ShipIdent: '',
-            Modules: {},
+            Modules: [],
         },
         props: _.mapKeys(
             _.pickBy(ship.properties, modulePropsPicker),
@@ -295,7 +295,7 @@ function consumeShip(entry) {
         ),
         { Slot: 'Armour' }
     );
-    j.proto.Modules.armour = armour;
+    j.proto.Modules.push(armour);
 
     // Add core slots with default modules
     CORE_SLOTS.forEach((slot, i) => {
@@ -309,7 +309,7 @@ function consumeShip(entry) {
         let module = _.clone(MODULES[moduleKey.toLowerCase()].proto);
         module.Slot = slot;
 
-        j.proto.Modules[slot] = module;
+        j.proto.Modules.push(module);
     });
 
     // Add internal slots with default modules
@@ -340,7 +340,7 @@ function consumeShip(entry) {
                 : { Slot: '', On: true, Item: '', Priority: 1 };
             module.Slot = slot;
 
-            j.proto.Modules[slot] = module;
+            j.proto.Modules.push(module);
         });
 
     // Add hardpoint and utility slots slots with default modules
@@ -357,7 +357,7 @@ function consumeShip(entry) {
             let module = hardpointId ? _.clone(ID_TO_MODULE_HP[String(hardpointId)].proto)
                 : { Slot: '', On: true, Item: '', Priority: 1 };
             module.Slot = slot;
-            j.proto.Modules[slot] = module;
+            j.proto.Modules.push(module);
         });
 
     SHIPS[Ship.toLowerCase()] = j;
