@@ -13,12 +13,13 @@ import Module, { ModuleObject, Slot } from './Module';
 import {
     REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_UTILITY_SLOT
 } from './data/slots';
-import {IllegalStateError, NotImplementedError} from './errors';
+import {IllegalStateError, NotImplementedError, IllegalChangeError, ImportExportError} from './errors';
 import { assertValidSlot } from './data/slots';
 import {getShipProperty, getShipMetaProperty, getShipInfo} from './data/ships';
 import { ShipPropertyCalculator, ShipPropertyCalculatorClass, CARGO_CAPACITY, FUEL_CAPACITY, ShipMetricsCalculator } from './ship-stats';
 import { matchesAny } from './helper';
-import DiffEmitter from './helper/DiffEmitter';
+import DiffEmitter, { DiffEvent } from './helper/DiffEmitter';
+import { checkInvariants } from './validation/invariants';
 
 const RESET_PIPS = {
     Sys: {base: 2, mc: 0,},
@@ -152,17 +153,44 @@ export default class Ship extends DiffEmitter {
             }
         });
 
+        if (!checkInvariants(this)) {
+            throw new ImportExportError('Invalid build');
+        }
+
         this._trackFor(this._object, OBJECT_EVENT);
         this._trackFor(this.state, STATE_EVENT);
 
         values(this._object.Modules).forEach(m => m.on(
             'diff', (...args) => {
+                this._checkInvariants(m, ...args);
                 args = args.map(diff => {
                     diff.path = `Modules.${m._object.Slot}.${diff.path}`;
                 });
                 this.emit('diff', ...args);
             }
         ));
+    }
+
+    /**
+     * Check whether all invariants still hold after a given module changed.
+     * @param m Module that changed
+     * @param diffs Changes to the module
+     */
+    _checkInvariants(m: Module, ...diffs: DiffEvent[]) {
+        for (let diff of diffs) {
+            let { path } = diff;
+            if (path === 'Item') {
+                let valid = checkInvariants(this, m);
+                if (!valid) {
+                    m.revert();
+                    m.clearHistory();
+                    throw new IllegalChangeError();
+                } else {
+                    // If this change is alright we can also clear the history
+                    m.clearHistory();
+                }
+            }
+        }
     }
 
     /**
