@@ -141,9 +141,10 @@ const MODULES = {
 };
 
 const META_KEYS = [ 'eddbID', 'edID', 'class', 'rating', 'fighterHangars',
-    'manufacturer', 'crew', 'retailCost', 'ukName', 'ukDiscript', 'pp' ];
+    'manufacturer', 'crew', 'retailCost', 'ukName', 'ukDiscript', 'pp',
+    'experimental' ];
 let NOT_PROPS_KEYS = [ 'rating', 'class', 'eddbID', 'id', 'edID', 'symbol',
-    'grp', 'mount', 'damagedist', 'name', 'pp', 'missile' ];
+    'grp', 'mount', 'damagedist', 'name', 'pp', 'missile', 'experimental' ];
 
 function modulePropsPicker(value, key) {
     return !NOT_PROPS_KEYS.includes(key);
