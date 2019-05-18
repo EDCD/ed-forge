@@ -135,18 +135,13 @@ export function itemFitsSlot(item: string, ship: string, slot: string): boolean 
     let itemInfo = getItemInfo(item);
 
     // Does the item fit on this type of slot?
-    if (!matchesAny(item, ...itemInfo.Slots)) {
+    if (!matchesAny(slot, ...itemInfo.Slots)) {
         return false;
     }
 
     // Does the item fit on this slot?
     let slotSize = getSlotSize(ship, slot);
-    if (slotSize < itemClass) {
-        return false;
-    }
-
-    // At last, we must check whether this slot is for passenger modules only
-    return !isPassengerSlot(ship, slot) || itemInfo.passenger;
+    return itemClass <= slotSize;
 }
 
 /**
