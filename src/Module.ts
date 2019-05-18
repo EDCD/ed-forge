@@ -406,15 +406,16 @@ export default class Module extends DiffEmitter {
      * @param rating
      */
     setItem(item: string, clazz: string = '', rating: string = '') {
-        if (clazz && rating) {
+        item = item.toLowerCase();
+        try {
             item = Factory.getModuleId(item, clazz, rating);
-        } else {
-            item = item.toLowerCase();
-        }
+        // Don't handle errors as item might not have been a type to begin with
+        // Further errors will be handled when we check if this item fits on
+        // this slot
+        } catch (e) {}
 
-        if (this._ship && this._object.Slot &&
-            !itemFitsSlot(item, this._ship._object.Ship, this._object.Slot)
-        ) {
+        let fits = !itemFitsSlot(item, this._ship._object.Ship, this._object.Slot);
+        if (this._ship && this._object.Slot && fits) {
             throw new IllegalStateError(
                 `Item ${item} does not fit ${this._object.Slot}`
             );
