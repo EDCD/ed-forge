@@ -102,17 +102,17 @@ export function getSlotSize(ship: string, slot: string): number {
     assertValidShip(ship);
     assertValidSlot(slot);
     let slotSize = getCoreSlotSize(ship, slot);
-    if (slotSize) {
+    if (slotSize !== undefined) {
         return slotSize;
     }
 
     slotSize = getHardpointSlotSize(slot);
-    if (slotSize) {
+    if (slotSize !== undefined) {
         return slotSize;
     }
 
     slotSize = getMilitarySlotSize(ship, slot);
-    if (slotSize) {
+    if (slotSize !== undefined) {
         return slotSize;
     }
 
