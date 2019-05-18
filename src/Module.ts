@@ -142,6 +142,7 @@ export default class Module extends DiffEmitter {
             this._object = handler;
         }
 
+        this._trackFor(this._object, DIFF_EVENT);
         if (ship) {
             this._ship = ship;
         }
@@ -275,7 +276,7 @@ export default class Module extends DiffEmitter {
         }
 
         property = property.toLowerCase();
-        this._prepare(DIFF_EVENT, this._object, `Engineering.Modifiers.${property}`);
+        this._prepare(DIFF_EVENT, `Engineering.Modifiers.${property}`);
         delete this._object.Engineering.Modifiers[property];
         this._commitObjectChanges();
     }
@@ -419,7 +420,7 @@ export default class Module extends DiffEmitter {
             );
         }
 
-        this._prepare(DIFF_EVENT, this._object, 'Engineering');
+        this._prepare(DIFF_EVENT, 'Engineering');
         delete this._object.Engineering;
         this._writeObject('Item', item); // this will commit changes
     }
@@ -580,7 +581,7 @@ export default class Module extends DiffEmitter {
      * @param value Value to write
      */
     private _prepareObjectChange(path: string, value: any) {
-        this._prepare(DIFF_EVENT, this._object, path);
+        this._prepare(DIFF_EVENT, path);
         set(this._object, path, value);
     }
 

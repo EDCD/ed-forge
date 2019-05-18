@@ -151,6 +151,9 @@ export default class Ship extends DiffEmitter {
             }
         });
 
+        this._trackFor(this._object, OBJECT_EVENT);
+        this._trackFor(this.state, STATE_EVENT);
+
         values(this._object.Modules).forEach(m => m.on(
             'diff', (...args) => {
                 args = args.map(diff => {
@@ -752,7 +755,7 @@ export default class Ship extends DiffEmitter {
      * @param value Value to write
      */
     private _prepareStateChange(path: string, value: any) {
-        this._prepare(STATE_EVENT, this.state, path);
+        this._prepare(STATE_EVENT, path);
         set(this.state, path, value);
     }
 
@@ -780,7 +783,7 @@ export default class Ship extends DiffEmitter {
      * @param value Value to write
      */
     private _prepareObjectChange(path: string, value: any) {
-        this._prepare(STATE_EVENT, this._object, path);
+        this._prepare(STATE_EVENT, path);
         set(this._object, path, value);
     }
 }
