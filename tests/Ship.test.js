@@ -32,7 +32,7 @@ describe('modules are imported with correct items', () => {
             continue;
         }
         test(`Slot ${slot} has the right item`, () => {
-            expect(ship.getModule(slot).getItem()).toEqual(module.Item);
+            expect(ship.getModule(slot).getItem()).toEqual(module.Item.toLowerCase());
         });
     }
 });
