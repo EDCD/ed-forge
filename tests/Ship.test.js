@@ -1,8 +1,8 @@
 
 import { Ship } from '..';
 import { assertValidSlot, REG_CORE_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_HARDPOINT_SLOT, REG_UTILITY_SLOT } from '../lib/data/slots';
-import { matchesAny } from '../lib/helper';
-import { clone } from 'lodash';
+import { matchesAny, mapValuesDeep } from '../lib/helper';
+import { clone, pickBy } from 'lodash';
 
 import * as anacondaBuild from './fixtures/anaconda.json';
 
@@ -120,8 +120,77 @@ test('can reset pips', () => {
     expect(dist.Wep).toEqual(2);
 });
 
-test('can fully export the build', () => {
-    let spec = clone(anacondaBuild);
-    spec.Modules = expect.arrayContaining(anacondaBuild.Modules);
-    expect(ship.toJSON()).toMatchObject(spec);
+let toLowerCase = v => typeof v === 'string' ? v.toLowerCase() : v;
+
+describe('export tests', () => {
+    let spec;
+    let json;
+    let modulesMap;
+    beforeEach(() => {
+        spec = clone(anacondaBuild);
+        // Transform all string values to lower case
+        spec.Ship = spec.Ship.toLowerCase();
+        spec.Modules = mapValuesDeep(spec.Modules, toLowerCase);
+        modulesMap = {};
+        for (let module of spec.Modules) {
+            modulesMap[module.Slot] = module;
+        }
+
+        json = ship.toJSON();
+    });
+
+    test('can export ship details', () => {
+        let checkNotModules = (v, k) => k != 'Modules';
+        expect(pickBy(json, checkNotModules)).toMatchObject(pickBy(spec, checkNotModules));
+    });
+
+    describe('modules are exported correct individually', () => {
+        let checkNotEngineering = (v, k) => k != 'Engineering';
+        let checkNotModifiers = (v, k) => k != 'Modifiers';
+        let modifiersRestricted = modifier => {
+            let Value = prec2(modifier.Value);
+            let Label = modifier.Label;
+            return { Label, Value };
+        }
+        for (let m of anacondaBuild.Modules) {
+            let slot = m.Slot.toLowerCase();
+            test(slot, () => {
+                let module = ship.getModule(slot);
+                if (module) { // there may be slots like livery ones
+                    let moduleJSON = module.toJSON();
+                    let specJSON = modulesMap[slot];
+                    // Expect that the first level of property matches
+                    expect(pickBy(moduleJSON, checkNotEngineering))
+                        .toMatchObject(pickBy(specJSON, checkNotEngineering));
+
+                    if (moduleJSON.Engineering) {
+                        // Expect that the first level of engineering properties matches
+                        expect(pickBy(moduleJSON.Engineering, checkNotModifiers))
+                            .toMatchObject(pickBy(specJSON.Engineering, checkNotModifiers));
+
+                        // Expect that original modifiers are contained in the new ones
+                        let expectedModifiers = specJSON.Engineering.Modifiers
+                            // But we don't handle damagetype currently
+                            // TODO:
+                            .filter(modi => modi.Label != 'damagetype')
+                            // And we only care about certain fields
+                            // TODO:
+                            .map(modifiersRestricted);
+                        let actualModifiers = moduleJSON.Engineering.Modifiers
+                            .map(modifiersRestricted);
+
+                        expect(actualModifiers).toEqual(expect.arrayContaining(expectedModifiers));
+                    }
+                }
+            });
+        }
+    });
+
+    test('can fully export the build', () => {
+        expect(
+            json.Modules
+        ).toEqual(expect.arrayContaining(
+            ship.getModules(undefined, undefined, true).map(m => m.toJSON())
+        ));
+    });
 });
