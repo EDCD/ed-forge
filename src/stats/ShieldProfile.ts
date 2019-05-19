@@ -176,7 +176,7 @@ function getBaseShieldStrength(shieldGenerator: Module, ship: Ship, modified: bo
 }
 
 function getShieldAddition(ship: Ship, modified: boolean): number {
-    return moduleReduceEnabled(ship._object.Modules, 'shieldaddition', modified, add, 0);
+    return moduleReduceEnabled(ship._object.Modules, 'defencemodifiershieldaddition', modified, add, 0);
 }
 
 function getShieldMetrics(
@@ -258,7 +258,7 @@ function getSCBAddition(ship: Ship, modified: boolean): number {
     // TODO: move into module property and map to that
     let bySCBs = ship.getSCBs().reduce(
         (reduced, m) => reduced + m.get('shieldbankreinforcement', modified)
-            * m.get('duration', modified)
+            * m.get('shieldbankduration', modified)
             * (m.get('ammomaximum', modified) + m.get('ammoclipsize', modified)),
         0
     );
@@ -305,7 +305,7 @@ export default class ShieldProfile {
     });
     private _shieldAddition: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
         type: [ /GuardianShieldReinforcement/i, ],
-        props: [ 'shieldaddition' ],
+        props: [ 'defencemodifiershieldaddition' ],
     });
     private _shieldMetrics: ShipPropsCacheLine<ShieldMetrics> = new ShipPropsCacheLine(
         this._shieldStrength, {
@@ -315,7 +315,7 @@ export default class ShieldProfile {
     );
     private _scbAddition: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
         type: [ /ShieldCellBank/i, ],
-        props: [ 'ammomaximum', 'ammoclipsize', 'duration', 'shieldbankreinforcement', ],
+        props: [ 'ammomaximum', 'ammoclipsize', 'shieldbankduration', 'shieldbankreinforcement', ],
     });
     private _rechargeMetrics: ShipPropsCacheLine<RechargeMetrics> = new ShipPropsCacheLine(
         this._shieldMetrics, {

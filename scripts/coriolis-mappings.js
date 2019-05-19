@@ -168,7 +168,16 @@ module.exports.PROP_CORIOLIS_TO_FD = {
     'shieldboost': 'defencemodifiershieldmultiplier',
     'syscap': 'systemscapacity',
     'sysrate': 'systemsrecharge',
-    'thermload': 'thermalload',
+    'thermload': [
+        {
+            'for': /^Hpt_/i,
+            'val': 'thermalload'
+        },
+        {
+            'for': /^Int_/i,
+            'val': 'shieldbankheat'
+        },
+    ],
     'thermres': 'thermicresistance',
     'wepcap': 'weaponscapacity',
     'weprate': 'weaponsrecharge',
