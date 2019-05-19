@@ -5,7 +5,7 @@
 /**
  * Ignore.
  */
-import { values } from 'lodash';
+import { values, map, mapValues } from 'lodash';
 import Module from "../Module";
 
 /**
@@ -200,4 +200,24 @@ export function mult(x: number, y: number): number {
  */
 export function complMult(x: number, y: number): number {
     return x * (1 - y);
+}
+
+/**
+ * Maps all leaf-values of an object or array. `f` will only be applied to
+ * values of the object that are not objects or array. If a value is an object
+ * or array this function will be recursively called for that value.
+ * @param obj Object to map values for
+ * @param f Mapping function
+ * @returns Mapped object or array
+ */
+export function mapValuesDeep(obj: Object, f: ((value: any) => any)): Object {
+    if (obj instanceof Object) {
+        if (obj instanceof Array) {
+            return map(obj, x => mapValuesDeep(x, f));
+        } else {
+            return mapValues(obj, x => mapValuesDeep(x, f)) as Object;
+        }
+    } else {
+        return f(obj);
+    }
 }

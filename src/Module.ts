@@ -17,6 +17,7 @@ import Ship from './Ship';
 import {getBlueprintProps, calculateModifier, PropertyMap} from './data/blueprints';
 import MODULE_STATS, { ModulePropertyCalculator, ModulePropertyCalculatorClass } from './module-stats';
 import DiffEmitter from './helper/DiffEmitter';
+import { mapValuesDeep } from './helper';
 
 /**
  * Clones a given module.
@@ -125,7 +126,10 @@ export default class Module extends DiffEmitter {
         autoBind(this);
 
         if (buildFrom) {
-            let object = cloneModuleToJSON(buildFrom) as ModuleObject & ModuleObjectHandler;
+            let object = mapValuesDeep(
+                cloneModuleToJSON(buildFrom),
+                v => typeof v === 'string' ? v.toLowerCase() : v
+            ) as ModuleObject & ModuleObjectHandler;
             let handler = object as ModuleObjectHandler;
             // Remember modifiers that need to be imported with a function
             let imported = [];
