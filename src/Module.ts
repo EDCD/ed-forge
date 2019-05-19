@@ -377,7 +377,10 @@ export default class Module extends DiffEmitter {
             for (let stat in MODULE_STATS) {
                 let getter = MODULE_STATS[stat].getter
                 if (getter) {
-                    r.Engineering.Modifiers[stat] = this.get(getter, true);
+                    let Value = this.get(getter, true);
+                    if (Value) {
+                        r.Engineering.Modifiers.push({ Label: stat, Value });
+                    }
                 }
             }
         }
