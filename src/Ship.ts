@@ -284,9 +284,6 @@ export default class Ship extends DiffEmitter {
      */
     getModules(slots?: (Slot | Slot[]), type?: (string | RegExp),
         includeEmpty: boolean = false, sort: boolean = false): Module[] {
-        if (!slots && !type) {
-            return [];
-        }
 
         if (typeof slots === 'string') {
             slots = slots.toLowerCase();
