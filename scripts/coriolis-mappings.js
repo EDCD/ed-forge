@@ -143,6 +143,7 @@ module.exports.PROP_CORIOLIS_TO_FD = {
     'pgen': 'powercapacity',
     'piercing': 'armourpenetration',
     'power': 'powerdraw',
+    'proberadius': 'dss_patchradius',
     'range': [
         {
             'for': /^Int_Sensors/i,
@@ -454,6 +455,7 @@ module.exports.CAT_CORIOLIS_TO_FD = {
     'scl': ['SeismicChargeLauncher'],
     'sg': ['ShieldGen', 'PrismaticShieldGen'],
     'sua': ['SupercruiseAssist'],
+    'ss': 'SurfaceScanner',
     'xs': ['XenoScanner'],
     't': ['Thrusters', 'EnhancedThrusters'],
     'tp': ['TorpedoPylon'],

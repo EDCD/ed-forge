@@ -65,7 +65,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'defencemodifiershieldaddition': {},
     'defencemodifiershieldmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
     'distributordraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'dss_patchradius': {}, // TODO: modified, but how?
+    'dss_patchradius': { 'method': 'multiplicative', 'higherbetter': true }, // actually modified
     'enginescapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'enginesrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'energypersecond': { 'higherbetter': false, 'getter': EPS, },
