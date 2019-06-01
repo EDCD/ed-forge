@@ -71,7 +71,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'energypersecond': { 'higherbetter': false, 'getter': EPS, },
     // for shields
     'energyperregen': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'engineheatrate': {}, // TODO: modified but find out how
+    'engineheatrate': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'enginemaximalmass': {},
     'enginemaxperformance': {},
     'engineminimalmass': {},
@@ -111,7 +111,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     // For utility scanners
     'scannerrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified,
     'shieldbankduration': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'shieldbankheat': {}, // TODO: modified, but how?
+    'shieldbankheat': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'shieldbankreinforcement': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'shieldbankspinup': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'shieldgenmaximalmass': {},
