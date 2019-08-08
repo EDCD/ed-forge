@@ -55,7 +55,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'burstintervall': { 'method': 'multiplicative', 'higherbetter': false, 'getter': getReciprocal('burstrateoffire') }, // actually modified
     'burstrateoffire': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
     'cargo': {},
-    'causticresistance': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },
+    'causticresistance': { 'modifier': 'antiscale', 'method': 'multiplicative', 'higherbetter': true },
     'damage': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'damagefalloffrange': {},
     'damageperenergy': { 'higherbetter': true, 'getter': DPE, },
@@ -79,7 +79,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'engineoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'engineoptperformance': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'explosivedamageportion': { 'method': 'overwrite' },
-    'explosiveresistance': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'explosiveresistance': { 'modifier': 'antiscale', 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'fireintervall': { 'method': 'multiplicative', 'higherbetter': false }, // actually modified
     'fsdinterdictorfacinglimit': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'fsdinterdictorrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -93,7 +93,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'jitter': { 'method': 'additive', 'higherbetter': false },  // actually modified
     'jumpboost': {},
     'kineticdamageportion': { 'method': 'overwrite' },
-    'kineticresistance': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'kineticresistance': { 'modifier': 'antiscale', 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'mass': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'maxfuel': {},
     // For weapons
@@ -126,7 +126,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'systemsrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'thermalload': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'thermicdamageportion': { 'method': 'overwrite' },
-    'thermicresistance': { 'modifier': 'antiscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'thermicresistance': { 'modifier': 'antiscale', 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'weaponscapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'weaponsrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
 };
