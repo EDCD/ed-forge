@@ -133,6 +133,7 @@ export default class Module extends DiffEmitter {
             let handler = object as ModuleObjectHandler;
             // Remember modifiers that need to be imported with a function
             let imported = [];
+            let synthetics: PropertyMap = {};
             if (object.Engineering) {
                 let modifiers = object.Engineering.Modifiers;
                 handler.Engineering.Modifiers = {};
@@ -141,6 +142,10 @@ export default class Module extends DiffEmitter {
                     // Only store stats that don't have a getter
                     let stats = MODULE_STATS[label];
                     if (stats) {
+                        if (stats.getter) {
+                            synthetics[label] = modifier;
+                        }
+
                         let importWith = stats.importer;
                         if (importWith) {
                             imported.push([importWith, modifier]);
@@ -153,7 +158,7 @@ export default class Module extends DiffEmitter {
             this._object = handler;
             forEach(imported, info => {
                 let [importWith, modifier] = info;
-                importWith(this, modifier);
+                importWith(this, modifier, synthetics);
             })
         }
 

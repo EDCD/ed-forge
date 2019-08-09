@@ -8,6 +8,7 @@
 import { Ship } from ".";
 import Module, { ModifierObject } from "./Module";
 import { IllegalStateError } from "./errors";
+import { PropertyMap } from "./data/blueprints";
 
 function getReciprocal(prop: string): ModulePropertyCalculator {
     return (module, modified) => {
@@ -40,7 +41,7 @@ function getReciprocal(prop: string): ModulePropertyCalculator {
      * Instead, all other properties will be imported first, then all importers
      * are invoked which delegate the obligation to import said property.
      */
-    importer?: (module: Module, modifier: ModifierObject) => void;
+    importer?: (module: Module, modifier: ModifierObject, synthetics: PropertyMap) => void;
 }
 
 const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
@@ -180,7 +181,7 @@ export function ROF(module: Module, modified: boolean): number {
     return 1 / (burstInt * burstSize + fireInt);
 }
 
-function importROF(module: Module, modifier: ModifierObject) {
+function importROF(module: Module, modifier: ModifierObject, synthetics: PropertyMap) {
     let burstInt = module.get('burstintervall', true) || 0;
     let burstSize = module.get('burstsize', true) || 1;
     let Value = (1 / modifier.Value) - (burstSize * burstInt);
