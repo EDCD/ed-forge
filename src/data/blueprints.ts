@@ -124,11 +124,14 @@ function applyBlueprintModifiers(moduleInfo: ModuleInformation,
 
         let Modifier = getModifier(propertyDescriptor, baseValue, blueprintModifier);
         let Value = getModifiedProperty(propertyDescriptor, baseValue, Modifier);
-        propObject[prop] = {
-            Label: prop,
-            Modifier, Value,
-            LessIsGood: !propertyDescriptor.higherbetter
-        };
+
+        if (!isNaN(Value)) {
+            propObject[prop] = {
+                Label: prop,
+                Modifier, Value,
+                LessIsGood: !propertyDescriptor.higherbetter
+            };
+        }
     }
     return propObject;
 }
