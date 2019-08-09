@@ -197,6 +197,13 @@ function consumeModule(module) {
     _.setWith(MODULE_CACHE, path, moduleKey, Object);
     let [ type ] = path;
 
+    // For some reasong, the range property of internals is stored in kilometers
+    // not meters in coriolis. Fix this here
+    let range = module.range;
+    if (range && module.symbol.toLowerCase().startsWith('int_')) {
+        module.range *= 1000;
+    }
+
     let mapper = modulePropsMapper(module.symbol);
     let j = {
         proto: {
