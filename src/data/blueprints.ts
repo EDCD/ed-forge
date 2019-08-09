@@ -6,7 +6,7 @@
 * Ignore
 */
 import {UnknownRestrictedError} from '../errors';
-import MODULE_STATS from '../module-stats';
+import MODULE_STATS, { ModulePropertyDescriptor } from '../module-stats';
 import { getModuleInfo, getModuleProperty } from './items';
 import { ModifierObject } from '../Module';
 import { FeatureObject, ModuleInformation, BlueprintObject, ExperimentalObject } from '../types';
@@ -140,13 +140,11 @@ function applyBlueprintModifiers(moduleInfo: ModuleInformation,
  * @param blueprintModifier Blueprint modifier
  * @returns Modifier
  */
-function getModifier(propertyDescriptor, base: number, blueprintModifier: number): number {
+function getModifier(propertyDescriptor: ModulePropertyDescriptor, base: number,
+    blueprintModifier: number): number {
     switch (propertyDescriptor.modifier) {
         case undefined:
             return blueprintModifier;
-        // Used when modding resistances
-        case 'antiscale':
-            return (1 - base) * blueprintModifier;
         // Used when modding shield-/hullboost
         case 'offsetscale':
             return (1 + base) * (1 + blueprintModifier) - (1 + base);

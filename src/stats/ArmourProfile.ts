@@ -58,17 +58,17 @@ function getArmourMetrics(ship: Ship, modified: boolean): ArmourMetrics {
 
     let baseArmour = ship.getBaseProperty('basearmour');
     let hullBoost = alloys.get('defencemodifierhealthmultiplier', modified);
-    let explDamage = 1 - alloys.get('explosiveresistance', modified);
-    let kinDamage = 1 - alloys.get('kineticresistance', modified);
-    let thermDamage = 1 - alloys.get('thermicresistance', modified);
-    let causDamage = 1 - alloys.get('causticresistance', modified);
+    let explDamage = alloys.get('explosiveeffectiveness', modified);
+    let kinDamage = alloys.get('kineticeffectiveness', modified);
+    let thermDamage = alloys.get('thermiceffectiveness', modified);
+    let causDamage = alloys.get('causticeffectiveness', modified);
 
     let hrps = ship.getHRPs();
     let hrpReinforcement = moduleReduceEnabled(hrps, 'defencemodifierhealthaddition', modified, add, 0);
-    let hrpExplDamage = moduleReduceEnabled(hrps, 'explosiveresistance', modified, complMult, 1);
-    let hrpKinDamage = moduleReduceEnabled(hrps, 'kineticresistance', modified, complMult, 1);
-    let hrpThermDamage = moduleReduceEnabled(hrps, 'thermicresistance', modified, complMult, 1);
-    let hrpCausDamage = moduleReduceEnabled(hrps, 'causticresistance', modified, complMult, 1);
+    let hrpExplDamage = moduleReduceEnabled(hrps, 'explosiveeffectiveness', modified, complMult, 1);
+    let hrpKinDamage = moduleReduceEnabled(hrps, 'kineticeffectiveness', modified, complMult, 1);
+    let hrpThermDamage = moduleReduceEnabled(hrps, 'thermiceffectiveness', modified, complMult, 1);
+    let hrpCausDamage = moduleReduceEnabled(hrps, 'causticeffectiveness', modified, complMult, 1);
 
     let boostedArmour = baseArmour * (1 + hullBoost);
     return {

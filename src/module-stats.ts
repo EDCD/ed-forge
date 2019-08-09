@@ -16,6 +16,23 @@ function getReciprocal(prop: string): ModulePropertyCalculator {
     }
 }
 
+export const CAUS_RES: ModulePropertyCalculator = effToRes.bind(
+    undefined,
+    'causticeffectiveness'
+);
+export const EXPL_RES: ModulePropertyCalculator = effToRes.bind(
+    undefined,
+    'explosiveeffectiveness'
+);
+export const KIN_RES: ModulePropertyCalculator = effToRes.bind(
+    undefined,
+    'kineticeffectiveness'
+);
+export const THERM_RES: ModulePropertyCalculator = effToRes.bind(
+    undefined,
+    'thermiceffectiveness'
+);
+
 /**
  * Stores meta data about module properties.
  */
@@ -56,7 +73,12 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'burstintervall': { 'method': 'multiplicative', 'higherbetter': false, 'getter': getReciprocal('burstrateoffire') }, // actually modified
     'burstrateoffire': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
     'cargo': {},
-    'causticresistance': { 'modifier': 'antiscale', 'method': 'multiplicative', 'higherbetter': true },
+    'causticeffectiveness': { 'method': 'multiplicative', 'higherbetter': false },
+    'causticresistance': {
+        'higherbetter': true,
+        'getter': CAUS_RES,
+        'importer': importEff.bind(undefined, 'caustic'),
+    },
     'damage': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'damagefalloffrange': {},
     'damageperenergy': { 'higherbetter': true, 'getter': DPE, },
@@ -80,7 +102,12 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'engineoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'engineoptperformance': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'explosivedamageportion': { 'method': 'overwrite' },
-    'explosiveresistance': { 'modifier': 'antiscale', 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'explosiveeffectiveness': { 'method': 'multiplicative', 'higherbetter': false },
+    'explosiveresistance': {
+        'higherbetter': true,
+        'getter': EXPL_RES,
+        'importer': importEff.bind(undefined, 'explosive'),
+    },  // actually modified
     'fireintervall': { 'method': 'multiplicative', 'higherbetter': false }, // actually modified
     'fsdinterdictorfacinglimit': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'fsdinterdictorrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -94,7 +121,12 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'jitter': { 'method': 'additive', 'higherbetter': false },  // actually modified
     'jumpboost': {},
     'kineticdamageportion': { 'method': 'overwrite' },
-    'kineticresistance': { 'modifier': 'antiscale', 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'kineticeffectiveness': { 'method': 'multiplicative', 'higherbetter': false },
+    'kineticresistance': {
+        'higherbetter': true,
+        'getter': KIN_RES,
+        'importer': importEff.bind(undefined, 'kinetic'),
+    },  // actually modified
     'mass': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'maxfuel': {},
     // For weapons
@@ -125,9 +157,14 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'sustaineddamagerpersecond': { 'higherbetter': true, 'getter': SDPS, },
     'systemscapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'systemsrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'thermalload': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'thermalload': { 'method': 'multWiplicative', 'higherbetter': false },  // actually modified
     'thermicdamageportion': { 'method': 'overwrite' },
-    'thermicresistance': { 'modifier': 'antiscale', 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'thermiceffectiveness': { 'method': 'multiplicative', 'higherbetter': false, },
+    'thermicresistance': {
+        'higherbetter': true,
+        'getter': THERM_RES,
+        'importer': importEff.bind(undefined, 'thermic'),
+    },  // actually modified
     'weaponscapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'weaponsrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
 };
@@ -229,4 +266,16 @@ export function HPS(module: Module, modified: boolean): number {
     // We don't use rpshot here as dist draw is per combined shot
     let rof = module.get('rateoffire', modified) || 1;
     return thermalLoad * rof;
+}
+
+function effToRes(eff: string, module: Module, modified: boolean): number {
+    let effectiveness = module.get(eff, modified);
+    return 100 * (1 - effectiveness);
+}
+
+function importEff(name: string, module: Module, modifier: ModifierObject, synthetics: PropertyMap) {
+    let res = synthetics[name + 'resistance'].Value;
+    let Label = name + 'effectiveness';
+    let Value = 1 - (res / 100);
+    module._object.Engineering.Modifiers[Label] = { Label, Value };
 }

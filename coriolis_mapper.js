@@ -39,6 +39,25 @@ const ID_TO_MODULE_HP = {};
 //  Helper
 // --------
 
+RESISTANCE_MAPPINGS = [
+    {
+        'res': 'causticresistance',
+        'eff': 'causticeffectiveness',
+    },
+    {
+        'res': 'explosiveresistance',
+        'eff': 'explosiveeffectiveness',
+    },
+    {
+        'res': 'kineticresistance',
+        'eff': 'kineticeffectiveness',
+    },
+    {
+        'res': 'thermicresistance',
+        'eff': 'thermiceffectiveness',
+    },
+];
+
 /**
  * Converts any number into a string with at least to characters by adding an
  * optional leading zero.
@@ -208,6 +227,15 @@ function consumeModule(module) {
                 case "K": j.props.kineticdamageportion = dist.K;
                 case "A": j.props.absolutedamageportion = dist.A;
             }
+        }
+    }
+
+    // Map resistances to damage multipliers for modules
+    for (let {res, eff} of RESISTANCE_MAPPINGS) {
+        let resVal = j.props[res];
+        if (!isNaN(resVal)) {
+            j.props[eff] = 1 - resVal;
+            delete j.props[res];
         }
     }
 
@@ -399,6 +427,16 @@ function consumeBlueprint(blueprintObject) {
             // rof actually modifies fire interval
             gradeFeatures['fireintervall'] = rof.map(x => -1 * x);
         }
+
+        // Map resistances to damage multipliers for blueprints
+        for (let {res, eff} of RESISTANCE_MAPPINGS) {
+            let resFeat = gradeFeatures[res];
+            if (resFeat) {
+                delete gradeFeatures[res];
+                gradeFeatures[eff] = _.map(resFeat, v => -1 * v);
+            }
+        }
+
         features[grade] = gradeFeatures;
     }
 
@@ -476,10 +514,12 @@ function consumeExperimental(head) {
         features['fireintervall'] = rof;
     }
 
-    for (let resKey of ['thermicresistance', 'kineticresistance', 'explosiveresistance', 'causticresistance']) {
-        let res = features[resKey];
-        if (res) {
-            features[resKey] = res / 100;
+    // Map resistances to damage multipliers
+    for (let {res, eff} of RESISTANCE_MAPPINGS) {
+        let resFeat = features[res];
+        if (resFeat) {
+            delete features[res];
+            features[eff] = -1 * (resFeat / 100);
         }
     }
 
