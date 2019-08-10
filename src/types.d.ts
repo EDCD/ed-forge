@@ -12,7 +12,7 @@ type FeatureObject = { [ property: string ]: number[] };
  */
 type BlueprintObject = {
     features: { [ grade: string ]: FeatureObject },
-    for: [ string ],
+    appliesTo: [ string ],
 };
 
 declare module "src/data/blueprints.json" {
@@ -25,7 +25,7 @@ declare module "src/data/blueprints.json" {
  */
 type ExperimentalObject = {
     features: FeatureObject,
-    for: [ string ],
+    appliesTo: [ string ],
 };
 
 declare module "src/data/experimentals.json" {

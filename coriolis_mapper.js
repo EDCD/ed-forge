@@ -419,12 +419,12 @@ const BLUEPRINTS = {};
 function consumeBlueprint(blueprintObject) {
     let name = blueprintObject['fdname'].toLowerCase();
     let features = {};
-    let forModules = BLUEPRINTS_TO_MODULES[name];
-    if (!forModules) {
+    let appliesTo = BLUEPRINTS_TO_MODULES[name];
+    if (!appliesTo) {
         return; // This can happen for blueprints that by now have been removed,
                 // e.g. detailed surface scanner mods.
     }
-    let mapper = modulePropsMapper(forModules[0]); // assume for is uniform
+    let mapper = modulePropsMapper(appliesTo[0]); // assume for is uniform
     let grades = _.keys(blueprintObject['grades']);
     for (let grade of grades) {
         let gradeFeatures = _.mapKeys(blueprintObject['grades'][grade]['features'], mapper);
@@ -454,10 +454,7 @@ function consumeBlueprint(blueprintObject) {
         }
     }
 
-    BLUEPRINTS[name] = {
-        features,
-        for: forModules,
-    };
+    BLUEPRINTS[name] = { features, appliesTo };
 }
 
 _.mapValues(Modifications.blueprints, consumeBlueprint);
@@ -484,13 +481,13 @@ function consumeExperimental(head) {
         return;
     }
     let name = key.toLowerCase();
-    let forModules = SPECIALS_TO_MODULES[name];
-    if (!forModules) {
+    let appliesTo = SPECIALS_TO_MODULES[name];
+    if (!appliesTo) {
         return; // This can happen for blueprints that by now have been removed,
                 // e.g. detailed surface scanner mods.
     }
-    // assume forModules is uniform
-    features = _.mapKeys(features, modulePropsMapper(forModules[0]));
+    // assume appliesTo is uniform
+    features = _.mapKeys(features, modulePropsMapper(appliesTo[0]));
 
     let damageDist = features['damagedist'];
     if (damageDist) {
@@ -531,10 +528,7 @@ function consumeExperimental(head) {
     }
 
     features = _.mapValues(features, val => [ val , val ]);
-    EXPERIMENTALS[name] = {
-        features,
-        for: forModules,
-    };
+    EXPERIMENTALS[name] = { features, appliesTo };
 }
 
 _.toPairs(Modifications.modifierActions).map(consumeExperimental);
