@@ -44,7 +44,16 @@ module.exports.SHIP_CORIOLIS_TO_FD = {
 
 module.exports.PROP_CORIOLIS_TO_FD = {
     'ammo': 'ammomaximum',
-    'angle': 'sensortargetscanangle',
+    'angle': [
+        {
+            'for': /^Int_Sensors/i,
+            'val': 'sensortargetscanangle',
+        },
+        {
+            'for': /^Hpt_[a-zA-Z]+Scanner/i,
+            'val': 'maxangle',
+        }
+    ],
     'boot': 'boottime',
     'brokenregen': 'brokenregenrate',
     'burst': 'burstsize',

@@ -66,6 +66,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'ammomaximum': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'armourpenetration': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'absolutedamageportion': { 'method': 'overwrite' },
+    // For sensors
     'sensortargetscanangle': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'boottime': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'brokenregenrate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -128,6 +129,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'importer': importEff.bind(undefined, 'kinetic'),
     },  // actually modified
     'mass': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'maxangle': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'maxfuel': {},
     // For weapons
     'maximumrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
