@@ -501,10 +501,10 @@ function consumeExperimental(head) {
         for (let type of _.keys(damageDist)) {
             let damageType;
             switch (type) {
-                case 'A': damageType = 'absolutedamageportion';
-                case 'K': damageType = 'kineticdamageportion';
-                case 'E': damageType = 'explosivedamageportion';
-                case 'T': damageType = 'thermicdamageportion';
+                case 'A': damageType = 'absolutedamageportion'; break;
+                case 'K': damageType = 'kineticdamageportion'; break;
+                case 'E': damageType = 'explosivedamageportion'; break;
+                case 'T': damageType = 'thermicdamageportion'; break;
             }
             newDamageTypes[damageType] = damageDist[type];
         }
