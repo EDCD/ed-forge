@@ -4,7 +4,7 @@ const fs = require('fs');
 const _ = require('lodash');
 const {
     SHIP_CORIOLIS_TO_FD, MODULES_REGEX, ARMOUR_TO_SHIP, CAT_CORIOLIS_TO_FD,
-    PROP_CORIOLIS_TO_FD,
+    PROP_CORIOLIS_TO_FD, BLUEPRINT_EXCEPTION_TARGETS
 } = require('./scripts/coriolis-mappings');
 
 /**
@@ -416,10 +416,14 @@ const BLUEPRINTS_TO_MODULES = _.chain(TYPES_TO_BLUEPRINTS).entries()
     .value();
 const BLUEPRINTS = {};
 
-function consumeBlueprint(blueprintObject) {
+let exceptions = [];
+
+function consumeBlueprint(head) {
+    let [key, blueprintObject] = head;
+    key = key.toLowerCase();
     let name = blueprintObject['fdname'].toLowerCase();
     let features = {};
-    let appliesTo = BLUEPRINTS_TO_MODULES[name];
+    let appliesTo = BLUEPRINTS_TO_MODULES[key];
     if (!appliesTo) {
         return; // This can happen for blueprints that by now have been removed,
                 // e.g. detailed surface scanner mods.
@@ -427,12 +431,15 @@ function consumeBlueprint(blueprintObject) {
     let mapper = modulePropsMapper(appliesTo[0]); // assume for is uniform
     let grades = _.keys(blueprintObject['grades']);
     for (let grade of grades) {
-        let gradeFeatures = _.mapKeys(blueprintObject['grades'][grade]['features'], mapper);
+        let gradeFeatures = _.chain(blueprintObject['grades'][grade]['features'])
+            .mapKeys(mapper)
+            .mapValues(([min, max]) => { return { min, max } })
+            .value();
         let rof = gradeFeatures['rateoffire'];
         if (rof) {
             delete gradeFeatures['rateoffire'];
             // rof actually modifies fire interval
-            gradeFeatures['fireintervall'] = rof.map(x => -1 * x);
+            gradeFeatures['fireintervall'] = _.mapValues(rof, x => -1 * x);
         }
 
         // Map resistances to damage multipliers for blueprints
@@ -440,7 +447,7 @@ function consumeBlueprint(blueprintObject) {
             let resFeat = gradeFeatures[res];
             if (resFeat) {
                 delete gradeFeatures[res];
-                gradeFeatures[eff] = _.map(resFeat, v => -1 * v);
+                gradeFeatures[eff] = _.mapValues(resFeat, v => -1 * v);
             }
         }
 
@@ -454,10 +461,53 @@ function consumeBlueprint(blueprintObject) {
         }
     }
 
-    BLUEPRINTS[name] = { features, appliesTo };
+    if (key !== name) {
+        // Some blueprints are special because they implement an exception in
+        // coriolis; we handle those differently
+        exceptions.push({ key, name, features, appliesTo });
+    } else {
+        BLUEPRINTS[name] = { features, appliesTo };
+    }
 }
 
-_.mapValues(Modifications.blueprints, consumeBlueprint);
+_.toPairs(Modifications.blueprints).map(consumeBlueprint);
+
+for (let { key, name, features, appliesTo } of exceptions) {
+    // Original blueprint
+    let blueprint = BLUEPRINTS[name];
+
+    // Find distinct of the exception not in the original
+    let exceptionTarget = BLUEPRINT_EXCEPTION_TARGETS[key];
+    for (let grade in features) {
+        for (let featureName in features[grade]) {
+            if (!blueprint.features[grade][featureName]) {
+                features[grade][featureName].only = exceptionTarget;
+            }
+        }
+    }
+
+    // It might be the case that the original blueprint has exceptions as well;
+    // then find features of the original that are not in the exception. We
+    // assume that there is only one additional exception per blueprint.
+    let blueprintTarget = BLUEPRINT_EXCEPTION_TARGETS[name];
+    if (blueprintTarget) {
+        for (let grade in blueprint.features) {
+            for (let featureName in blueprint.features[grade]) {
+                if (!features[grade][featureName]) {
+                    blueprint.features[grade][featureName].only = blueprintTarget;
+                }
+            }
+        }
+    }
+
+    // This will only overwrite shared features which are the same anyways
+    for (let grade in features) {
+        _.assign(blueprint.features[grade], features[grade]);
+    }
+
+    // Merge appliesTo; we assume those two arrays not to intersect
+    blueprint.appliesTo.push(...appliesTo);
+}
 
 writeDataJSON('blueprints.json', BLUEPRINTS);
 
@@ -527,7 +577,7 @@ function consumeExperimental(head) {
         }
     }
 
-    features = _.mapValues(features, val => [ val , val ]);
+    features = _.mapValues(features, val => { return { 'min': val, 'max': val } } );
     EXPERIMENTALS[name] = { features, appliesTo };
 }
 

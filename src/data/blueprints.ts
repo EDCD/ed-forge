@@ -119,7 +119,12 @@ function applyBlueprintModifiers(moduleInfo: ModuleInformation,
         // Allow subsequent applications of modifier objects for experimental effects
         let baseValue = (propObject[prop] && propObject[prop].Value) ||
             moduleInfo.props[prop];
-        let [min, max] = modifierObject[prop];
+        let { min, max, only } = modifierObject[prop];
+
+        if (only && !moduleInfo.proto.Item.match(only)) {
+            continue;
+        }
+
         let blueprintModifier = (max - min) * progress + min;
 
         let Modifier = getModifier(propertyDescriptor, baseValue, blueprintModifier);

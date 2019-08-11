@@ -476,6 +476,19 @@ module.exports.CAT_CORIOLIS_TO_FD = {
     'mahr': ['MetaAlloyHRP'],
 };
 
+/**
+ * There are some blueprints that are "duplicated" in coriolis because fdev
+ * implemented different features for different classes of modules. We describe
+ * the classes of modules specific features apply only to here.
+ */
+module.exports.BLUEPRINT_EXCEPTION_TARGETS = {
+    'sensor_longrange': '^int_sensors',
+    'sensor_wideangle': '^int_sensors',
+    'sensor_longrange_scanner': '^hpt_(cargo|cloud|crime)scanner',
+    'sensor_wideangle_scanner': '^hpt_(cargo|cloud|crime)scanner',
+    'mc_overcharged': '^hpt_multicannon',
+};
+
 module.exports.ARMOUR_TO_SHIP = {};
 _.forEach(_.entries(module.exports.SHIP_CORIOLIS_TO_FD), entry => {
     let [ship, armourPrefix] = entry;

@@ -4,7 +4,13 @@ import { ShipObject } from "./Ship";
 /**
  * Maps property to array of from [min, max].
  */
-type FeatureObject = { [ property: string ]: number[] };
+type FeatureObject = {
+    [property: string]: {
+        min: number,
+        max: number,
+        only: string
+    }
+};
 
 /**
  * Blueprint type: has features per grade and list of modules the blueprint can
