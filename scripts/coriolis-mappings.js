@@ -464,7 +464,7 @@ module.exports.CAT_CORIOLIS_TO_FD = {
     'scl': ['SeismicChargeLauncher'],
     'sg': ['ShieldGen', 'PrismaticShieldGen'],
     'sua': ['SupercruiseAssist'],
-    'ss': 'SurfaceScanner',
+    'ss': ['SurfaceScanner'],
     'xs': ['XenoScanner'],
     't': ['Thrusters', 'EnhancedThrusters'],
     'tp': ['TorpedoPylon'],
