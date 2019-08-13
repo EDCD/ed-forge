@@ -57,7 +57,7 @@ function getArmourMetrics(ship: Ship, modified: boolean): ArmourMetrics {
     let alloys = ship.getAlloys();
 
     let baseArmour = ship.getBaseProperty('basearmour');
-    let hullBoost = alloys.get('defencemodifierhealthmultiplier', modified);
+    let hullBoost = alloys.getClean('defencemodifierhealthmultiplier', modified);
     let explDamage = alloys.get('explosiveeffectiveness', modified);
     let kinDamage = alloys.get('kineticeffectiveness', modified);
     let thermDamage = alloys.get('thermiceffectiveness', modified);

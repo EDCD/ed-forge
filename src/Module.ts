@@ -239,6 +239,21 @@ export default class Module extends DiffEmitter {
         return property(this, modified);
     }
 
+    /**
+     * Same as [[Module.get]] but retrieves percentage values not as raw numbers
+     * but casted into the range `[0,1]`.
+     * @param property Property name or getter
+     * @param modified False to retrieve default value
+     * @return Property value with the same exceptions as in [[Module.get]]
+     */
+    getClean(property: string, modified: boolean = true): (number | null | undefined) {
+        let value = this.get(property, modified);
+        if (MODULE_STATS[property].percentage) {
+            value /= 100;
+        }
+        return value;
+    }
+
     getModifier(property: string): number | null {
         if (this._object.Engineering && this._object.Engineering.Modifiers[property]) {
             return this._object.Engineering.Modifiers[property].Modifier;

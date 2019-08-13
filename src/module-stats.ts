@@ -59,6 +59,12 @@ export const THERM_RES: ModulePropertyCalculator = effToRes.bind(
      * are invoked which delegate the obligation to import said property.
      */
     importer?: (module: Module, modifier: ModifierObject, synthetics: PropertyMap) => void;
+    /**
+     * True if a value is a percentage value. These are tracked in the range
+     * `[0,100]` in Elite: Dangerous and sometimes need to be casted in the
+     * range `[0,1]`.
+     */
+    percentage?: boolean;
 }
 
 const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
@@ -79,17 +85,18 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'higherbetter': true,
         'getter': CAUS_RES,
         'importer': importEff.bind(undefined, 'caustic'),
+        'percentage': true,
     },
     'damage': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'damagefalloffrange': {},
     'damageperenergy': { 'higherbetter': true, 'getter': DPE, },
     'damagepersecond': { 'higherbetter': true, 'getter': DPS, },
     'defencemodifierhealthaddition': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'defencemodifierhealthmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'defencemodifierhealthmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true, 'percentage': true },  // actually modified
     'defencemodifiershieldaddition': {},
-    'defencemodifiershieldmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true },  // actually modified
+    'defencemodifiershieldmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true, 'percentage': true },  // actually modified
     'distributordraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'dss_patchradius': { 'method': 'multiplicative', 'higherbetter': true }, // actually modified
+    'dss_patchradius': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true }, // actually modified
     'enginescapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'enginesrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'energypersecond': { 'higherbetter': false, 'getter': EPS, },
@@ -101,13 +108,14 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'engineminimalmass': {},
     'engineminperformance': {},
     'engineoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'engineoptperformance': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'engineoptperformance': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },  // actually modified
     'explosivedamageportion': { 'method': 'overwrite' },
     'explosiveeffectiveness': { 'method': 'multiplicative', 'higherbetter': false },
     'explosiveresistance': {
         'higherbetter': true,
         'getter': EXPL_RES,
         'importer': importEff.bind(undefined, 'explosive'),
+        'percentage': true,
     },  // actually modified
     'fireintervall': { 'method': 'multiplicative', 'higherbetter': false }, // actually modified
     'fsdinterdictorfacinglimit': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -127,6 +135,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'higherbetter': true,
         'getter': KIN_RES,
         'importer': importEff.bind(undefined, 'kinetic'),
+        'percentage': true,
     },  // actually modified
     'mass': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
     'maxangle': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -135,7 +144,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'maximumrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'powercapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'powerdraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'protection': { 'method': 'multiplicative', 'higherbetter': true },
+    'protection': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },
     // For sensors
     'range': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'rateoffire': { 'higherbetter': true, 'getter': ROF, 'importer': importROF },  // actually modified
@@ -154,7 +163,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'shieldgenminimalmass': {},
     'shieldgenminstrength': {},  // actually modified
     'shieldgenoptimalmass':  { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'shieldgenstrength': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'shieldgenstrength': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },  // actually modified
     'shotspeed': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'sustaineddamagerpersecond': { 'higherbetter': true, 'getter': SDPS, },
     'systemscapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
@@ -166,6 +175,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'higherbetter': true,
         'getter': THERM_RES,
         'importer': importEff.bind(undefined, 'thermic'),
+        'percentage': true,
     },  // actually modified
     'weaponscapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
     'weaponsrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified

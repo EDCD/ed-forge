@@ -23,12 +23,12 @@ export interface JumpRangeMetrics {
 
 function getJumpRangeMetrics(jumpBoost: number, ship: Ship, modified: boolean): JumpRangeMetrics {
     let fsd = ship.getFSD();
-    let optMass = fsd.get('fsdoptimalmass', modified);
+    let optMass = fsd.getClean('fsdoptimalmass', modified);
     let mass = LADEN_MASS_CALCULATOR.calculate(ship, modified);
 
-    let maxFuelPerJump = fsd.get('maxfuel', modified);
-    let fuelMul = fsd.get('fuelmul', modified);
-    let fuelPower = fsd.get('fuelpower', modified);
+    let maxFuelPerJump = fsd.getClean('maxfuel', modified);
+    let fuelMul = fsd.getClean('fuelmul', modified);
+    let fuelPower = fsd.getClean('fuelpower', modified);
     let fuel = FUEL_CALCULATOR.calculate(ship, modified);
 
     let jumpRange = 0;

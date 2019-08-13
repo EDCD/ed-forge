@@ -46,12 +46,12 @@ function getBoostMultiplier(ship: Ship): number {
 function getSpeedMultiplier(ship: Ship, modified: boolean): number {
     let thrusters = ship.getThrusters();
     return scaleMul(
-        thrusters.get('engineminperformance', modified),
-        thrusters.get('engineoptperformance', modified),
-        thrusters.get('enginemaxperformance', modified),
-        thrusters.get('engineminimalmass', modified),
-        thrusters.get('engineoptimalmass', modified),
-        thrusters.get('enginemaximalmass', modified),
+        thrusters.getClean('engineminperformance', modified),
+        thrusters.getClean('engineoptperformance', modified),
+        thrusters.getClean('enginemaxperformance', modified),
+        thrusters.getClean('engineminimalmass', modified),
+        thrusters.getClean('engineoptimalmass', modified),
+        thrusters.getClean('enginemaximalmass', modified),
         LADEN_MASS_CALCULATOR.calculate(ship, modified)
     );
 }

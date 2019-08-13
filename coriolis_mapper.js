@@ -6,6 +6,7 @@ const {
     SHIP_CORIOLIS_TO_FD, MODULES_REGEX, ARMOUR_TO_SHIP, CAT_CORIOLIS_TO_FD,
     PROP_CORIOLIS_TO_FD, BLUEPRINT_EXCEPTION_TARGETS
 } = require('./scripts/coriolis-mappings');
+const MODULE_STATS = require('./lib/module-stats').default;
 
 /**
  * Returns an object key mapper that maps coriolis module prop names to FDev
@@ -243,6 +244,13 @@ function consumeModule(module) {
         if (!isNaN(resVal)) {
             j.props[eff] = 1 - resVal;
             delete j.props[res];
+        }
+    }
+
+    for (let propName in j.props) {
+        let descr = MODULE_STATS[propName];
+        if (descr && descr.percentage) {
+            j.props[propName] *= 100;
         }
     }
 

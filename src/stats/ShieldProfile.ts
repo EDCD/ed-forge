@@ -165,12 +165,12 @@ function getRechargeTime(rechargeSize: number, rechargeRate: number,
 
 function getBaseShieldStrength(shieldGenerator: Module, ship: Ship, modified: boolean) {
     return ship.getBaseProperty('baseshieldstrength') * scaleMul(
-        shieldGenerator.get('shieldgenminstrength', modified),
-        shieldGenerator.get('shieldgenstrength', modified),
-        shieldGenerator.get('shieldgenmaxstrength', modified),
-        shieldGenerator.get('shieldgenminimalmass', modified),
-        shieldGenerator.get('shieldgenoptimalmass', modified),
-        shieldGenerator.get('shieldgenmaximalmass', modified),
+        shieldGenerator.getClean('shieldgenminstrength', modified),
+        shieldGenerator.getClean('shieldgenstrength', modified),
+        shieldGenerator.getClean('shieldgenmaxstrength', modified),
+        shieldGenerator.getClean('shieldgenminimalmass', modified),
+        shieldGenerator.getClean('shieldgenoptimalmass', modified),
+        shieldGenerator.getClean('shieldgenmaximalmass', modified),
         ship.getBaseProperty('hullmass')
     );
 }
@@ -183,9 +183,9 @@ function getShieldMetrics(
     shieldGenerator: Module, baseShieldStrength: number, shieldAddition: number,
     ship: Ship, modified: boolean
 ): ShieldMetrics {
-    let explDamage = 1 - shieldGenerator.get('explosiveresistance', modified);
-    let kinDamage = 1 - shieldGenerator.get('kineticresistance', modified);
-    let thermDamage = 1 - shieldGenerator.get('thermicresistance', modified);
+    let explDamage = 1 - shieldGenerator.getClean('explosiveresistance', modified);
+    let kinDamage = 1 - shieldGenerator.getClean('kineticresistance', modified);
+    let thermDamage = 1 - shieldGenerator.getClean('thermicresistance', modified);
 
     let sbs = ship.getShieldBoosters();
     let boost = moduleReduceEnabled(sbs, 'defencemodifiershieldmultiplier', modified, add, 0);
@@ -257,9 +257,9 @@ function getShieldMetrics(
 function getSCBAddition(ship: Ship, modified: boolean): number {
     // TODO: move into module property and map to that
     let bySCBs = ship.getSCBs().reduce(
-        (reduced, m) => reduced + m.get('shieldbankreinforcement', modified)
-            * m.get('shieldbankduration', modified)
-            * (m.get('ammomaximum', modified) + m.get('ammoclipsize', modified)),
+        (reduced, m) => reduced + m.getClean('shieldbankreinforcement', modified)
+            * m.getClean('shieldbankduration', modified)
+            * (m.getClean('ammomaximum', modified) + m.getClean('ammoclipsize', modified)),
         0
     );
 
@@ -277,17 +277,17 @@ function getRechargeMetrics(
     shieldStrength: number, shieldGenerator: Module, powerDistributor: Module,
     modified: boolean
 ): RechargeMetrics {
-    let distributorDraw = shieldGenerator.get('energyperregen', modified);
-    let distributorCap = powerDistributor.get('systemscapacity', modified);
+    let distributorDraw = shieldGenerator.getClean('energyperregen', modified);
+    let distributorCap = powerDistributor.getClean('systemscapacity', modified);
     let distributorRecharge = powerDistributor.get(EFFECTIVE_SYS_RATE, modified);
     let distributorEnabled = powerDistributor.isEnabled();
 
     let { recharge, minRecharge } = getRechargeTime(
-        shieldStrength / 2, shieldGenerator.get('regenrate', modified),
+        shieldStrength / 2, shieldGenerator.getClean('regenrate', modified),
         distributorDraw, distributorCap, distributorRecharge, distributorEnabled
     );
     let recoverTimes = getRechargeTime(
-        shieldStrength / 2, shieldGenerator.get('brokenregenrate', modified),
+        shieldStrength / 2, shieldGenerator.getClean('brokenregenrate', modified),
         distributorDraw, distributorCap, distributorRecharge, distributorEnabled
     );
 

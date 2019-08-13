@@ -150,6 +150,11 @@ function applyBlueprintModifiers(moduleInfo: ModuleInformation,
  */
 function getModifier(propertyDescriptor: ModulePropertyDescriptor, base: number,
     blueprintModifier: number): number {
+    // Scale the base value for percantage values as these are in range
+    // `[0,100]`.
+    if (propertyDescriptor.percentage) {
+        base /= 100;
+    }
     switch (propertyDescriptor.modifier) {
         case undefined:
             return blueprintModifier;

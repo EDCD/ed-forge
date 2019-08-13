@@ -76,7 +76,7 @@ function _moduleReduce<T>(modules: Module[] | { [key: string]: Module },
         let props = filters.concat([m => !m.isEmpty()]).reduce(
             (mods, fn) => mods.filter(fn), values(modules)
         // get the properties
-        ).map(m => m.get(prop, modified)).filter(v => !isNaN(v));
+        ).map(m => m.getClean(prop, modified)).filter(v => !isNaN(v));
         // reduce the properties
         return props.reduce(fn, initial);
     }
