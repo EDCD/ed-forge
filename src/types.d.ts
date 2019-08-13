@@ -60,6 +60,8 @@ export interface MetaModuleInformation {
     class: number;
     /** Rating of the item */
     rating: string;
+    applicable: string[];
+    applicable_special: string[];
 }
 
 /**
