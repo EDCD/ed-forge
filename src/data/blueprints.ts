@@ -125,9 +125,7 @@ function applyBlueprintModifiers(moduleInfo: ModuleInformation,
             continue;
         }
 
-        let blueprintModifier = (max - min) * progress + min;
-
-        let Modifier = getModifier(propertyDescriptor, baseValue, blueprintModifier);
+        let Modifier = (max - min) * progress + min;
         let Value = getModifiedProperty(propertyDescriptor, baseValue, Modifier);
 
         if (!isNaN(Value)) {
@@ -142,40 +140,19 @@ function applyBlueprintModifiers(moduleInfo: ModuleInformation,
 }
 
 /**
- * Turns a blueprint modifier into a modifier.
- * @param propertyDescriptor Meta data about the property to modify
- * @param base Value to modify
- * @param blueprintModifier Blueprint modifier
- * @returns Modifier
- */
-function getModifier(propertyDescriptor: ModulePropertyDescriptor, base: number,
-    blueprintModifier: number): number {
-    // Scale the base value for percantage values as these are in range
-    // `[0,100]`.
-    if (propertyDescriptor.percentage) {
-        base /= 100;
-    }
-    switch (propertyDescriptor.modifier) {
-        case undefined:
-            return blueprintModifier;
-        // Used when modding shield-/hullboost
-        case 'offsetscale':
-            return (1 + base) * (1 + blueprintModifier) - (1 + base);
-        default:
-            throw new UnknownRestrictedError();
-    }
-}
-
-/**
  * Applies a modifier to a base value and returns the modified value.
  * @param propertyDescriptor Meta data about the property to modify
  * @param base Value to modify
  * @param modifier Modifier
  * @returns Modified property
  */
-function getModifiedProperty(propertyDescriptor, base: number, modifier: number): number {
+function getModifiedProperty(propertyDescriptor: ModulePropertyDescriptor,
+    base: number, modifier: number): number {
     switch (propertyDescriptor.method) {
         // Additive mods can add new properties
+        case 'boost':
+            let pBase = propertyDescriptor.percentage ? base / 100 : base;
+            return base + 100 * ((1 + pBase) * (1 + modifier) - (1 + pBase));
         case 'additive':
             return (base || 0) + modifier;
         case 'multiplicative':

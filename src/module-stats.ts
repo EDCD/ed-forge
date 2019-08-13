@@ -38,11 +38,6 @@ export const THERM_RES: ModulePropertyCalculator = effToRes.bind(
  */
  export interface ModulePropertyDescriptor {
     /**
-     * Method on how to turn a blueprint modifier into a modifier. If not given,
-     * blueprint modifier will be used as modifier.
-     */
-    modifier?: string,
-    /**
      * How to apply the modifier to the the module property. If not given then
      * the property can't be modified.
      */
@@ -92,9 +87,9 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'damageperenergy': { 'higherbetter': true, 'getter': DPE, },
     'damagepersecond': { 'higherbetter': true, 'getter': DPS, },
     'defencemodifierhealthaddition': { 'method': 'multiplicative', 'higherbetter': true },
-    'defencemodifierhealthmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true, 'percentage': true },
+    'defencemodifierhealthmultiplier': { 'method': 'boost', 'higherbetter': true, 'percentage': true },
     'defencemodifiershieldaddition': {},
-    'defencemodifiershieldmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true, 'percentage': true },
+    'defencemodifiershieldmultiplier': { 'method': 'boost', 'higherbetter': true, 'percentage': true },
     'distributordraw': { 'method': 'multiplicative', 'higherbetter': false },
     'dss_patchradius': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },
     'enginescapacity': { 'method': 'multiplicative', 'higherbetter': true },
