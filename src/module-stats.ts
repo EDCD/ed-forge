@@ -68,17 +68,17 @@ export const THERM_RES: ModulePropertyCalculator = effToRes.bind(
 }
 
 const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
-    'ammoclipsize': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'ammomaximum': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'armourpenetration': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'ammoclipsize': { 'method': 'multiplicative', 'higherbetter': true },
+    'ammomaximum': { 'method': 'multiplicative', 'higherbetter': true },
+    'armourpenetration': { 'method': 'multiplicative', 'higherbetter': true },
     'absolutedamageportion': { 'method': 'overwrite' },
     // For sensors
-    'sensortargetscanangle': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'boottime': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'brokenregenrate': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'burstsize': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
-    'burstintervall': { 'method': 'multiplicative', 'higherbetter': false, 'getter': getReciprocal('burstrateoffire') }, // actually modified
-    'burstrateoffire': { 'method': 'overwrite', 'higherbetter': true },  // actually modified
+    'sensortargetscanangle': { 'method': 'multiplicative', 'higherbetter': true },
+    'boottime': { 'method': 'multiplicative', 'higherbetter': false },
+    'brokenregenrate': { 'method': 'multiplicative', 'higherbetter': true },
+    'burstsize': { 'method': 'overwrite', 'higherbetter': true },
+    'burstintervall': { 'method': 'multiplicative', 'higherbetter': false, 'getter': getReciprocal('burstrateoffire') },
+    'burstrateoffire': { 'method': 'overwrite', 'higherbetter': true },
     'cargo': {},
     'causticeffectiveness': { 'method': 'multiplicative', 'higherbetter': false },
     'causticresistance': {
@@ -87,28 +87,28 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'importer': importEff.bind(undefined, 'caustic'),
         'percentage': true,
     },
-    'damage': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'damage': { 'method': 'multiplicative', 'higherbetter': true },
     'damagefalloffrange': {},
     'damageperenergy': { 'higherbetter': true, 'getter': DPE, },
     'damagepersecond': { 'higherbetter': true, 'getter': DPS, },
-    'defencemodifierhealthaddition': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'defencemodifierhealthmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true, 'percentage': true },  // actually modified
+    'defencemodifierhealthaddition': { 'method': 'multiplicative', 'higherbetter': true },
+    'defencemodifierhealthmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true, 'percentage': true },
     'defencemodifiershieldaddition': {},
-    'defencemodifiershieldmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true, 'percentage': true },  // actually modified
-    'distributordraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'dss_patchradius': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true }, // actually modified
-    'enginescapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'enginesrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'defencemodifiershieldmultiplier': { 'modifier': 'offsetscale', 'method': 'additive', 'higherbetter': true, 'percentage': true },
+    'distributordraw': { 'method': 'multiplicative', 'higherbetter': false },
+    'dss_patchradius': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },
+    'enginescapacity': { 'method': 'multiplicative', 'higherbetter': true },
+    'enginesrecharge': { 'method': 'multiplicative', 'higherbetter': true },
     'energypersecond': { 'higherbetter': false, 'getter': EPS, },
     // for shields
-    'energyperregen': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'engineheatrate': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'energyperregen': { 'method': 'multiplicative', 'higherbetter': false },
+    'engineheatrate': { 'method': 'multiplicative', 'higherbetter': false },
     'enginemaximalmass': {},
     'enginemaxperformance': {},
     'engineminimalmass': {},
     'engineminperformance': {},
-    'engineoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'engineoptperformance': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },  // actually modified
+    'engineoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },
+    'engineoptperformance': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },
     'explosivedamageportion': { 'method': 'overwrite' },
     'explosiveeffectiveness': { 'method': 'multiplicative', 'higherbetter': false },
     'explosiveresistance': {
@@ -116,18 +116,18 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'getter': EXPL_RES,
         'importer': importEff.bind(undefined, 'explosive'),
         'percentage': true,
-    },  // actually modified
-    'fireintervall': { 'method': 'multiplicative', 'higherbetter': false }, // actually modified
-    'fsdinterdictorfacinglimit': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'fsdinterdictorrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'fsdoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    },
+    'fireintervall': { 'method': 'multiplicative', 'higherbetter': false },
+    'fsdinterdictorfacinglimit': { 'method': 'multiplicative', 'higherbetter': true },
+    'fsdinterdictorrange': { 'method': 'multiplicative', 'higherbetter': true },
+    'fsdoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },
     'fuel': {},
     'fuelmul': {},
     'fuelpower': {},
-    'heatefficiency': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'heatefficiency': { 'method': 'multiplicative', 'higherbetter': false },
     'heatpersecond': { 'higherbetter': false, 'getter': HPS, },
-    'integrity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'jitter': { 'method': 'additive', 'higherbetter': false },  // actually modified
+    'integrity': { 'method': 'multiplicative', 'higherbetter': true },
+    'jitter': { 'method': 'additive', 'higherbetter': false },
     'jumpboost': {},
     'kineticdamageportion': { 'method': 'overwrite' },
     'kineticeffectiveness': { 'method': 'multiplicative', 'higherbetter': false },
@@ -136,39 +136,39 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'getter': KIN_RES,
         'importer': importEff.bind(undefined, 'kinetic'),
         'percentage': true,
-    },  // actually modified
-    'mass': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'maxangle': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    },
+    'mass': { 'method': 'multiplicative', 'higherbetter': false },
+    'maxangle': { 'method': 'multiplicative', 'higherbetter': true },
     'maxfuel': {},
     // For weapons
-    'maximumrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'powercapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'powerdraw': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'maximumrange': { 'method': 'multiplicative', 'higherbetter': true },
+    'powercapacity': { 'method': 'multiplicative', 'higherbetter': true },
+    'powerdraw': { 'method': 'multiplicative', 'higherbetter': false },
     'protection': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },
     // For sensors
-    'range': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'rateoffire': { 'higherbetter': true, 'getter': ROF, 'importer': importROF },  // actually modified
+    'range': { 'method': 'multiplicative', 'higherbetter': true },
+    'rateoffire': { 'higherbetter': true, 'getter': ROF, 'importer': importROF },
     'regenrate': {},
-    'reloadtime': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'reloadtime': { 'method': 'multiplicative', 'higherbetter': false },
     'roundspershot': {},
-    'scannertimetoscan': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'scannertimetoscan': { 'method': 'multiplicative', 'higherbetter': false },
     // For utility scanners
-    'scannerrange': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified,
-    'shieldbankduration': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'shieldbankheat': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
-    'shieldbankreinforcement': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'shieldbankspinup': { 'method': 'multiplicative', 'higherbetter': false },  // actually modified
+    'scannerrange': { 'method': 'multiplicative', 'higherbetter': true },
+    'shieldbankduration': { 'method': 'multiplicative', 'higherbetter': true },
+    'shieldbankheat': { 'method': 'multiplicative', 'higherbetter': false },
+    'shieldbankreinforcement': { 'method': 'multiplicative', 'higherbetter': true },
+    'shieldbankspinup': { 'method': 'multiplicative', 'higherbetter': false },
     'shieldgenmaximalmass': {},
-    'shieldgenmaxstrength': {},  // actually modified
+    'shieldgenmaxstrength': {},
     'shieldgenminimalmass': {},
-    'shieldgenminstrength': {},  // actually modified
-    'shieldgenoptimalmass':  { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'shieldgenstrength': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },  // actually modified
-    'shotspeed': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    'shieldgenminstrength': {},
+    'shieldgenoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },
+    'shieldgenstrength': { 'method': 'multiplicative', 'higherbetter': true, 'percentage': true },
+    'shotspeed': { 'method': 'multiplicative', 'higherbetter': true },
     'sustaineddamagerpersecond': { 'higherbetter': true, 'getter': SDPS, },
-    'systemscapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'systemsrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'thermalload': { 'method': 'multWiplicative', 'higherbetter': false },  // actually modified
+    'systemscapacity': { 'method': 'multiplicative', 'higherbetter': true },
+    'systemsrecharge': { 'method': 'multiplicative', 'higherbetter': true },
+    'thermalload': { 'method': 'multWiplicative', 'higherbetter': false },
     'thermicdamageportion': { 'method': 'overwrite' },
     'thermiceffectiveness': { 'method': 'multiplicative', 'higherbetter': false, },
     'thermicresistance': {
@@ -176,9 +176,9 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'getter': THERM_RES,
         'importer': importEff.bind(undefined, 'thermic'),
         'percentage': true,
-    },  // actually modified
-    'weaponscapacity': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
-    'weaponsrecharge': { 'method': 'multiplicative', 'higherbetter': true },  // actually modified
+    },
+    'weaponscapacity': { 'method': 'multiplicative', 'higherbetter': true },
+    'weaponsrecharge': { 'method': 'multiplicative', 'higherbetter': true },
 };
 export default MODULE_STATS;
 
