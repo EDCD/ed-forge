@@ -60,18 +60,23 @@ export const THERM_RES: ModulePropertyCalculator = effToRes.bind(
      * range `[0,1]`.
      */
     percentage?: boolean;
+    /**
+     * True if a value is an integer. After applying modifiers it will be
+     * rounded.
+     */
+    integer?: boolean;
 }
 
 const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
-    'ammoclipsize': { 'method': 'multiplicative', 'higherbetter': true },
-    'ammomaximum': { 'method': 'multiplicative', 'higherbetter': true },
+    'ammoclipsize': { 'method': 'multiplicative', 'higherbetter': true, 'integer': true },
+    'ammomaximum': { 'method': 'multiplicative', 'higherbetter': true, 'integer': true },
     'armourpenetration': { 'method': 'multiplicative', 'higherbetter': true },
     'absolutedamageportion': { 'method': 'overwrite' },
     // For sensors
     'sensortargetscanangle': { 'method': 'multiplicative', 'higherbetter': true },
     'boottime': { 'method': 'multiplicative', 'higherbetter': false },
     'brokenregenrate': { 'method': 'multiplicative', 'higherbetter': true },
-    'burstsize': { 'method': 'overwrite', 'higherbetter': true },
+    'burstsize': { 'method': 'overwrite', 'higherbetter': true, 'integer': true },
     'burstintervall': { 'method': 'multiplicative', 'higherbetter': false, 'getter': getReciprocal('burstrateoffire') },
     'burstrateoffire': { 'method': 'overwrite', 'higherbetter': true },
     'cargo': {},
@@ -147,7 +152,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'rateoffire': { 'higherbetter': true, 'getter': ROF, 'importer': importROF },
     'regenrate': { 'method': 'multiplicative', 'higherbetter': true },
     'reloadtime': { 'method': 'multiplicative', 'higherbetter': false },
-    'roundspershot': {},
+    'roundspershot': { 'integer': true },
     'scannertimetoscan': { 'method': 'multiplicative', 'higherbetter': false },
     // For utility scanners
     'scannerrange': { 'method': 'multiplicative', 'higherbetter': true },

@@ -128,6 +128,10 @@ function applyBlueprintModifiers(moduleInfo: ModuleInformation,
         let Modifier = (max - min) * progress + min;
         let Value = getModifiedProperty(propertyDescriptor, baseValue, Modifier);
 
+        if (propertyDescriptor.integer) {
+            Value = Math.round(Value);
+        }
+
         if (!isNaN(Value)) {
             propObject[prop] = {
                 Label: prop,
