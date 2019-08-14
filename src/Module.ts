@@ -227,7 +227,7 @@ export default class Module extends DiffEmitter {
             if (getter) {
                 property = getter;
             } else {
-                if (this._object.Engineering && this._object.Engineering.Modifiers[property]) {
+                if (modified && this._object.Engineering && this._object.Engineering.Modifiers[property]) {
                     return this._object.Engineering.Modifiers[property].Value;
                 }
                 return getModuleProperty(this._object.Item, property);
