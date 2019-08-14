@@ -1,0 +1,1178 @@
+{
+    "timestamp": "2019-05-27T21:12:21Z",
+    "event": "Loadout",
+    "Ship": "ferdelance",
+    "ShipID": 10,
+    "ShipName": "Calamity",
+    "ShipIdent": "FLa629",
+    "HullValue": 51094995,
+    "ModulesValue": 165419467,
+    "HullHealth": 1.000000,
+    "UnladenMass": 532.621826,
+    "CargoCapacity": 0,
+    "MaxJumpRange": 14.860350,
+    "FuelCapacity": {
+        "Main": 8.000000,
+        "Reserve": 0.670000
+    },
+    "Rebuy": 10825724,
+    "Modules": [
+        {
+            "Slot": "ShipCockpit",
+            "Item": "ferdelance_cockpit",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "CargoHatch",
+            "Item": "modularcargobaydoorfdl",
+            "On": true,
+            "Priority": 3,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "HugeHardpoint1",
+            "Item": "hpt_plasmaaccelerator_fixed_huge",
+            "On": true,
+            "Priority": 0,
+            "AmmoInClip": 5,
+            "AmmoInHopper": 100,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Bill Turner",
+                "EngineerID": 300010,
+                "BlueprintID": 128673539,
+                "BlueprintName": "Weapon_LongRange",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_thermal_conduit",
+                "ExperimentalEffect_Localised": "Thermal Conduit",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 20.799999,
+                        "OriginalValue": 16.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 3.024500,
+                        "OriginalValue": 2.630000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "MaximumRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 3500.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ShotSpeed",
+                        "Value": 1750.000000,
+                        "OriginalValue": 875.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "DamageFalloffRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 2000.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "MediumHardpoint1",
+            "Item": "hpt_cannon_fixed_medium",
+            "On": true,
+            "Priority": 0,
+            "AmmoInClip": 6,
+            "AmmoInHopper": 120,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "The Sarge",
+                "EngineerID": 300040,
+                "BlueprintID": 128673414,
+                "BlueprintName": "Weapon_LongRange",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_force_shell",
+                "ExperimentalEffect_Localised": "Force Shell",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 5.200000,
+                        "OriginalValue": 4.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 0.563500,
+                        "OriginalValue": 0.490000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "MaximumRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 3500.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ShotSpeed",
+                        "Value": 1751.751709,
+                        "OriginalValue": 1051.051025,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "DamageFalloffRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 3500.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "MediumHardpoint2",
+            "Item": "hpt_cannon_fixed_medium",
+            "On": true,
+            "Priority": 0,
+            "AmmoInClip": 6,
+            "AmmoInHopper": 120,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "The Sarge",
+                "EngineerID": 300040,
+                "BlueprintID": 128673414,
+                "BlueprintName": "Weapon_LongRange",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_force_shell",
+                "ExperimentalEffect_Localised": "Force Shell",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 5.200000,
+                        "OriginalValue": 4.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 0.563500,
+                        "OriginalValue": 0.490000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "MaximumRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 3500.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ShotSpeed",
+                        "Value": 1751.751709,
+                        "OriginalValue": 1051.051025,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "DamageFalloffRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 3500.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "MediumHardpoint3",
+            "Item": "hpt_cannon_fixed_medium",
+            "On": true,
+            "Priority": 0,
+            "AmmoInClip": 6,
+            "AmmoInHopper": 120,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "The Sarge",
+                "EngineerID": 300040,
+                "BlueprintID": 128673414,
+                "BlueprintName": "Weapon_LongRange",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_force_shell",
+                "ExperimentalEffect_Localised": "Force Shell",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 5.200000,
+                        "OriginalValue": 4.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 0.563500,
+                        "OriginalValue": 0.490000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "MaximumRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 3500.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ShotSpeed",
+                        "Value": 1751.751709,
+                        "OriginalValue": 1051.051025,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "DamageFalloffRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 3500.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "MediumHardpoint4",
+            "Item": "hpt_cannon_fixed_medium",
+            "On": true,
+            "Priority": 0,
+            "AmmoInClip": 6,
+            "AmmoInHopper": 120,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "The Sarge",
+                "EngineerID": 300040,
+                "BlueprintID": 128673414,
+                "BlueprintName": "Weapon_LongRange",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_force_shell",
+                "ExperimentalEffect_Localised": "Force Shell",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 5.200000,
+                        "OriginalValue": 4.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 0.563500,
+                        "OriginalValue": 0.490000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "MaximumRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 3500.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ShotSpeed",
+                        "Value": 1751.751709,
+                        "OriginalValue": 1051.051025,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "DamageFalloffRange",
+                        "Value": 7000.000000,
+                        "OriginalValue": 3500.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "TinyHardpoint1",
+            "Item": "hpt_shieldbooster_size0_class5",
+            "On": true,
+            "Priority": 2,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Didi Vatermann",
+                "EngineerID": 300000,
+                "BlueprintID": 128673784,
+                "BlueprintName": "ShieldBooster_HeavyDuty",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_shieldbooster_chunky",
+                "ExperimentalEffect_Localised": "Super Capacitors",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 14.000000,
+                        "OriginalValue": 3.500000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "Integrity",
+                        "Value": 55.199997,
+                        "OriginalValue": 48.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 1.500000,
+                        "OriginalValue": 1.200000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "DefenceModifierShieldMultiplier",
+                        "Value": 73.879990,
+                        "OriginalValue": 20.000004,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "KineticResistance",
+                        "Value": -1.999998,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ThermicResistance",
+                        "Value": -1.999998,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ExplosiveResistance",
+                        "Value": -1.999998,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "TinyHardpoint2",
+            "Item": "hpt_shieldbooster_size0_class5",
+            "On": true,
+            "Priority": 2,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Didi Vatermann",
+                "EngineerID": 300000,
+                "BlueprintID": 128673784,
+                "BlueprintName": "ShieldBooster_HeavyDuty",
+                "Level": 5,
+                "Quality": 0.910000,
+                "ExperimentalEffect": "special_shieldbooster_chunky",
+                "ExperimentalEffect_Localised": "Super Capacitors",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 14.000000,
+                        "OriginalValue": 3.500000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "Integrity",
+                        "Value": 55.123199,
+                        "OriginalValue": 48.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 1.500000,
+                        "OriginalValue": 1.200000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "DefenceModifierShieldMultiplier",
+                        "Value": 73.086205,
+                        "OriginalValue": 20.000004,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "KineticResistance",
+                        "Value": -1.999998,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ThermicResistance",
+                        "Value": -1.999998,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ExplosiveResistance",
+                        "Value": -1.999998,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "TinyHardpoint3",
+            "Item": "hpt_shieldbooster_size0_class5",
+            "On": true,
+            "Priority": 2,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Didi Vatermann",
+                "EngineerID": 300000,
+                "BlueprintID": 128673794,
+                "BlueprintName": "ShieldBooster_Resistive",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_shieldbooster_chunky",
+                "ExperimentalEffect_Localised": "Super Capacitors",
+                "Modifiers": [
+                    {
+                        "Label": "Integrity",
+                        "Value": 42.239998,
+                        "OriginalValue": 48.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 1.500000,
+                        "OriginalValue": 1.200000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "DefenceModifierShieldMultiplier",
+                        "Value": 26.000000,
+                        "OriginalValue": 20.000004,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "KineticResistance",
+                        "Value": 15.340000,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ThermicResistance",
+                        "Value": 15.340000,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ExplosiveResistance",
+                        "Value": 15.340000,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "TinyHardpoint4",
+            "Item": "hpt_shieldbooster_size0_class5",
+            "On": true,
+            "Priority": 0,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Didi Vatermann",
+                "EngineerID": 300000,
+                "BlueprintID": 128673799,
+                "BlueprintName": "ShieldBooster_Thermic",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_shieldbooster_chunky",
+                "ExperimentalEffect_Localised": "Super Capacitors",
+                "Modifiers": [
+                    {
+                        "Label": "DefenceModifierShieldMultiplier",
+                        "Value": 26.000000,
+                        "OriginalValue": 20.000004,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "KineticResistance",
+                        "Value": -6.079996,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ThermicResistance",
+                        "Value": 25.540001,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ExplosiveResistance",
+                        "Value": -6.079996,
+                        "OriginalValue": 0.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "TinyHardpoint5",
+            "Item": "hpt_chafflauncher_tiny",
+            "On": true,
+            "Priority": 0,
+            "AmmoInClip": 1,
+            "AmmoInHopper": 10,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "TinyHardpoint6",
+            "Item": "hpt_heatsinklauncher_turret_tiny",
+            "On": true,
+            "Priority": 2,
+            "AmmoInClip": 1,
+            "AmmoInHopper": 2,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Ram Tah",
+                "EngineerID": 300110,
+                "BlueprintID": 128731666,
+                "BlueprintName": "HeatSinkLauncher_HeatSinkCapacity",
+                "Level": 3,
+                "Quality": 0.000000,
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 2.798638,
+                        "OriginalValue": 1.300000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "AmmoMaximum",
+                        "Value": 3.000000,
+                        "OriginalValue": 2.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ReloadTime",
+                        "Value": 17.534086,
+                        "OriginalValue": 10.000000,
+                        "LessIsGood": 1
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "Armour",
+            "Item": "ferdelance_armour_reactive",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Selene Jean",
+                "EngineerID": 300210,
+                "BlueprintID": 128673644,
+                "BlueprintName": "Armour_HeavyDuty",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_armour_chunky",
+                "ExperimentalEffect_Localised": "Deep Plating",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 49.399998,
+                        "OriginalValue": 38.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "DefenceModifierHealthMultiplier",
+                        "Value": 398.960022,
+                        "OriginalValue": 250.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "KineticResistance",
+                        "Value": 26.612503,
+                        "OriginalValue": 25.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ThermicResistance",
+                        "Value": -36.989986,
+                        "OriginalValue": -39.999996,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ExplosiveResistance",
+                        "Value": 21.720005,
+                        "OriginalValue": 19.999998,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "PaintJob",
+            "Item": "paintjob_ferdelance_vibrant_purple",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "Decal1",
+            "Item": "decal_combat_deadly",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "Decal2",
+            "Item": "decal_skull9",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "Decal3",
+            "Item": "decal_skull9",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "ShipName0",
+            "Item": "nameplate_practical01_white",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "ShipName1",
+            "Item": "nameplate_practical01_white",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "ShipID0",
+            "Item": "nameplate_shipid_doubleline_white",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "ShipID1",
+            "Item": "nameplate_shipid_doubleline_white",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "PowerPlant",
+            "Item": "int_powerplant_size6_class5",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Hera Tani",
+                "EngineerID": 300090,
+                "BlueprintID": 128673764,
+                "BlueprintName": "PowerPlant_Armoured",
+                "Level": 5,
+                "Quality": 0.975000,
+                "ExperimentalEffect": "special_powerplant_highcharge",
+                "ExperimentalEffect_Localised": "Monstered",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 26.400002,
+                        "OriginalValue": 20.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "Integrity",
+                        "Value": 272.800018,
+                        "OriginalValue": 124.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "PowerCapacity",
+                        "Value": 29.635201,
+                        "OriginalValue": 25.200001,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "HeatEfficiency",
+                        "Value": 0.352200,
+                        "OriginalValue": 0.400000,
+                        "LessIsGood": 1
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "MainEngines",
+            "Item": "int_engine_size5_class5",
+            "On": true,
+            "Priority": 0,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Professor Palin",
+                "EngineerID": 300220,
+                "BlueprintID": 128673659,
+                "BlueprintName": "Engine_Dirty",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_engine_haulage",
+                "ExperimentalEffect_Localised": "Drive Distributors",
+                "Modifiers": [
+                    {
+                        "Label": "Integrity",
+                        "Value": 90.100006,
+                        "OriginalValue": 106.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 6.854400,
+                        "OriginalValue": 6.120000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "EngineOptimalMass",
+                        "Value": 808.500000,
+                        "OriginalValue": 840.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "EngineOptPerformance",
+                        "Value": 140.000000,
+                        "OriginalValue": 100.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "EngineHeatRate",
+                        "Value": 2.080000,
+                        "OriginalValue": 1.300000,
+                        "LessIsGood": 1
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "FrameShiftDrive",
+            "Item": "int_hyperdrive_size4_class5",
+            "On": true,
+            "Priority": 3,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "LifeSupport",
+            "Item": "int_lifesupport_size4_class2",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "PowerDistributor",
+            "Item": "int_powerdistributor_size6_class5",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "The Dweller",
+                "EngineerID": 300180,
+                "BlueprintID": 128673739,
+                "BlueprintName": "PowerDistributor_HighFrequency",
+                "Level": 5,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_powerdistributor_fast",
+                "ExperimentalEffect_Localised": "Super Conduits",
+                "Modifiers": [
+                    {
+                        "Label": "WeaponsCapacity",
+                        "Value": 45.599998,
+                        "OriginalValue": 50.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "WeaponsRecharge",
+                        "Value": 7.841599,
+                        "OriginalValue": 5.200000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "EnginesCapacity",
+                        "Value": 31.920000,
+                        "OriginalValue": 35.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "EnginesRecharge",
+                        "Value": 4.825600,
+                        "OriginalValue": 3.200000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "SystemsCapacity",
+                        "Value": 31.920000,
+                        "OriginalValue": 35.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "SystemsRecharge",
+                        "Value": 4.825600,
+                        "OriginalValue": 3.200000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "Radar",
+            "Item": "int_sensors_size4_class2",
+            "On": true,
+            "Priority": 0,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "FuelTank",
+            "Item": "int_fueltank_size3_class3",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "Slot01_Size5",
+            "Item": "int_shieldgenerator_size5_class5",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Lei Cheung",
+                "EngineerID": 300120,
+                "BlueprintID": 128673839,
+                "BlueprintName": "ShieldGenerator_Reinforced",
+                "Level": 5,
+                "Quality": 0.941700,
+                "ExperimentalEffect": "special_shield_health",
+                "ExperimentalEffect_Localised": "Hi-Cap",
+                "Modifiers": [
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 4.004000,
+                        "OriginalValue": 3.640000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "ShieldGenStrength",
+                        "Value": 175.090790,
+                        "OriginalValue": 120.000008,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "BrokenRegenRate",
+                        "Value": 3.375000,
+                        "OriginalValue": 3.750000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "EnergyPerRegen",
+                        "Value": 0.840000,
+                        "OriginalValue": 0.600000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "KineticResistance",
+                        "Value": 49.834000,
+                        "OriginalValue": 39.999996,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ThermicResistance",
+                        "Value": -0.331998,
+                        "OriginalValue": -20.000004,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ExplosiveResistance",
+                        "Value": 58.195000,
+                        "OriginalValue": 50.000000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "Slot02_Size4",
+            "Item": "int_shieldcellbank_size4_class5",
+            "On": true,
+            "Priority": 2,
+            "AmmoInClip": 1,
+            "AmmoInHopper": 3,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Lori Jameson",
+                "EngineerID": 300230,
+                "BlueprintID": 128673812,
+                "BlueprintName": "ShieldCellBank_Specialised",
+                "Level": 3,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_shieldcell_oversized",
+                "ExperimentalEffect_Localised": "Boss Cells",
+                "Modifiers": [
+                    {
+                        "Label": "Integrity",
+                        "Value": 81.600006,
+                        "OriginalValue": 96.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 2.064000,
+                        "OriginalValue": 1.720000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "BootTime",
+                        "Value": 19.000000,
+                        "OriginalValue": 25.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "ShieldBankSpinUp",
+                        "Value": 6.000000,
+                        "OriginalValue": 5.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "ShieldBankReinforcement",
+                        "Value": 52.163998,
+                        "OriginalValue": 46.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ShieldBankHeat",
+                        "Value": 336.200012,
+                        "OriginalValue": 410.000000,
+                        "LessIsGood": 1
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "Slot03_Size4",
+            "Item": "int_shieldcellbank_size4_class5",
+            "On": true,
+            "Priority": 2,
+            "AmmoInClip": 1,
+            "AmmoInHopper": 3,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Lori Jameson",
+                "EngineerID": 300230,
+                "BlueprintID": 128673812,
+                "BlueprintName": "ShieldCellBank_Specialised",
+                "Level": 3,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_shieldcell_oversized",
+                "ExperimentalEffect_Localised": "Boss Cells",
+                "Modifiers": [
+                    {
+                        "Label": "Integrity",
+                        "Value": 81.600006,
+                        "OriginalValue": 96.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "PowerDraw",
+                        "Value": 2.064000,
+                        "OriginalValue": 1.720000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "BootTime",
+                        "Value": 19.000000,
+                        "OriginalValue": 25.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "ShieldBankSpinUp",
+                        "Value": 6.000000,
+                        "OriginalValue": 5.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "ShieldBankReinforcement",
+                        "Value": 52.163998,
+                        "OriginalValue": 46.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ShieldBankHeat",
+                        "Value": 336.200012,
+                        "OriginalValue": 410.000000,
+                        "LessIsGood": 1
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "Slot04_Size2",
+            "Item": "int_hullreinforcement_size2_class2",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Selene Jean",
+                "EngineerID": 300210,
+                "BlueprintID": 128673718,
+                "BlueprintName": "HullReinforcement_HeavyDuty",
+                "Level": 4,
+                "Quality": 1.000000,
+                "ExperimentalEffect": "special_hullreinforcement_chunky",
+                "ExperimentalEffect_Localised": "Deep Plating",
+                "Modifiers": [
+                    {
+                        "Label": "Mass",
+                        "Value": 2.640000,
+                        "OriginalValue": 2.000000,
+                        "LessIsGood": 1
+                    },
+                    {
+                        "Label": "DefenceModifierHealthAddition",
+                        "Value": 334.399994,
+                        "OriginalValue": 190.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "KineticResistance",
+                        "Value": 11.137599,
+                        "OriginalValue": 0.999999,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ThermicResistance",
+                        "Value": 11.137599,
+                        "OriginalValue": 0.999999,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ExplosiveResistance",
+                        "Value": 11.137599,
+                        "OriginalValue": 0.999999,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "Slot05_Size1",
+            "Item": "int_hullreinforcement_size1_class2",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000,
+            "Engineering": {
+                "Engineer": "Selene Jean",
+                "EngineerID": 300210,
+                "BlueprintID": 128673729,
+                "BlueprintName": "HullReinforcement_Thermic",
+                "Level": 5,
+                "Quality": 1.000000,
+                "Modifiers": [
+                    {
+                        "Label": "DefenceModifierHealthAddition",
+                        "Value": 126.500000,
+                        "OriginalValue": 110.000000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "KineticResistance",
+                        "Value": -9.450006,
+                        "OriginalValue": 0.500000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ThermicResistance",
+                        "Value": 40.299999,
+                        "OriginalValue": 0.500000,
+                        "LessIsGood": 0
+                    },
+                    {
+                        "Label": "ExplosiveResistance",
+                        "Value": -9.450006,
+                        "OriginalValue": 0.500000,
+                        "LessIsGood": 0
+                    }
+                ]
+            }
+        },
+        {
+            "Slot": "Slot06_Size1",
+            "Item": "int_fsdinterdictor_size1_class5",
+            "On": true,
+            "Priority": 3,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "PlanetaryApproachSuite",
+            "Item": "int_planetapproachsuite",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "Bobble01",
+            "Item": "bobble_pilotmale",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "Bobble10",
+            "Item": "bobble_oldskool_ferdelance",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "ShipKitSpoiler",
+            "Item": "ferdelance_shipkit1_spoiler4",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "ShipKitWings",
+            "Item": "ferdelance_shipkit1_wings1",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "ShipKitTail",
+            "Item": "ferdelance_shipkit1_tail4",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "ShipKitBumper",
+            "Item": "ferdelance_shipkit1_bumper4",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "WeaponColour",
+            "Item": "weaponcustomisation_pink",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "EngineColour",
+            "Item": "enginecustomisation_pink",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        },
+        {
+            "Slot": "VesselVoice",
+            "Item": "voicepack_eden",
+            "On": true,
+            "Priority": 1,
+            "Health": 1.000000
+        }
+    ]
+}
