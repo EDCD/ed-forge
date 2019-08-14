@@ -83,7 +83,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'percentage': true,
     },
     'damage': { 'method': 'multiplicative', 'higherbetter': true },
-    'damagefalloffrange': {},
+    'damagefalloffrange': { 'method': 'multiplicative', 'higherbetter': true },
     'damageperenergy': { 'higherbetter': true, 'getter': DPE, },
     'damagepersecond': { 'higherbetter': true, 'getter': DPS, },
     'defencemodifierhealthaddition': { 'method': 'multiplicative', 'higherbetter': true },
@@ -113,6 +113,8 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
         'percentage': true,
     },
     'fireintervall': { 'method': 'multiplicative', 'higherbetter': false },
+    // TODO:
+    'fsdheatrate': {},
     'fsdinterdictorfacinglimit': { 'method': 'multiplicative', 'higherbetter': true },
     'fsdinterdictorrange': { 'method': 'multiplicative', 'higherbetter': true },
     'fsdoptimalmass': { 'method': 'multiplicative', 'higherbetter': true },
@@ -143,7 +145,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     // For sensors
     'range': { 'method': 'multiplicative', 'higherbetter': true },
     'rateoffire': { 'higherbetter': true, 'getter': ROF, 'importer': importROF },
-    'regenrate': {},
+    'regenrate': { 'method': 'multiplicative', 'higherbetter': true },
     'reloadtime': { 'method': 'multiplicative', 'higherbetter': false },
     'roundspershot': {},
     'scannertimetoscan': { 'method': 'multiplicative', 'higherbetter': false },
@@ -163,7 +165,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'sustaineddamagerpersecond': { 'higherbetter': true, 'getter': SDPS, },
     'systemscapacity': { 'method': 'multiplicative', 'higherbetter': true },
     'systemsrecharge': { 'method': 'multiplicative', 'higherbetter': true },
-    'thermalload': { 'method': 'multWiplicative', 'higherbetter': false },
+    'thermalload': { 'method': 'multiplicative', 'higherbetter': false },
     'thermicdamageportion': { 'method': 'overwrite' },
     'thermiceffectiveness': { 'method': 'multiplicative', 'higherbetter': false, },
     'thermicresistance': {
