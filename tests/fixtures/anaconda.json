@@ -1018,41 +1018,7 @@
             "On": true,
             "Priority": 0,
             "Health": 1.000000,
-            "Value": 13752602,
-            "Engineering": {
-                "Engineer": "Felicity Farseer",
-                "EngineerID": 300100,
-                "BlueprintID": 128673694,
-                "BlueprintName": "FSD_LongRange",
-                "Level": 5,
-                "Quality": 0.000000,
-                "Modifiers": [
-                    {
-                        "Label": "Mass",
-                        "Value": 53.936340,
-                        "OriginalValue": 40.000000,
-                        "LessIsGood": 1
-                    },
-                    {
-                        "Label": "Integrity",
-                        "Value": 109.677193,
-                        "OriginalValue": 141.000000,
-                        "LessIsGood": 0
-                    },
-                    {
-                        "Label": "PowerDraw",
-                        "Value": 0.926087,
-                        "OriginalValue": 0.750000,
-                        "LessIsGood": 1
-                    },
-                    {
-                        "Label": "FSDOptimalMass",
-                        "Value": 2683.177734,
-                        "OriginalValue": 1800.000000,
-                        "LessIsGood": 0
-                    }
-                ]
-            }
+            "Value": 13752602
         },
         {
             "Slot": "LifeSupport",
