@@ -229,7 +229,7 @@ export function ROF(module: Module, modified: boolean): number {
     let fireInt = module.get('fireintervall', modified);
     let burstInt = module.get('burstintervall', modified) || 0;
     let burstSize = module.get('burstsize', modified) || 1;
-    return 1 / (burstInt * burstSize + fireInt);
+    return 1 / (burstInt * (burstSize - 1) + fireInt);
 }
 
 function importROF(module: Module, modifier: ModifierObject, synthetics: PropertyMap) {

@@ -448,7 +448,7 @@ function consumeBlueprint(head) {
         if (rof) {
             delete gradeFeatures['rateoffire'];
             // rof actually modifies fire interval
-            gradeFeatures['fireintervall'] = _.mapValues(rof, x => -1 * x);
+            gradeFeatures['fireintervall'] = rof;
         }
 
         // Map resistances to damage multipliers for blueprints
