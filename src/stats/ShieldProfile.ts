@@ -26,6 +26,11 @@ export interface ShieldDamageMultiplier {
      * diminishing returns applied
      */
     damageMultiplier: number;
+    /**
+     * Overall damage multiplier excluding effects from pips to sys with
+     * diminishing returns applied
+     */
+    resVal: number;
     /** Additional damage multiplier provided by pip to sys */
     bySys: number;
     /** Overall damage multiplier with diminishing returns applied */
@@ -42,6 +47,7 @@ const NEUTRAL_DAMAGE_MULTIPLIERS = {
     byBoosters: 1,
     damageMultiplier: 1,
     bySys: 1,
+    resVal: 0,
     withSys: 1,
     maxWithSys: 1,
 };
@@ -221,6 +227,7 @@ function getShieldMetrics(
             byGenerator: 1,
             byBoosters: 1,
             damageMultiplier: 1,
+            resVal: 0,
             bySys: 1,
             withSys: 1,
             maxWithSys: maxSysDamage,
@@ -229,6 +236,7 @@ function getShieldMetrics(
             byGenerator: explDamage,
             byBoosters: fullExplDamage / explDamage,
             damageMultiplier: fullExplDamage,
+            resVal: 1 - fullExplDamage,
             bySys: 1,
             withSys: fullExplDamage,
             maxWithSys: fullExplDamage * maxSysDamage,
@@ -237,6 +245,7 @@ function getShieldMetrics(
             byGenerator: kinDamage,
             byBoosters: fullKinDamage / kinDamage,
             damageMultiplier: fullKinDamage,
+            resVal: 1 - fullKinDamage,
             bySys: 1,
             withSys: fullKinDamage,
             maxWithSys: fullKinDamage * maxSysDamage,
@@ -245,6 +254,7 @@ function getShieldMetrics(
             byGenerator: thermDamage,
             byBoosters: fullThermDamage / thermDamage,
             damageMultiplier: fullThermDamage,
+            resVal: 1 - fullThermDamage,
             bySys: 1,
             withSys: fullThermDamage,
             maxWithSys: fullThermDamage * maxSysDamage,

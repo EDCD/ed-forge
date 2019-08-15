@@ -20,6 +20,8 @@ export interface ArmourDamageMultiplier {
     byHRPs: number;
     /** Overall damage multiplier; including diminishing returns */
     damageMultiplier: number;
+    /** Overall resistance value; including diminishing returns */
+    resVal: number;
 }
 
 /**
@@ -80,21 +82,26 @@ function getArmourMetrics(ship: Ship, modified: boolean): ArmourMetrics {
             byAlloys: explDamage,
             byHRPs: hrpExplDamage,
             damageMultiplier: diminishingArmourRes(explDamage * hrpExplDamage),
+            resVal: 1 - diminishingArmourRes(explDamage * hrpExplDamage)
+
         },
         kinetic: {
             byAlloys: kinDamage,
             byHRPs: hrpKinDamage,
             damageMultiplier: diminishingArmourRes(kinDamage * hrpKinDamage),
+            resVal: 1 - diminishingArmourRes(kinDamage * hrpKinDamage)
         },
         thermal: {
             byAlloys: thermDamage,
             byHRPs: hrpThermDamage,
             damageMultiplier: diminishingArmourRes(thermDamage * hrpThermDamage),
+            resVal: 1 - diminishingArmourRes(thermDamage * hrpThermDamage)
         },
         caustic: {
             byAlloys: causDamage,
             byHRPs: hrpCausDamage,
             damageMultiplier: diminishingArmourRes(causDamage * hrpCausDamage),
+            resVal: 1 - diminishingArmourRes(causDamage * hrpCausDamage)
         },
     };
 }
