@@ -16,7 +16,7 @@ function getFuelCapacity(ship: Ship, modified: boolean): number {
 }
 
 export default class FuelCapacity {
-    private _capacity: ShipPropsCacheLine<number> = this._capacity = new ShipPropsCacheLine({
+    private _capacity: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
         type: [ /FuelTank/i, ],
         props: [ 'fuel', ]
     });
