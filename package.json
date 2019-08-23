@@ -15,7 +15,7 @@
     }
   },
   "scripts": {
-    "build": "node coriolis_mapper.js && npm run build_light",
+    "build": "npm run build_light && node coriolis_mapper.js",
     "build_light": "tsc",
     "docs": "typedoc --gitRevision master --name \"E:D Forge\" --out docs/ src/",
     "prepublish": "npm run build",
