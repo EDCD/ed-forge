@@ -1,34 +1,10 @@
 
 import { Ship, Factory } from '..';
 
-import * as anacondaBuild from './fixtures/anaconda.json';
-import * as chieftainBuild from './fixtures/chieftain.json';
-import * as kraitBuild from './fixtures/krait.json';
-import * as fdlBuild from './fixtures/fdl.json';
-
 function prec(grade, number) {
     let base = Math.pow(10, grade);
     return Math.round(number * base) / base;
 }
-
-const TEST_SUITES = [
-    {
-        name: 'Anaconda',
-        build: anacondaBuild,
-    },
-    {
-        name: 'Alliance Chieftain',
-        build: chieftainBuild,
-    },
-    {
-        name: 'Krait MkII',
-        build: kraitBuild,
-    },
-    {
-        name: 'FerDeLance',
-        build: fdlBuild,
-    },
-];
 
 for (let { name, build } of TEST_SUITES) {
     describe(`Blueprint recreation for ${name}`, () => {

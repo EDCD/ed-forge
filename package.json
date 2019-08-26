@@ -14,6 +14,29 @@
       "runOnChangeOnly": true
     }
   },
+  "jest": {
+    "testEnvironment": "./tests/environment.js",
+    "testEnvironmentOptions": {
+      "suites": [
+        {
+          "name": "Anaconda",
+          "build": "./tests/fixtures/anaconda.json"
+        },
+        {
+          "name": "AllianceChieftain",
+          "build": "./tests/fixtures/chieftain.json"
+        },
+        {
+          "name": "FerDeLance",
+          "build": "./tests/fixtures/fdl.json"
+        },
+        {
+          "name": "KraitMkII",
+          "build": "./tests/fixtures/krait.json"
+        }
+      ]
+    }
+  },
   "scripts": {
     "build": "npm run build_light && node coriolis_mapper.js",
     "build_light": "tsc",
