@@ -203,6 +203,14 @@ export default class Ship extends DiffEmitter {
     }
 
     /**
+     * Return the type of the ship, e.g. `cutter`.
+     * @returns Ship type
+     */
+    getShipType(): string {
+        return this._object.Ship;
+    }
+
+    /**
      * Read an arbitrary object property of this ship's corresponding meta properties.
      * @param property Property name
      * @returns Property value
@@ -706,6 +714,14 @@ export default class Ship extends DiffEmitter {
     }
 
     /**
+     * Get the amount of cargo currently loaded.
+     * @returns Tons of cargo loaded
+     */
+    getCargo(): number {
+        return this.state.Cargo;
+    }
+
+    /**
      * Set the amount of cargo currently loaded. Will be sanitized if it is
      * lower than zero or above what can be carried.
      * @param cargo Cargo to be set; will be sanitized
@@ -714,6 +730,14 @@ export default class Ship extends DiffEmitter {
         cargo = Math.max(0, cargo);
         cargo = Math.min(cargo, this.get(CARGO_CAPACITY, true));
         this._writeState('Cargo', cargo);
+    }
+
+    /**
+     * Get the amount of fuel currently loaded.
+     * @returns Tons of fuel loaded.
+     */
+    getFuel(): number {
+        return this.state.Fuel;
     }
 
     /**
