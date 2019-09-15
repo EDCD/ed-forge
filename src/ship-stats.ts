@@ -19,6 +19,7 @@ import { ArmourMetrics } from "./stats/ArmourProfile";
 import { JumpRangeMetrics } from "./stats/JumpRangeProfile";
 import { ModuleProtectionMetrics } from "./stats/ModuleProtectionProfle";
 import { DamageProfile } from "./stats/DamageProfile";
+import { getCost, getRefuelCost } from './stats/Cost';
 
 export interface ShipPropertyCalculatorClass {
     calculate(ship: Ship, modified: boolean): number;
@@ -37,6 +38,9 @@ export const UNLADEN_MASS: ShipPropertyCalculatorClass = UNLADEN_MASS_CALCULATOR
 export const LADEN_MASS: ShipPropertyCalculatorClass = LADEN_MASS_CALCULATOR;
 
 export const CARGO_CAPACITY: ShipPropertyCalculatorClass = CARGO_CAPACITY_CALCULATOR;
+
+export const COST: ShipPropertyCalculator = getCost;
+export const REFUEL_COST: ShipPropertyCalculator = getRefuelCost;
 
 export const FUEL_CAPACITY: ShipPropertyCalculatorClass = FUEL_CAPACITY_CALCULATOR;
 

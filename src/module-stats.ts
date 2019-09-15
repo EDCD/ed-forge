@@ -70,10 +70,12 @@ export const THERM_RES: ModulePropertyCalculator = effToRes.bind(
 const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     'ammoclipsize': { 'method': 'multiplicative', 'higherbetter': true, 'integer': true },
     'ammomaximum': { 'method': 'multiplicative', 'higherbetter': true, 'integer': true },
+    'ammototal': { 'getter': AMMO_TOTAL, 'higherbetter': true, 'integer': true },
     'armourpenetration': { 'method': 'multiplicative', 'higherbetter': true },
     'absolutedamageportion': { 'method': 'overwrite' },
     // For sensors
     'sensortargetscanangle': { 'method': 'multiplicative', 'higherbetter': true },
+    'bays': { 'higherbetter': true },
     'boottime': { 'method': 'multiplicative', 'higherbetter': false },
     'brokenregenrate': { 'method': 'multiplicative', 'higherbetter': true },
     'burstsize': { 'method': 'overwrite', 'higherbetter': true, 'integer': true },
@@ -150,6 +152,7 @@ const MODULE_STATS: { [ property: string ]: ModulePropertyDescriptor } = {
     // For sensors
     'range': { 'method': 'multiplicative', 'higherbetter': true },
     'rateoffire': { 'higherbetter': true, 'getter': ROF, 'importer': importROF },
+    'rebuildsperbay': { 'higherbetter': true },
     'regenrate': { 'method': 'multiplicative', 'higherbetter': true },
     'reloadtime': { 'method': 'multiplicative', 'higherbetter': false },
     'roundspershot': { 'integer': true },
@@ -280,6 +283,10 @@ export function HPS(module: Module, modified: boolean): number {
     // We don't use rpshot here as dist draw is per combined shot
     let rof = module.get('rateoffire', modified) || 1;
     return thermalLoad * rof;
+}
+
+export function AMMO_TOTAL(module: Module, modified: boolean): number {
+    return module.get('ammomaximum') + module.get('ammoclipsize');
 }
 
 function effToRes(eff: string, module: Module, modified: boolean): number {

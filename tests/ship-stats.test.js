@@ -19,6 +19,14 @@ test('can calculate fuel/cargo capacity', () => {
     expect(ship.get(FUEL_CAPACITY)).not.toBeNaN();
 });
 
+test('can calculate cost', () => {
+    const { COST, REFUEL_COST } = ShipProps;
+    expect(ship.get(COST)).not.toBeNaN();
+    expect(ship.get(COST)).toBeGreaterThan(0);
+    expect(ship.get(REFUEL_COST)).not.toBeNaN();
+    expect(ship.get(REFUEL_COST)).toBeGreaterThan(0);
+});
+
 test('can calculate jump range', () => {
     const { JUMP_RANGE, TOTAL_RANGE } = ShipProps;
     expect(ship.get(JUMP_RANGE)).not.toBeNaN();
