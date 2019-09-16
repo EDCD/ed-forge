@@ -1,36 +1,46 @@
 /**
-* @module Data
-*/
+ * @module Data
+ */
 
 /**
-* Ignore
-*/
-import {UnknownRestrictedError} from '../errors';
-import MODULE_STATS, { ModulePropertyDescriptor } from '../module-stats';
+ * Ignore
+ */
+import { UnknownRestrictedError } from '../errors';
+import { IModifierObject } from '../Module';
+import MODULE_STATS, { IModulePropertyDescriptor } from '../module-stats';
+import {
+    BlueprintObject,
+    ExperimentalObject,
+    FeatureObject,
+    ModuleInformation,
+} from '../types';
 import { getModuleInfo, getModuleProperty } from './items';
-import { ModifierObject } from '../Module';
-import { FeatureObject, ModuleInformation, BlueprintObject, ExperimentalObject } from '../types';
 
 import * as BLUEPRINTS from './blueprints.json';
 import * as EXPERIMENTALS from './experimentals.json';
 
 const FALLOFF_KEY = 'damagefalloffrange';
 const BLUEPRINT_EXTRAS = {
-    'weapon_longrange': (moduleInfo: ModuleInformation, propObject: PropertyMap) => {
-        let falloff = propObject['maximumrange'].Value;
-        let baseFalloff = moduleInfo.props[FALLOFF_KEY];
+    weapon_longrange: (
+        moduleInfo: ModuleInformation,
+        propObject: IPropertyMap,
+    ) => {
+        const falloff = propObject.maximumrange.Value;
+        const baseFalloff = moduleInfo.props[FALLOFF_KEY];
         propObject[FALLOFF_KEY] = {
             Label: FALLOFF_KEY,
             Modifier: falloff / baseFalloff,
-            Value: falloff
+            Value: falloff,
         };
     },
 };
 
 /**
- * Maps property names to ModifierObject for a blueprint.
+ * Maps property names to IModifierObject for a blueprint.
  */
-export type PropertyMap = { [ property: string ]: ModifierObject }
+export interface IPropertyMap {
+    [property: string]: IModifierObject;
+}
 
 /**
  * Get modified properties for a module.
@@ -41,11 +51,16 @@ export type PropertyMap = { [ property: string ]: ModifierObject }
  * @param experimentalName Experimental effect
  * @returns Map of property names to modifier objects.
  */
-export function getBlueprintProps(module: string, name: string,
-    grade: number = 1, progress: number = 0, experimentalName?: string): PropertyMap {
-    let moduleInfo = getModuleInfo(module);
-    let blueprint : BlueprintObject = BLUEPRINTS[name];
-    let experimental : ExperimentalObject = EXPERIMENTALS[experimentalName];
+export function getBlueprintProps(
+    module: string,
+    name: string,
+    grade: number = 1,
+    progress: number = 0,
+    experimentalName?: string,
+): IPropertyMap {
+    const moduleInfo = getModuleInfo(module);
+    const blueprint: BlueprintObject = BLUEPRINTS[name];
+    const experimental: ExperimentalObject = EXPERIMENTALS[experimentalName];
     if (!blueprint) {
         throw new UnknownRestrictedError(`Don't know blueprint ${name}`);
     }
@@ -54,20 +69,28 @@ export function getBlueprintProps(module: string, name: string,
     }
     if (experimentalName && !experimental) {
         throw new UnknownRestrictedError(
-            `Don't know experimental ${experimentalName}`
+            `Don't know experimental ${experimentalName}`,
         );
     }
 
-    let modifierObject = blueprint.features[grade];
-    let propObject = applyBlueprintModifiers(moduleInfo, modifierObject,
-        progress, {});
+    const ModifierObject = blueprint.features[grade];
+    let propObject = applyBlueprintModifiers(
+        moduleInfo,
+        ModifierObject,
+        progress,
+        {},
+    );
     if (BLUEPRINT_EXTRAS[name]) {
-        (BLUEPRINT_EXTRAS[name])(moduleInfo, propObject);
+        BLUEPRINT_EXTRAS[name](moduleInfo, propObject);
     }
 
     if (experimental) {
-        propObject = applyBlueprintModifiers(moduleInfo, experimental.features,
-            progress, propObject);
+        propObject = applyBlueprintModifiers(
+            moduleInfo,
+            experimental.features,
+            progress,
+            propObject,
+        );
     }
 
     return propObject;
@@ -80,9 +103,13 @@ export function getBlueprintProps(module: string, name: string,
  * @param modifiedProperty New property value
  * @returns Modifier
  */
-export function calculateModifier(module: string, name: string, modifiedProperty: number): number {
-    let baseValue = getModuleProperty(module, name);
-    let propertyDescriptor = MODULE_STATS[name];
+export function calculateModifier(
+    module: string,
+    name: string,
+    modifiedProperty: number,
+): number {
+    const baseValue = getModuleProperty(module, name);
+    const propertyDescriptor = MODULE_STATS[name];
     if (!propertyDescriptor) {
         throw new UnknownRestrictedError(`Don't know property ${name}`);
     }
@@ -103,41 +130,54 @@ export function calculateModifier(module: string, name: string, modifiedProperty
  * Applies blueprint modifiers for a module and saves the results to a property
  * map.
  * @param moduleInfo Module info
- * @param modifierObject Blueprint modifier object
+ * @param IModifierObject Blueprint modifier object
  * @param progress Blueprint progress
  * @param propObject Property map to modify
  * @returns Returns `propObject`
  */
-function applyBlueprintModifiers(moduleInfo: ModuleInformation,
-    modifierObject: FeatureObject, progress: number, propObject: PropertyMap): PropertyMap {
-    for (let prop in modifierObject) {
-        let propertyDescriptor = MODULE_STATS[prop];
-        if (!propertyDescriptor) {
-            throw new UnknownRestrictedError(`No descriptor for ${prop}`);
-        }
+function applyBlueprintModifiers(
+    moduleInfo: ModuleInformation,
+    ModifierObject: FeatureObject,
+    progress: number,
+    propObject: IPropertyMap,
+): IPropertyMap {
+    for (const prop in ModifierObject) {
+        if (ModifierObject.hasOwnProperty(prop)) {
+            const propertyDescriptor = MODULE_STATS[prop];
+            if (!propertyDescriptor) {
+                throw new UnknownRestrictedError(`No descriptor for ${prop}`);
+            }
 
-        // Allow subsequent applications of modifier objects for experimental effects
-        let baseValue = (propObject[prop] && propObject[prop].Value) ||
-            moduleInfo.props[prop];
-        let { min, max, only } = modifierObject[prop];
+            // Allow subsequent applications of modifier objects for
+            // experimental effects
+            const baseValue =
+                (propObject[prop] && propObject[prop].Value) ||
+                moduleInfo.props[prop];
+            const { min, max, only } = ModifierObject[prop];
 
-        if (only && !moduleInfo.proto.Item.match(only)) {
-            continue;
-        }
+            if (only && !moduleInfo.proto.Item.match(only)) {
+                continue;
+            }
 
-        let Modifier = (max - min) * progress + min;
-        let Value = getModifiedProperty(propertyDescriptor, baseValue, Modifier);
+            const Modifier = (max - min) * progress + min;
+            let Value = getModifiedProperty(
+                propertyDescriptor,
+                baseValue,
+                Modifier,
+            );
 
-        if (propertyDescriptor.integer) {
-            Value = Math.round(Value);
-        }
+            if (propertyDescriptor.integer) {
+                Value = Math.round(Value);
+            }
 
-        if (!isNaN(Value)) {
-            propObject[prop] = {
-                Label: prop,
-                Modifier, Value,
-                LessIsGood: !propertyDescriptor.higherbetter
-            };
+            if (!isNaN(Value)) {
+                propObject[prop] = {
+                    Label: prop,
+                    LessIsGood: !propertyDescriptor.higherbetter,
+                    Modifier,
+                    Value,
+                };
+            }
         }
     }
     return propObject;
@@ -150,12 +190,15 @@ function applyBlueprintModifiers(moduleInfo: ModuleInformation,
  * @param modifier Modifier
  * @returns Modified property
  */
-function getModifiedProperty(propertyDescriptor: ModulePropertyDescriptor,
-    base: number, modifier: number): number {
+function getModifiedProperty(
+    propertyDescriptor: IModulePropertyDescriptor,
+    base: number,
+    modifier: number,
+): number {
     switch (propertyDescriptor.method) {
         // Additive mods can add new properties
         case 'boost':
-            let pBase = propertyDescriptor.percentage ? base / 100 : base;
+            const pBase = propertyDescriptor.percentage ? base / 100 : base;
             return base + 100 * ((1 + pBase) * (1 + modifier) - (1 + pBase));
         case 'additive':
             return (base || 0) + modifier;

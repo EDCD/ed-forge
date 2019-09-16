@@ -6,31 +6,28 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
-import { Ship } from "..";
-import { EventEmitter } from "events";
-import { moduleReduce, add } from '../helper';
+import { EventEmitter } from 'events';
+
+import { Ship } from '..';
+import { add, moduleReduce } from '../helper';
+import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
 
 function getFuelCapacity(ship: Ship, modified: boolean): number {
-    return moduleReduce(ship._object.Modules, 'fuel', modified, add, 0);
+    return moduleReduce(ship.object.Modules, 'fuel', modified, add, 0);
 }
 
 export default class FuelCapacity {
-    private _capacity: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
-        type: [ /FuelTank/i, ],
-        props: [ 'fuel', ]
+    public capacity: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
+        props: ['fuel'],
+        type: [/FuelTank/i],
     });
-    dependencies: EventEmitter[] = [ this._capacity, ];
+    public dependencies: EventEmitter[] = [this.capacity];
 
     constructor() {
         autoBind(this);
     }
 
-    calculate(ship: Ship, modified: boolean): number {
-        return this._capacity.get(
-            ship,
-            getFuelCapacity,
-            [ ship, modified ]
-        );
+    public calculate(ship: Ship, modified: boolean): number {
+        return this.capacity.get(ship, getFuelCapacity, [ship, modified]);
     }
 }

@@ -5,11 +5,12 @@
 /**
  * Ignore
  */
-import Ship from "../Ship";
-import autoBind from "auto-bind";
-import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
-import { LADEN_MASS_CALCULATOR } from ".";
-import { scaleMul } from "../helper";
+import autoBind from 'auto-bind';
+
+import { LADEN_MASS_CALCULATOR } from '.';
+import { scaleMul } from '../helper';
+import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
+import Ship from '../Ship';
 
 /**
  * Calculate the speed multiplier provided by pips to eng.
@@ -17,9 +18,9 @@ import { scaleMul } from "../helper";
  * @returns Speed multiplier
  */
 function getEngMultiplier(ship: Ship): number {
-    let engPips = ship.getDistributorSettings().Eng;
-    let pipEffect = ship.getBaseProperty('pipspeed');
-    return 1 - (pipEffect * (4 - engPips));
+    const engPips = ship.getDistributorSettings().Eng;
+    const pipEffect = ship.getBaseProperty('pipspeed');
+    return 1 - pipEffect * (4 - engPips);
 }
 
 /**
@@ -44,7 +45,7 @@ function getBoostMultiplier(ship: Ship): number {
  * @returns Speed multiplier
  */
 function getSpeedMultiplier(ship: Ship, modified: boolean): number {
-    let thrusters = ship.getThrusters();
+    const thrusters = ship.getThrusters();
     return scaleMul(
         thrusters.getClean('engineminperformance', modified),
         thrusters.getClean('engineoptperformance', modified),
@@ -52,17 +53,24 @@ function getSpeedMultiplier(ship: Ship, modified: boolean): number {
         thrusters.getClean('engineminimalmass', modified),
         thrusters.getClean('engineoptimalmass', modified),
         thrusters.getClean('enginemaximalmass', modified),
-        LADEN_MASS_CALCULATOR.calculate(ship, modified)
+        LADEN_MASS_CALCULATOR.calculate(ship, modified),
     );
 }
 
 export default class SpeedProfile {
-    private _multiplier: ShipPropsCacheLine<number> = new ShipPropsCacheLine<number>(
-        LADEN_MASS_CALCULATOR, {
-            type: [ /Engine/i, ],
-            props: [ 'engineminperformance', 'engineoptperformance', 'enginemaxperformance', 'engineminimalmass', 'engineoptimalmass', 'enginemaximalmass', ],
-        }
-    );
+    private multiplier: ShipPropsCacheLine<number> = new ShipPropsCacheLine<
+        number
+    >(LADEN_MASS_CALCULATOR, {
+        props: [
+            'engineminperformance',
+            'engineoptperformance',
+            'enginemaxperformance',
+            'engineminimalmass',
+            'engineoptimalmass',
+            'enginemaximalmass',
+        ],
+        type: [/Engine/i],
+    });
 
     constructor() {
         autoBind(this);
@@ -75,12 +83,12 @@ export default class SpeedProfile {
      * @param modified True when modifications should be taken into account
      * @returns Speed multiplier
      */
-    getMultiplier(ship: Ship, modified: boolean): number {
-        return this._multiplier.get(
-            ship,
-            getSpeedMultiplier,
-            [ ship, modified ]
-        ) * getEngMultiplier(ship) * getBoostMultiplier(ship);
+    public getMultiplier(ship: Ship, modified: boolean): number {
+        return (
+            this.multiplier.get(ship, getSpeedMultiplier, [ship, modified]) *
+            getEngMultiplier(ship) *
+            getBoostMultiplier(ship)
+        );
     }
 
     /**
@@ -90,8 +98,10 @@ export default class SpeedProfile {
      * @param modified True when modifications should be taken into account
      * @returns Top speed
      */
-    getSpeed(ship: Ship, modified: boolean): number {
-        return this.getMultiplier(ship, modified) * ship.getBaseProperty('speed');
+    public getSpeed(ship: Ship, modified: boolean): number {
+        return (
+            this.getMultiplier(ship, modified) * ship.getBaseProperty('speed')
+        );
     }
 
     /**
@@ -101,8 +111,10 @@ export default class SpeedProfile {
      * @param modified True when modifications should be taken into account
      * @returns Max pitch speed
      */
-    getPitch(ship: Ship, modified: boolean) {
-        return this.getMultiplier(ship, modified) * ship.getBaseProperty('pitch');
+    public getPitch(ship: Ship, modified: boolean) {
+        return (
+            this.getMultiplier(ship, modified) * ship.getBaseProperty('pitch')
+        );
     }
 
     /**
@@ -112,7 +124,7 @@ export default class SpeedProfile {
      * @param modified True when modifications should be taken into account
      * @returns Max yaw speed
      */
-    getYaw(ship: Ship, modified: boolean) {
+    public getYaw(ship: Ship, modified: boolean) {
         return this.getMultiplier(ship, modified) * ship.getBaseProperty('yaw');
     }
 
@@ -123,7 +135,9 @@ export default class SpeedProfile {
      * @param modified True when modifications should be taken into account
      * @returns Max roll speed
      */
-    getRoll(ship: Ship, modified: boolean) {
-        return this.getMultiplier(ship, modified) * ship.getBaseProperty('roll');
+    public getRoll(ship: Ship, modified: boolean) {
+        return (
+            this.getMultiplier(ship, modified) * ship.getBaseProperty('roll')
+        );
     }
 }

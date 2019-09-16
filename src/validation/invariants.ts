@@ -1,5 +1,5 @@
-import Ship from "../Ship";
-import Module from "../Module";
+import Module from '../Module';
+import Ship from '../Ship';
 
 /**
  * Function that checks invariants. The invariant should satisfy an inductive
@@ -11,9 +11,7 @@ import Module from "../Module";
  * @param [module] Module that changed (if any)
  * @returns Does the invariant still hold?
  */
-export interface Invariant {
-    (ship: Ship, module?: Module): boolean;
-}
+export type Invariant = (ship: Ship, module?: Module) => boolean;
 
 /**
  * Returns an invariant that checks that the number of a given type of modules
@@ -32,7 +30,7 @@ function maxChecker(type: RegExp, max: number): Invariant {
             return true;
         }
         return ship.getModules(undefined, type).length <= max;
-    }
+    };
 }
 
 /**
@@ -46,8 +44,11 @@ function typeForShipChecker(type: RegExp, allowedShips: string[]): Invariant {
         if (module && !module.itemIsOfType(type)) {
             return true;
         }
-        return (!ship.getModules(undefined, type).length) || allowedShips.includes(ship._object.Ship);
-    }
+        return (
+            !ship.getModules(undefined, type).length ||
+            allowedShips.includes(ship.object.Ship)
+        );
+    };
 }
 
 /**
@@ -62,20 +63,27 @@ function maxMassChecker(type: RegExp, maxMassKey: string) {
         if (module && !module.itemIsOfType(type)) {
             return true;
         }
-        for (let matching of ship.getModules(undefined, type)) {
+        for (const matching of ship.getModules(undefined, type)) {
             if (matching.get(maxMassKey, true) < ship.readMeta('hullmass')) {
                 return false;
             }
         }
         return true;
-    }
+    };
 }
 
 export const LUXURY_SHIPS = ['belugaliner', 'orca', 'dolphin'];
 export const SLF_SHIPS = [
-    'typex_2', 'anaconda', 'belugaliner', 'federation_corvette',
-    'cutter', 'krait_mkii', 'type9_military', 'type9',
-    'federation_gunship', 'independant_trader'
+    'typex_2',
+    'anaconda',
+    'belugaliner',
+    'federation_corvette',
+    'cutter',
+    'krait_mkii',
+    'type9_military',
+    'type9',
+    'federation_gunship',
+    'independant_trader',
 ];
 
 export const INVARIANTS: Invariant[] = [
@@ -112,9 +120,14 @@ export const INVARIANTS: Invariant[] = [
         if (module && !module.readMeta('experimental')) {
             return true;
         }
-        return 4 >= ship.getHardpoints().reduce(
-            (sum, m) => sum + (m.readMeta('experimental') ? 1 : 0),
-            0
+        return (
+            4 >=
+            ship
+                .getHardpoints()
+                .reduce(
+                    (sum, m) => sum + (m.readMeta('experimental') ? 1 : 0),
+                    0,
+                )
         );
     },
     // Luxury class cabins only for Beluga, Orca and Dolphin
@@ -134,7 +147,7 @@ export const INVARIANTS: Invariant[] = [
  * @returns Do all invariants hold?
  */
 export function checkInvariants(ship: Ship, module?: Module): boolean {
-    for (let invariant of INVARIANTS) {
+    for (const invariant of INVARIANTS) {
         if (!invariant(ship, module)) {
             return false;
         }

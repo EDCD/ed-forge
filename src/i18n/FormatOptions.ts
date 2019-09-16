@@ -1,20 +1,20 @@
 /**
-* @module i18n
-*/
+ * @module i18n
+ */
 
 /**
-* Ignore
-*/
-export interface FormattingObject {
-  format: string,
-  unit: string,
-  storedUnit?: string
+ * Ignore
+ */
+export interface IFormattingObject {
+    format: string;
+    unit: string;
+    storedUnit?: string;
 }
 
- /**
-  * Has various properties of type [[FormattingObject]] that define how
-  * specific module/ship properties are to be formatted.
-  */
+/**
+ * Has various properties of type [[IFormattingObject]] that define how
+ * specific module/ship properties are to be formatted.
+ */
 export const PROPERTY_FORMATTING = {};
 
 /**

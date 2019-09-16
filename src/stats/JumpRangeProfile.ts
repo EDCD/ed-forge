@@ -6,44 +6,56 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import Ship from '../Ship';
-import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
+
 import { FUEL_CALCULATOR, LADEN_MASS_CALCULATOR } from '.';
-import { moduleReduceEnabled, add } from '../helper';
+import { add, moduleReduceEnabled } from '../helper';
+import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
+import Ship from '../Ship';
 
 function getJumpBoost(ship: Ship, modified: boolean): number {
-    return moduleReduceEnabled(ship._object.Modules, 'jumpboost', modified, add, 0);
+    return moduleReduceEnabled(
+        ship.object.Modules,
+        'jumpboost',
+        modified,
+        add,
+        0,
+    );
 }
 
-export interface JumpRangeMetrics {
+export interface IJumpRangeMetrics {
     jumpRange: number;
     totalRange: number;
     jumpBoost: number;
 }
 
-function getJumpRangeMetrics(jumpBoost: number, ship: Ship, modified: boolean): JumpRangeMetrics {
-    let fsd = ship.getFSD();
-    let optMass = fsd.getClean('fsdoptimalmass', modified);
+function getJumpRangeMetrics(
+    jumpBoost: number,
+    ship: Ship,
+    modified: boolean,
+): IJumpRangeMetrics {
+    const fsd = ship.getFSD();
+    const optMass = fsd.getClean('fsdoptimalmass', modified);
     let mass = LADEN_MASS_CALCULATOR.calculate(ship, modified);
 
-    let maxFuelPerJump = fsd.getClean('maxfuel', modified);
-    let fuelMul = fsd.getClean('fuelmul', modified);
-    let fuelPower = fsd.getClean('fuelpower', modified);
+    const maxFuelPerJump = fsd.getClean('maxfuel', modified);
+    const fuelMul = fsd.getClean('fuelmul', modified);
+    const fuelPower = fsd.getClean('fuelpower', modified);
     let fuel = FUEL_CALCULATOR.calculate(ship, modified);
 
     let jumpRange = 0;
     let totalRange = 0;
     // If there is no fuel, loopCount will be zero so jumpRange will as well
-    let loopCount = Math.ceil(fuel / maxFuelPerJump);
+    const loopCount = Math.ceil(fuel / maxFuelPerJump);
     let fuelPerJump = 0;
     for (let i = 0; i < loopCount; i++) {
         // decrease mass and fuel by fuel from last jump
         mass -= fuelPerJump;
         fuel -= fuelPerJump;
         fuelPerJump = Math.min(fuel, maxFuelPerJump);
-        let thisJump = Math.pow(fuelPerJump / fuelMul, 1 / fuelPower)
-            * optMass / mass + jumpBoost;
-        if (i == 0) {
+        const thisJump =
+            (Math.pow(fuelPerJump / fuelMul, 1 / fuelPower) * optMass) / mass +
+            jumpBoost;
+        if (i === 0) {
             jumpRange = thisJump;
         }
         totalRange += thisJump;
@@ -53,16 +65,16 @@ function getJumpRangeMetrics(jumpBoost: number, ship: Ship, modified: boolean): 
 }
 
 export default class JumpRangeProfile {
-    private _jumpBoost: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
-        type: [ /GuardianFSDBooster/i, ],
-        props: [ 'jumpboost', ]
+    private jumpBoost: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
+        props: ['jumpboost'],
+        type: [/GuardianFSDBooster/i],
     });
-    private _jumpRangeMetrics: ShipPropsCacheLine<JumpRangeMetrics> = new ShipPropsCacheLine(
-        LADEN_MASS_CALCULATOR, FUEL_CALCULATOR, {
-            type: [ /HyperDrive/i, ],
-            props: [ 'fsdoptimalmass', 'maxfuel', 'fuelmul', 'fuelpower', 'fuel', ],
-        }
-    );
+    private jumpRangeMetrics: ShipPropsCacheLine<
+        IJumpRangeMetrics
+    > = new ShipPropsCacheLine(LADEN_MASS_CALCULATOR, FUEL_CALCULATOR, {
+        props: ['fsdoptimalmass', 'maxfuel', 'fuelmul', 'fuelpower', 'fuel'],
+        type: [/HyperDrive/i],
+    });
 
     constructor() {
         autoBind(this);
@@ -74,17 +86,19 @@ export default class JumpRangeProfile {
      * @param modified True if modifications should be taken into account
      * @returns Jump range metrics of the ship
      */
-    getJumpRangeMetrics(ship: Ship, modified: boolean): JumpRangeMetrics {
-        let jumpBoost = this._jumpBoost.get(
+    public getJumpRangeMetrics(
+        ship: Ship,
+        modified: boolean,
+    ): IJumpRangeMetrics {
+        const jumpBoost = this.jumpBoost.get(ship, getJumpBoost, [
             ship,
-            getJumpBoost,
-            [ ship, modified ]
-        );
-        return this._jumpRangeMetrics.get(
+            modified,
+        ]);
+        return this.jumpRangeMetrics.get(ship, getJumpRangeMetrics, [
+            jumpBoost,
             ship,
-            getJumpRangeMetrics,
-            [ jumpBoost, ship, modified ]
-        );
+            modified,
+        ]);
     }
 
     /**
@@ -93,7 +107,7 @@ export default class JumpRangeProfile {
      * @param modified True when modifications should be taken into account
      * @returns Jump range
      */
-    getJumpRange(ship: Ship, modified: boolean): number {
+    public getJumpRange(ship: Ship, modified: boolean): number {
         return this.getJumpRangeMetrics(ship, modified).jumpRange;
     }
 
@@ -104,7 +118,7 @@ export default class JumpRangeProfile {
      * @param modified True when modifications should be taken into account
      * @returns Total range
      */
-    getTotalRange(ship: Ship, modified: boolean): number {
+    public getTotalRange(ship: Ship, modified: boolean): number {
         return this.getJumpRangeMetrics(ship, modified).totalRange;
     }
 }

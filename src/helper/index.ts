@@ -1,22 +1,23 @@
 /**
-* @module Helper
-*/
+ * @module Helper
+ */
 
 /**
  * Ignore.
  */
-import { values, map, mapValues } from 'lodash';
-import Module from "../Module";
+import { map, mapValues, values } from 'lodash';
+
+import Module from '../Module';
 
 /**
  * Check whether a string matches any of the given regular expressions.
- * @param string String to match
+ * @param str String to match
  * @param regs Regular expressions to match against
  * @returns True when there is some match
  */
-export function matchesAny(string: string, ...regs: RegExp[]): boolean {
-    for (let r of regs) {
-        if (string.match(r)) {
+export function matchesAny(str: string, ...regs: RegExp[]): boolean {
+    for (const r of regs) {
+        if (str.match(r)) {
             return true;
         }
     }
@@ -35,9 +36,16 @@ export function matchesAny(string: string, ...regs: RegExp[]): boolean {
  * @param val Actual value
  * @returns Scaled multiplier
  */
-export function scaleMul(minMul: number, optMul: number, maxMul: number,
-    min: number, opt: number, max: number, val: number): number {
-    let base = Math.min(1, (max - val) / (max - min));
+export function scaleMul(
+    minMul: number,
+    optMul: number,
+    maxMul: number,
+    min: number,
+    opt: number,
+    max: number,
+    val: number,
+): number {
+    const base = Math.min(1, (max - val) / (max - min));
     let exp = Math.log((optMul - minMul) / (maxMul - minMul));
     exp /= Math.log(Math.min(1, (max - opt) / (max - min)));
     return minMul + Math.pow(base, exp) * (maxMul - minMul);
@@ -55,7 +63,7 @@ export function diminishingDamageMultiplier(startAt, multiplier) {
     if (multiplier > startAt) {
         return multiplier;
     }
-    return (startAt / 2) + 0.5 * multiplier;
+    return startAt / 2 + 0.5 * multiplier;
 }
 
 /**
@@ -69,17 +77,27 @@ export function diminishingDamageMultiplier(startAt, multiplier) {
  * @param initial Initial value
  * @returns Reduced value
  */
-function _moduleReduce<T>(modules: Module[] | { [key: string]: Module },
-    prop: string, modified: boolean, filters: Array<(Module) => boolean>,
-    fn: (acc: T, v: number) => T, initial: T | undefined): T {
-        // apply all filters
-        let props = filters.concat([m => !m.isEmpty()]).reduce(
-            (mods, fn) => mods.filter(fn), values(modules)
-        // get the properties
-        ).map(m => m.getClean(prop, modified)).filter(v => !isNaN(v));
-        // reduce the properties
-        return props.reduce(fn, initial);
-    }
+function _moduleReduce<T>(
+    modules: Module[] | { [key: string]: Module },
+    prop: string,
+    modified: boolean,
+    filters: ((Module) => boolean)[],
+    fn: (acc: T, v: number) => T,
+    initial: T | undefined,
+): T {
+    // apply all filters
+    const props = filters
+        .concat([(m) => !m.isEmpty()])
+        .reduce(
+            (mods, f) => mods.filter(f),
+            values(modules),
+            // get the properties
+        )
+        .map((m) => m.getClean(prop, modified))
+        .filter((v) => !isNaN(v));
+    // reduce the properties
+    return props.reduce(fn, initial);
+}
 
 /**
  * Reduce a property for a list of modules with a given function. Only take
@@ -91,11 +109,15 @@ function _moduleReduce<T>(modules: Module[] | { [key: string]: Module },
  * @param initial Initial value
  * @returns Reduced value
  */
-export function moduleReduce<T>(modules: Module[] | { [key: string]: Module },
-    prop: string, modified: boolean, fn: (acc: T, v: number) => T,
-    initial: T | undefined): T {
-        return _moduleReduce(modules, prop, modified, [], fn, initial);
-    }
+export function moduleReduce<T>(
+    modules: Module[] | { [key: string]: Module },
+    prop: string,
+    modified: boolean,
+    fn: (acc: T, v: number) => T,
+    initial: T | undefined,
+): T {
+    return _moduleReduce(modules, prop, modified, [], fn, initial);
+}
 
 /**
  * Reduce a property for a list of modules with a given function. Only take
@@ -108,14 +130,22 @@ export function moduleReduce<T>(modules: Module[] | { [key: string]: Module },
  * @param initial Initial value
  * @returns Reduced value
  */
-export function moduleReduceEnabled<T>(modules: Module[] | { [key: string]: Module },
-    prop: string, modified: boolean, fn: (acc: T, v: number) => T,
-    initial: T | undefined): T {
-        return _moduleReduce(
-            modules, prop, modified, [m => m.isEnabled()],
-            fn, initial
-        );
-    }
+export function moduleReduceEnabled<T>(
+    modules: Module[] | { [key: string]: Module },
+    prop: string,
+    modified: boolean,
+    fn: (acc: T, v: number) => T,
+    initial: T | undefined,
+): T {
+    return _moduleReduce(
+        modules,
+        prop,
+        modified,
+        [(m) => m.isEnabled()],
+        fn,
+        initial,
+    );
+}
 
 /**
  * Calculate the mean of a property for a list of modules with a given function.
@@ -127,21 +157,30 @@ export function moduleReduceEnabled<T>(modules: Module[] | { [key: string]: Modu
  * @param initial Initial value
  * @returns Mean value
  */
-function _moduleMean(modules: Module[] | { [key: string]: Module },
-    prop: string, modified: boolean, filters: Array<(Module) => boolean>): number {
-        let fn = (acc: number[], v: number): number[] => {
-            let [ reduced, len ] = acc;
-            return [ reduced  + v, len + 1 ];
-        }
+function _moduleMean(
+    modules: Module[] | { [key: string]: Module },
+    prop: string,
+    modified: boolean,
+    filters: ((Module) => boolean)[],
+): number {
+    const fn = (acc: number[], v: number): number[] => {
+        const [reduced, length] = acc;
+        return [reduced + v, length + 1];
+    };
 
-        let [ reduced, len ] = _moduleReduce<number[]>(
-            modules, prop, modified, filters, fn, [ 0, 0 ]
-        );
-        if (len == 0) {
-            return 0;
-        }
-        return reduced / len;
+    const [red, len] = _moduleReduce<number[]>(
+        modules,
+        prop,
+        modified,
+        filters,
+        fn,
+        [0, 0],
+    );
+    if (len === 0) {
+        return 0;
     }
+    return red / len;
+}
 
 /**
  * Calculate the mean of a property for a list of modules with a given function.
@@ -152,10 +191,13 @@ function _moduleMean(modules: Module[] | { [key: string]: Module },
  * @param initial Initial value
  * @returns Mean value
  */
-export function moduleMean(modules: Module[] | { [key: string]: Module },
-    prop: string, modified: boolean): number {
-        return _moduleMean(modules, prop, modified, []);
-    }
+export function moduleMean(
+    modules: Module[] | { [key: string]: Module },
+    prop: string,
+    modified: boolean,
+): number {
+    return _moduleMean(modules, prop, modified, []);
+}
 
 /**
  * Calculate the mean of a property for a list of modules with a given function.
@@ -167,10 +209,13 @@ export function moduleMean(modules: Module[] | { [key: string]: Module },
  * @param initial Initial value
  * @returns Mean value
  */
-export function moduleMeanEnabled(modules: Module[] | { [key: string]: Module },
-    prop: string, modified: boolean): number {
-        return _moduleMean(modules, prop, modified, [m => m.isEnabled()]);
-    }
+export function moduleMeanEnabled(
+    modules: Module[] | { [key: string]: Module },
+    prop: string,
+    modified: boolean,
+): number {
+    return _moduleMean(modules, prop, modified, [(m) => m.isEnabled()]);
+}
 
 /**
  * Adds two numbers.
@@ -210,12 +255,12 @@ export function complMult(x: number, y: number): number {
  * @param f Mapping function
  * @returns Mapped object or array
  */
-export function mapValuesDeep(obj: Object, f: ((value: any) => any)): Object {
+export function mapValuesDeep(obj: object, f: (value: any) => any): object {
     if (obj instanceof Object) {
         if (obj instanceof Array) {
-            return map(obj, x => mapValuesDeep(x, f));
+            return map(obj, (x) => mapValuesDeep(x, f));
         } else {
-            return mapValues(obj, x => mapValuesDeep(x, f)) as Object;
+            return mapValues(obj, (x) => mapValuesDeep(x, f)) as object;
         }
     } else {
         return f(obj);

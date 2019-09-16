@@ -1,15 +1,15 @@
-import { ModuleObject } from "./Module";
-import { ShipObject } from "./Ship";
+import { IModuleObject } from './Module';
+import { IShipObject } from './Ship';
 
 /**
  * Maps property to array of from [min, max].
  */
 type FeatureObject = {
     [property: string]: {
-        min: number,
-        max: number,
-        only: string
-    }
+        min: number;
+        max: number;
+        only: string;
+    };
 };
 
 /**
@@ -17,12 +17,12 @@ type FeatureObject = {
  * be applied to.
  */
 type BlueprintObject = {
-    features: { [ grade: string ]: FeatureObject },
-    appliesTo: [ string ],
+    features: { [grade: string]: FeatureObject };
+    appliesTo: [string];
 };
 
-declare module "src/data/blueprints.json" {
-    const value: { [ blueprint: string ]: BlueprintObject };
+declare module 'src/data/blueprints.json' {
+    const value: { [blueprint: string]: BlueprintObject };
     export default value;
 }
 
@@ -30,20 +30,20 @@ declare module "src/data/blueprints.json" {
  * Experimental type: has features and list of modules the special
  */
 type ExperimentalObject = {
-    features: FeatureObject,
-    appliesTo: [ string ],
+    features: FeatureObject;
+    appliesTo: [string];
 };
 
-declare module "src/data/experimentals.json" {
-    const value: { [ experimental: string ]: ExperimentalObject };
+declare module 'src/data/experimentals.json' {
+    const value: { [experimental: string]: ExperimentalObject };
     export default value;
 }
 
-declare module "src/data/module_cache.json" {
+declare module 'src/data/module_cache.json' {
     const value: {
-        [ grade: string ]: {
-            [ rating: string ] : string
-        }
+        [grade: string]: {
+            [rating: string]: string;
+        };
     };
     export default value;
 }
@@ -69,15 +69,15 @@ export interface MetaModuleInformation {
  */
 export interface ModuleInformation {
     /** Loadout-event-style module object prototype */
-    proto: ModuleObject;
+    proto: IModuleObject;
     /** Default item properties */
-    props: { [ property: string ]: number };
+    props: { [property: string]: number };
     /** Item meta information */
     meta: MetaModuleInformation;
 }
 
-declare module "src/data/modules.json" {
-    const value: { [ ship: string ]: ModuleInformation };
+declare module 'src/data/modules.json' {
+    const value: { [ship: string]: ModuleInformation };
     export default value;
 }
 
@@ -98,9 +98,9 @@ export interface ShipMetaInfo {
     /** Map from core slots to respective size */
     coreSizes: { [key: string]: number };
     /** Map from military slots to respective sizes */
-    militarySizes: { [ key: string ]: number };
+    militarySizes: { [key: string]: number };
     /** Map from slots to true if passenger slot */
-    passengerSlots: { [ key: string ]: boolean };
+    passengerSlots: { [key: string]: boolean };
 }
 
 /**
@@ -108,19 +108,19 @@ export interface ShipMetaInfo {
  */
 interface ShipInfo {
     /** Ship prototype object */
-    proto: ShipObject;
+    proto: IShipObject;
     /** Ship properties */
-    props: { [ key: string ]: number };
+    props: { [key: string]: number };
     /** Meta data about a ship */
     meta: ShipMetaInfo;
 }
 
-declare module "src/data/ships.json" {
-    const value: { [ ship: string ]: ShipInfo };
+declare module 'src/data/ships.json' {
+    const value: { [ship: string]: ShipInfo };
     export default value;
 }
 
-declare module "src/validation/*.schema.json" {
+declare module 'src/validation/*.schema.json' {
     const value: any;
     export default value;
 }

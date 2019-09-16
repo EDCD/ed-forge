@@ -1,10 +1,10 @@
 /**
-* @module Data
-*/
+ * @module Data
+ */
 
 /**
-* Ignore
-*/
+ * Ignore
+ */
 import { UnknownRestrictedError } from '../errors';
 import { ShipInfo } from '../types';
 

@@ -5,18 +5,19 @@
 /**
  * Ignore.
  */
-import { DiffEvent } from "./DiffEmitter";
-import { getModuleInfo } from "../data/items";
 import { chain, get, keys } from 'lodash';
-import { matchesAny } from ".";
-import ShipCacheLine, { Dependable } from "./ShipCacheLine";
+
+import { matchesAny } from '.';
+import { getModuleInfo } from '../data/items';
+import { IDiffEvent } from './DiffEmitter';
+import ShipCacheLine, { IDependable } from './ShipCacheLine';
 
 /**
  * Describes matching diff events for modules. A diff event matches if it leads
  * to a change of one of properties given in [[props]] and the module matches
  * one of the regexes for [[slot]] and/or [[type]] (if given).
  */
-export interface ModuleDiffDescriptor {
+export interface IModuleDiffDescriptor {
     slot?: RegExp[];
     type?: RegExp[];
     props: string[];
@@ -31,11 +32,17 @@ function disjunct<T>(array: T[], otherArray: T[]): boolean {
         // empty arrays are disjunct to everything
         return true;
     }
-    return undefined === chain(array).intersection(otherArray).head().value();
+    return (
+        undefined ===
+        chain(array)
+            .intersection(otherArray)
+            .head()
+            .value()
+    );
 }
 
 /**
- * Regex to match a path of a [[DiffEvent]] and check whether it changed a
+ * Regex to match a path of a [[IDiffEvent]] and check whether it changed a
  * module. If it matches, the first capture group will hold the module's slot
  * and the second one the path to the value of the module that changed.
  */
@@ -46,32 +53,45 @@ const MODULE_DIFF_PATH = /Modules\.([^\.]+)\.(.+)/;
  * properties change.
  */
 export default class ShipPropsCacheLine<T> extends ShipCacheLine<T> {
-    private _diffDescriptors : ModuleDiffDescriptor[] = [];
+    private diffDescriptors: IModuleDiffDescriptor[] = [];
 
     /**
      * Create a new cache line and state its dependencies. When a dependency is
-     * of type [[ShipCacheLine]] or [[Dependable]], behavior is the same as for
+     * of type [[ShipCacheLine]] or [[IDependable]], behavior is the same as for
      * [[ShipCacheLine]]. If it is a string, the cache will be flushed whenever
      * a property named equally of any module changes. If it is of type
-     * [[ModuleDiffDescriptor]] it will flush the cache when a diff events
+     * [[IModuleDiffDescriptor]] it will flush the cache when a diff events
      * matches the descriptor.
      * @param dependencies Dependencies that this cache relies upon
      */
-    constructor(...dependencies: (string | ModuleDiffDescriptor | ShipCacheLine<any> | Dependable)[]) {
-        super(...dependencies.filter(
-            dep => dep instanceof ShipCacheLine || (typeof dep === 'object' && 'dependencies' in dep)
-        ) as (ShipCacheLine<any> | Dependable)[]);
+    constructor(
+        ...dependencies: (
+            | string
+            | IModuleDiffDescriptor
+            | ShipCacheLine<any>
+            | IDependable)[]
+    ) {
+        super(
+            ...(dependencies.filter(
+                (dep) =>
+                    dep instanceof ShipCacheLine ||
+                    (typeof dep === 'object' && 'dependencies' in dep),
+            ) as (ShipCacheLine<any> | IDependable)[]),
+        );
 
-        let unconstrainedDescriptor: ModuleDiffDescriptor = { props: [] };
-        dependencies.forEach(dependency => {
+        const unconstrainedDescriptor: IModuleDiffDescriptor = { props: [] };
+        dependencies.forEach((dependency) => {
             if (typeof dependency === 'string') {
                 unconstrainedDescriptor.props.push(dependency);
-            } else if (typeof dependency === 'object' && 'props' in dependency) {
-                this._diffDescriptors.push(dependency);
+            } else if (
+                typeof dependency === 'object' &&
+                'props' in dependency
+            ) {
+                this.diffDescriptors.push(dependency);
             }
         });
         if (unconstrainedDescriptor.props.length) {
-            this._diffDescriptors.push(unconstrainedDescriptor);
+            this.diffDescriptors.push(unconstrainedDescriptor);
         }
     }
 
@@ -80,34 +100,50 @@ export default class ShipPropsCacheLine<T> extends ShipCacheLine<T> {
      * described in [[constructor]] and flush the cache accordingly.
      * @param events Events to check
      */
-    protected _checkDescriptors(...events: DiffEvent[]) {
+    protected _checkDescriptors(...events: IDiffEvent[]) {
         // No checks necessary if cache is not valid
-        if (this._cache === undefined) {
+        if (this.cache === undefined) {
             return;
         }
 
-        for (let descriptor of this._diffDescriptors) {
-            for (let event of events) {
-                let match = event.path.match(MODULE_DIFF_PATH);
-                if (!match) continue; // check only events that changed a module
+        for (const descriptor of this.diffDescriptors) {
+            for (const event of events) {
+                const match = event.path.match(MODULE_DIFF_PATH);
+                if (!match) {
+                    continue; // check only events that changed a module
+                }
 
-                let slotChanged = match[1], modulePath = match[2].split('.');
-                let pathHead = modulePath.shift();
-                let { slot = [], type = [], props } = descriptor;
-                if (!matchesAny(slotChanged, ...slot)) continue;
+                const slotChanged = match[1];
+                const modulePath = match[2].split('.');
+                const pathHead = modulePath.shift();
+                const { slot = [], type = [], props } = descriptor;
+                if (!matchesAny(slotChanged, ...slot)) {
+                    continue;
+                }
 
-                let module = this._ship.getModule(slotChanged);
-                let item = module.getItem();
-                let oldItem = pathHead === 'Item' ? event.old : '';
-                let moduleInfo = getModuleInfo(item);
-                let modifiers = get(module._object, 'Engineering.Modifiers', []);
-                if (!matchesAny(item, ...type) && (!oldItem || !matchesAny(oldItem, ...type))) continue;
+                const module = this.ship.getModule(slotChanged);
+                const item = module.getItem();
+                const oldItem = pathHead === 'Item' ? event.old : '';
+                const moduleInfo = getModuleInfo(item);
+                const modifiers = get(
+                    module.object,
+                    'Engineering.Modifiers',
+                    [],
+                );
+                if (
+                    !matchesAny(item, ...type) &&
+                    (!oldItem || !matchesAny(oldItem, ...type))
+                ) {
+                    continue;
+                }
 
                 let changedProps = [];
                 // Check the module property that has changed
                 switch (pathHead) {
                     case 'On':
-                        if (!moduleInfo.props.power) break;
+                        if (!moduleInfo.props.power) {
+                            break;
+                        }
                         changedProps = keys(moduleInfo.props).concat(modifiers);
                         break;
                     case 'Item':
@@ -121,16 +157,22 @@ export default class ShipPropsCacheLine<T> extends ShipCacheLine<T> {
                         switch (modulePath.shift()) {
                             case undefined: // event.old is Engineering object
                                 changedProps = modifiers;
-                                changedProps.push(...get(event.old, 'Modifiers', []));
+                                changedProps.push(
+                                    ...get(event.old, 'Modifiers', []),
+                                );
                                 break;
                             case 'Modifiers':
                                 let prop;
-                                switch (prop = modulePath.shift()) {
-                                    case undefined: // event.old is Modifiers object
-                                        changedProps = keys(event.old).concat(modifiers);
+                                switch ((prop = modulePath.shift())) {
+                                    // event.old is Modifiers object
+                                    case undefined:
+                                        changedProps = keys(event.old).concat(
+                                            modifiers,
+                                        );
                                         break;
-                                    default: // event.old is a property
-                                        changedProps = [ prop ];
+                                    default:
+                                        // event.old is a property
+                                        changedProps = [prop];
                                 }
                                 break;
                         }

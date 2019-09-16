@@ -5,18 +5,18 @@
 /**
  * Ignore
  */
-import CargoCapacity from "./CargoCapacity";
-import FuelCapacity from "./FuelCapacity";
-import JumpRangeProfile from "./JumpRangeProfile";
-import SpeedProfile from "./SpeedProfile";
-import ShieldProfile from "./ShieldProfile";
-import ArmourProfile from "./ArmourProfile";
-import ModuleProtectionProfile from "./ModuleProtectionProfle";
-import Cargo from "./Cargo";
-import Fuel from "./Fuel";
-import UnladenMass from "./UnladenMass";
-import LadenMass from "./LadenMass";
-import DamageProfileCalculator from "./DamageProfile";
+import ArmourProfile from './ArmourProfile';
+import Cargo from './Cargo';
+import CargoCapacity from './CargoCapacity';
+import DamageProfileCalculator from './DamageProfile';
+import Fuel from './Fuel';
+import FuelCapacity from './FuelCapacity';
+import JumpRangeProfile from './JumpRangeProfile';
+import LadenMass from './LadenMass';
+import ModuleProtectionProfile from './ModuleProtectionProfle';
+import ShieldProfile from './ShieldProfile';
+import SpeedProfile from './SpeedProfile';
+import UnladenMass from './UnladenMass';
 
 // IMPORTANT: some of these intance rely on other instances in this module if an
 // instance depends on others, make sure to export it after its dependencies

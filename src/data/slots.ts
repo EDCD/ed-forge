@@ -1,10 +1,10 @@
 /**
-* @module Data
-*/
+ * @module Data
+ */
 
 /**
-* Ignore
-*/
+ * Ignore
+ */
 import { UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
 import { assertValidShip, getShipInfo } from './ships';
@@ -20,7 +20,16 @@ export const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
  * @param slot Slot ID
  */
 export function assertValidSlot(slot: string) {
-    if (!matchesAny(slot, REG_CORE_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_HARDPOINT_SLOT, REG_UTILITY_SLOT)) {
+    if (
+        !matchesAny(
+            slot,
+            REG_CORE_SLOT,
+            REG_INTERNAL_SLOT,
+            REG_MILITARY_SLOT,
+            REG_HARDPOINT_SLOT,
+            REG_UTILITY_SLOT,
+        )
+    ) {
         throw new UnknownRestrictedError(`Don't know slot ${slot}`);
     }
 }
@@ -65,7 +74,7 @@ export function isPassengerSlot(ship: string, slot: string): boolean {
  */
 export function getInternalSlotSize(slot: string): number {
     assertValidSlot(slot);
-    let m = slot.match(REG_INTERNAL_SLOT);
+    const m = slot.match(REG_INTERNAL_SLOT);
     if (m) {
         return Number(m[2]);
     }

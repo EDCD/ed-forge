@@ -1,19 +1,13 @@
 /**
-* @module Index
-*/
+ * @module Index
+ */
 
 /**
-* Ignore
-*/
-import Ship from './Ship';
-import Module from './Module';
+ * Ignore
+ */
 import Factory from './data';
+import Module from './Module';
+import Ship from './Ship';
 import * as ShipProps from './ship-stats';
 
-export {
-    Ship,
-    Module,
-    Factory,
-    ShipProps,
-};
-
+export { Ship, Module, Factory, ShipProps };

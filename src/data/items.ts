@@ -1,16 +1,21 @@
 /**
-* @module Data
-*/
+ * @module Data
+ */
 
 /**
-* Ignore
-*/
-import { getSlotSize, isPassengerSlot, REG_INTERNAL_SLOT, REG_MILITARY_SLOT,
-    REG_HARDPOINT_SLOT, REG_UTILITY_SLOT
-} from './slots';
+ * Ignore
+ */
 import { IllegalStateError, UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
 import { ModuleInformation } from '../types';
+import {
+    getSlotSize,
+    isPassengerSlot,
+    REG_HARDPOINT_SLOT,
+    REG_INTERNAL_SLOT,
+    REG_MILITARY_SLOT,
+    REG_UTILITY_SLOT,
+} from './slots';
 
 import * as MODULES from './modules.json';
 
@@ -57,7 +62,7 @@ export function getRating(item: string): string {
 /**
  * Info about where an item can fit.
  */
-interface ItemFitInfo {
+interface IItemFitInfo {
     /** Array of regexes that match slots where this item can be equipped */
     Slots: RegExp[];
     /** True if this module can be fit only to passenger slots */
@@ -69,37 +74,38 @@ interface ItemFitInfo {
  * @param item Item ID
  * @returns Item fit info
  */
-function getItemInfo(item: string): ItemFitInfo {
+function getItemInfo(item: string): IItemFitInfo {
     assertValidModule(item);
-    let info = {
+    const info = {
         Slots: [],
         passenger: false,
     };
     if (item.match(/_Armour_/i)) {
-        info.Slots = [ /Armour/i ];
+        info.Slots = [/Armour/i];
     } else if (item.match(/Int_PowerPlant/i)) {
-        info.Slots = [ /PowerPlant/i ];
+        info.Slots = [/PowerPlant/i];
     } else if (item.match(/Int_Engine/i)) {
-        info.Slots = [ /MainEngines/i ];
+        info.Slots = [/MainEngines/i];
     } else if (item.match(/Int_HyperDrive/i)) {
-        info.Slots = [ /FrameShiftDrive/i ];
+        info.Slots = [/FrameShiftDrive/i];
     } else if (item.match(/Int_LifeSupport/i)) {
-        info.Slots = [ /LifeSupport/i ];
+        info.Slots = [/LifeSupport/i];
     } else if (item.match(/Int_PowerDistributor/i)) {
-        info.Slots = [ /PowerDistributor/i ];
+        info.Slots = [/PowerDistributor/i];
     } else if (item.match(/Int_Sensors/i)) {
-        info.Slots = [ /Radar/i ];
+        info.Slots = [/Radar/i];
     } else if (item.match(/Int_FuelTank/i)) {
-        info.Slots = [ /FuelTank/i, REG_INTERNAL_SLOT ];
+        info.Slots = [/FuelTank/i, REG_INTERNAL_SLOT];
     } else if (item.match(/Hpt_/i)) {
         if (item.match(/size0/i) || item.match(/tiny/i)) {
-            info.Slots = [ REG_UTILITY_SLOT ];
+            info.Slots = [REG_UTILITY_SLOT];
         } else {
-            info.Slots = [ REG_HARDPOINT_SLOT ];
+            info.Slots = [REG_HARDPOINT_SLOT];
         }
     } else if (item.match(/Int_/i)) {
-        info.Slots = [ REG_INTERNAL_SLOT ];
-        if (item.match(/HullReinforcement/i) ||
+        info.Slots = [REG_INTERNAL_SLOT];
+        if (
+            item.match(/HullReinforcement/i) ||
             item.match(/ModuleReinforcement/i) ||
             item.match(/ShieldReinforcement/i) ||
             item.match(/ShieldCellBank/i)
@@ -107,7 +113,8 @@ function getItemInfo(item: string): ItemFitInfo {
             info.Slots.push(REG_MILITARY_SLOT);
         }
 
-        if (item.match(/CargoRack/i) ||
+        if (
+            item.match(/CargoRack/i) ||
             item.match(/PassengerCabin/i) ||
             item.match(/HullReinforcement/i) ||
             item.match(/ModuleReinforcement/i)
@@ -127,12 +134,16 @@ function getItemInfo(item: string): ItemFitInfo {
  * @param slot Slot
  * @returns True when the item can be outfitted false otherwise
  */
-export function itemFitsSlot(item: string, ship: string, slot: string): boolean {
+export function itemFitsSlot(
+    item: string,
+    ship: string,
+    slot: string,
+): boolean {
     assertValidModule(item);
     slot = slot.toLowerCase();
 
-    let itemClass = getClass(item);
-    let itemInfo = getItemInfo(item);
+    const itemClass = getClass(item);
+    const itemInfo = getItemInfo(item);
 
     // Does the item fit on this type of slot?
     if (!matchesAny(slot, ...itemInfo.Slots)) {
@@ -140,7 +151,7 @@ export function itemFitsSlot(item: string, ship: string, slot: string): boolean 
     }
 
     // Does the item fit on this slot?
-    let slotSize = getSlotSize(ship, slot);
+    const slotSize = getSlotSize(ship, slot);
     return itemClass <= slotSize;
 }
 
@@ -152,7 +163,7 @@ export function itemFitsSlot(item: string, ship: string, slot: string): boolean 
  */
 export function getModuleProperty(item: string, property: string): number {
     if (!item) {
-        throw new IllegalStateError('Can\'t get module property for no item');
+        throw new IllegalStateError("Can't get module property for no item");
     }
 
     return getModuleInfo(item).props[property];

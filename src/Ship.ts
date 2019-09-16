@@ -1,37 +1,64 @@
 /**
-* @module Ship
-*/
+ * @module Ship
+ */
 
 /**
-* Ignore
-*/
-import {clone, cloneDeep, map, mapValues, chain, pick, set, values} from 'lodash';
+ * Ignore
+ */
 import autoBind from 'auto-bind';
-import {validateShipJson, shipVarIsSpecified} from './validation';
-import {compress, decompress} from './compression';
-import Module, { ModuleObject, Slot } from './Module';
 import {
-    REG_HARDPOINT_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_UTILITY_SLOT
+    chain,
+    clone,
+    cloneDeep,
+    map,
+    mapValues,
+    pick,
+    set,
+    values,
+} from 'lodash';
+
+import { compress, decompress } from './compression';
+import {
+    getShipInfo,
+    getShipMetaProperty,
+    getShipProperty,
+} from './data/ships';
+import {
+    assertValidSlot,
+    REG_HARDPOINT_SLOT,
+    REG_INTERNAL_SLOT,
+    REG_MILITARY_SLOT,
+    REG_UTILITY_SLOT,
 } from './data/slots';
-import {IllegalStateError, NotImplementedError, IllegalChangeError, ImportExportError} from './errors';
-import { assertValidSlot } from './data/slots';
-import {getShipProperty, getShipMetaProperty, getShipInfo} from './data/ships';
-import { ShipPropertyCalculator, ShipPropertyCalculatorClass, CARGO_CAPACITY, FUEL_CAPACITY, ShipMetricsCalculator } from './ship-stats';
+import {
+    IllegalChangeError,
+    IllegalStateError,
+    ImportExportError,
+    NotImplementedError,
+} from './errors';
 import { matchesAny } from './helper';
-import DiffEmitter, { DiffEvent } from './helper/DiffEmitter';
+import DiffEmitter, { IDiffEvent } from './helper/DiffEmitter';
+import Module, { IModuleObject, Slot } from './Module';
+import {
+    CARGO_CAPACITY,
+    FUEL_CAPACITY,
+    IShipPropertyCalculatorClass,
+    ShipMetricsCalculator,
+    ShipPropertyCalculator,
+} from './ship-stats';
+import { shipVarIsSpecified, validateShipJson } from './validation';
 import { checkInvariants } from './validation/invariants';
 
 const RESET_PIPS = {
-    Sys: {base: 2, mc: 0,},
-    Eng: {base: 2, mc: 0,},
-    Wep: {base: 2, mc: 0,},
+    Eng: { base: 2, mc: 0 },
+    Sys: { base: 2, mc: 0 },
+    Wep: { base: 2, mc: 0 },
 };
-
 
 /**
  * A loadout-event-style ship build without modules
  */
-interface ShipObjectBase {
+interface IShipObjectBase {
     /** Player-set ship name */
     ShipName: string;
     /** Ship type, e.g. cutter */
@@ -43,21 +70,21 @@ interface ShipObjectBase {
 /**
  * A loadout-event-style ship build.
  */
-export interface ShipObject extends ShipObjectBase {
+export interface IShipObject extends IShipObjectBase {
     /** Array of all modules of this ship */
-    Modules: ModuleObject[];
+    Modules: IModuleObject[];
 }
 
-export interface ShipObjectHandler extends ShipObjectBase {
-    Modules: { [ slot: string ]: Module };
+export interface IShipObjectHandler extends IShipObjectBase {
+    Modules: { [slot: string]: Module };
 }
 
 /**
  * State of the current ship.
  */
-export interface ShipState {
+export interface IShipState {
     /** Power distributor settings */
-    PowerDistributor: DistributorStateObject;
+    PowerDistributor: IDistributorStateObject;
     /** Tones of cargo loaded */
     Cargo: number;
     /** Tones of fuel in tanks */
@@ -69,19 +96,19 @@ export interface ShipState {
 /**
  * A state of the power distributor.
  */
-export interface DistributorStateObject {
+export interface IDistributorStateObject {
     /** Pips to SYS */
-    Sys: DistributorSettingObject;
+    Sys: IDistributorSettingObject;
     /** Pips to ENG */
-    Eng: DistributorSettingObject;
+    Eng: IDistributorSettingObject;
     /** Pips to WEP */
-    Wep: DistributorSettingObject;
+    Wep: IDistributorSettingObject;
 }
 
 /**
  * A state of the power distributor.
  */
-export interface DistributorState {
+export interface IDistributorState {
     Sys: number;
     Eng: number;
     Wep: number;
@@ -91,7 +118,7 @@ export interface DistributorState {
  * Object to reflect settings of a specific power distributor, e.g. WEP.
  * It holds that `0 <= base + mc <= 4`.
  */
-export interface DistributorSettingObject {
+export interface IDistributorSettingObject {
     /** Base pips */
     base: number;
     /** Additional multi-crew pips */
@@ -105,13 +132,13 @@ const OBJECT_EVENT = 'diff';
  * An Elite: Dangerous ship build.
  */
 export default class Ship extends DiffEmitter {
-    public _liveryModules: ModuleObject[] = [];
-    public _object: ShipObjectHandler = null;
-    public state: ShipState = {
-        PowerDistributor: cloneDeep(RESET_PIPS),
+    public liveryModules: IModuleObject[] = [];
+    public object: IShipObjectHandler = null;
+    public state: IShipState = {
+        BoostActive: false,
         Cargo: 0,
         Fuel: 1,
-        BoostActive: false,
+        PowerDistributor: cloneDeep(RESET_PIPS),
     };
 
     /**
@@ -119,37 +146,38 @@ export default class Ship extends DiffEmitter {
      * given as compressed string or plain object.
      * @param buildFrom Ship build to load.
      */
-    constructor(buildFrom: string | ShipObject) {
+    constructor(buildFrom: string | IShipObject) {
         super();
         autoBind(this);
         if (typeof buildFrom === 'string') {
-            buildFrom = decompress<ShipObject>(buildFrom);
+            buildFrom = decompress<IShipObject>(buildFrom);
         }
 
         validateShipJson(buildFrom);
 
-        let modules = buildFrom.Modules;
-        this._object = (
-            clone(buildFrom) as (ShipObject & ShipObjectHandler)
-        ) as ShipObjectHandler;
-        this._object.Ship = this._object.Ship.toLowerCase()
-        this._object.Modules = {};
-        modules.forEach(m => {
-            let slot = m.Slot.toLowerCase();
-            try { assertValidSlot(slot) } catch {
-                this._liveryModules.push(clone(m));
+        const modules = buildFrom.Modules;
+        this.object = (clone(buildFrom) as (IShipObject &
+            IShipObjectHandler)) as IShipObjectHandler;
+        this.object.Ship = this.object.Ship.toLowerCase();
+        this.object.Modules = {};
+        modules.forEach((m) => {
+            const slot = m.Slot.toLowerCase();
+            try {
+                assertValidSlot(slot);
+            } catch {
+                this.liveryModules.push(clone(m));
                 return;
             }
             m.Slot = slot;
-            this._object.Modules[slot] = new Module(m, this);
+            this.object.Modules[slot] = new Module(m, this);
         });
 
         // Check missing modules - journal builds don't include those
-        values(getShipInfo(buildFrom.Ship).proto.Modules).forEach(m => {
-            let slot = m.Slot.toLowerCase();
-            if (!this._object.Modules[slot]) {
-                this._object.Modules[slot] = new Module(m, this);
-                this._object.Modules[slot].reset();
+        values(getShipInfo(buildFrom.Ship).proto.Modules).forEach((m) => {
+            const slot = m.Slot.toLowerCase();
+            if (!this.object.Modules[slot]) {
+                this.object.Modules[slot] = new Module(m, this);
+                this.object.Modules[slot].reset();
             }
         });
 
@@ -157,40 +185,18 @@ export default class Ship extends DiffEmitter {
             throw new ImportExportError('Invalid build');
         }
 
-        this._trackFor(this._object, OBJECT_EVENT);
+        this._trackFor(this.object, OBJECT_EVENT);
         this._trackFor(this.state, STATE_EVENT);
 
-        values(this._object.Modules).forEach(m => m.on(
-            'diff', (...args) => {
+        values(this.object.Modules).forEach((m) =>
+            m.on('diff', (...args) => {
                 this._checkInvariants(m, ...args);
-                args = args.map(diff => {
-                    diff.path = `Modules.${m._object.Slot}.${diff.path}`;
+                args = args.map((diff) => {
+                    diff.path = `Modules.${m.object.Slot}.${diff.path}`;
                 });
                 this.emit('diff', ...args);
-            }
-        ));
-    }
-
-    /**
-     * Check whether all invariants still hold after a given module changed.
-     * @param m Module that changed
-     * @param diffs Changes to the module
-     */
-    _checkInvariants(m: Module, ...diffs: DiffEvent[]) {
-        for (let diff of diffs) {
-            let { path } = diff;
-            if (path === 'Item') {
-                let valid = checkInvariants(this, m);
-                if (!valid) {
-                    m.revert();
-                    m.clearHistory();
-                    throw new IllegalChangeError();
-                } else {
-                    // If this change is alright we can also clear the history
-                    m.clearHistory();
-                }
-            }
-        }
+            }),
+        );
     }
 
     /**
@@ -198,34 +204,36 @@ export default class Ship extends DiffEmitter {
      * @param property Property name
      * @returns Property value
      */
-    read(property: string): any {
-        return this._object[property];
+    public read(property: string): any {
+        return this.object[property];
     }
 
     /**
      * Return the type of the ship, e.g. `cutter`.
      * @returns Ship type
      */
-    getShipType(): string {
-        return this._object.Ship;
+    public getShipType(): string {
+        return this.object.Ship;
     }
 
     /**
-     * Read an arbitrary object property of this ship's corresponding meta properties.
+     * Read an arbitrary object property of this ship's corresponding meta
+     * properties.
      * @param property Property name
      * @returns Property value
      */
-    readMeta(property: string): any {
-        return getShipMetaProperty(this._object.Ship, property);
+    public readMeta(property: string): any {
+        return getShipMetaProperty(this.object.Ship, property);
     }
 
     /**
-     * Read an arbitrary object property of this ship's corresponding properties.
+     * Read an arbitrary object property of this ship's corresponding
+     * properties.
      * @param property Property name
      * @returns Property value
      */
     public readProp(property: string): any {
-        return getShipProperty(this._object.Ship, property);
+        return getShipProperty(this.object.Ship, property);
     }
 
     /**
@@ -238,10 +246,10 @@ export default class Ship extends DiffEmitter {
      * @param property Property name
      * @param value Property value
      */
-    write(property: string, value: any) {
+    public write(property: string, value: any) {
         if (shipVarIsSpecified(property)) {
             throw new IllegalStateError(
-                `Can't write protected property ${property}`
+                `Can't write protected property ${property}`,
             );
         }
         this._writeObject(property, value);
@@ -257,7 +265,7 @@ export default class Ship extends DiffEmitter {
      * @returns Returns the first matching module or undefined if no matching
      * one can be found.
      */
-    getModule(slot?: Slot, type?: (string | RegExp)): (Module | undefined) {
+    public getModule(slot?: Slot, type?: string | RegExp): Module | undefined {
         if (!slot && !type) {
             return undefined;
         }
@@ -265,16 +273,16 @@ export default class Ship extends DiffEmitter {
         let c;
         if (typeof slot === 'string') {
             slot = slot.toLowerCase();
-            c = chain([ this._object.Modules[slot] ]);
+            c = chain([this.object.Modules[slot]]);
         } else {
-            c = chain(this._object.Modules).values();
+            c = chain(this.object.Modules).values();
             if (slot) {
-                c = c.filter(m => m.isOnSlot(slot));
+                c = c.filter((m) => m.isOnSlot(slot));
             }
         }
 
         if (type) {
-            c = c.filter(m => m.itemIsOfType(type));
+            c = c.filter((m) => m.itemIsOfType(type));
         }
 
         return c.head().value();
@@ -290,29 +298,33 @@ export default class Ship extends DiffEmitter {
      * @param [sort=false] True to sort modules by slot.
      * @return {Module[]} All matching modules. Possibly empty.
      */
-    getModules(slots?: (Slot | Slot[]), type?: (string | RegExp),
-        includeEmpty: boolean = false, sort: boolean = false): Module[] {
-
+    public getModules(
+        slots?: Slot | Slot[],
+        type?: string | RegExp,
+        includeEmpty: boolean = false,
+        sort: boolean = false,
+    ): Module[] {
         if (typeof slots === 'string') {
             slots = slots.toLowerCase();
-            let m = this.getModule(slots, type);
-            if (includeEmpty || m._object.Item) {
-                return [ m ];
+            const m = this.getModule(slots, type);
+            if (includeEmpty || m.object.Item) {
+                return [m];
             }
             return [];
         }
 
         if (slots instanceof RegExp) {
-            slots = [ slots ];
+            slots = [slots];
         }
 
-        let ms = chain(this._object.Modules).values();
+        let ms = chain(this.object.Modules).values();
         if (!includeEmpty) {
-            ms = ms.filter(m => !m.isEmpty());
+            ms = ms.filter((m) => !m.isEmpty());
         }
         if (slots) {
-            let ss : string[] = [], rs : RegExp[] = [];
-            slots.forEach(slot => {
+            const ss: string[] = [];
+            const rs: RegExp[] = [];
+            slots.forEach((slot) => {
                 if (typeof slot === 'string') {
                     ss.push(slot);
                 } else {
@@ -320,15 +332,16 @@ export default class Ship extends DiffEmitter {
                 }
             });
             ms = ms.filter(
-                module => module._object.Slot in ss
-                    || matchesAny(module._object.Slot, ...rs)
+                (module) =>
+                    module.object.Slot in ss ||
+                    matchesAny(module.object.Slot, ...rs),
             );
         }
         if (type) {
-            ms = ms.filter(m => Boolean(m._object.Item.match(type)));
+            ms = ms.filter((m) => Boolean(m.object.Item.match(type)));
         }
         if (sort) {
-            ms = ms.sortBy(m => m._object.Slot);
+            ms = ms.sortBy((m) => m.object.Slot);
         }
 
         return ms.value();
@@ -339,7 +352,7 @@ export default class Ship extends DiffEmitter {
      * thrusters, FSD, life support, power distributor, sensors, fuel tank.
      * @returns Core modules
      */
-    getCoreModules(): Module[] {
+    public getCoreModules(): Module[] {
         return [
             this.getAlloys(),
             this.getPowerPlant(),
@@ -348,7 +361,7 @@ export default class Ship extends DiffEmitter {
             this.getLifeSupport(),
             this.getPowerDistributor(),
             this.getSensors(),
-            this.getCoreFuelTank()
+            this.getCoreFuelTank(),
         ];
     }
 
@@ -356,7 +369,7 @@ export default class Ship extends DiffEmitter {
      * Get the alloys of this ship.
      * @returns Alloys
      */
-    getAlloys(): Module {
+    public getAlloys(): Module {
         return this.getModule('Armour');
     }
 
@@ -364,7 +377,7 @@ export default class Ship extends DiffEmitter {
      * Get the power plant of this ship.
      * @returns Power plant
      */
-    getPowerPlant(): Module {
+    public getPowerPlant(): Module {
         return this.getModule('PowerPlant');
     }
 
@@ -372,7 +385,7 @@ export default class Ship extends DiffEmitter {
      * Get the thrusters of this ship.
      * @returns Thrusters
      */
-    getThrusters(): Module {
+    public getThrusters(): Module {
         return this.getModule('MainEngines');
     }
 
@@ -380,7 +393,7 @@ export default class Ship extends DiffEmitter {
      * Get the frame shift drive of this ship.
      * @returns FSD
      */
-    getFSD(): Module {
+    public getFSD(): Module {
         return this.getModule('FrameShiftDrive');
     }
 
@@ -388,7 +401,7 @@ export default class Ship extends DiffEmitter {
      * Get the life support module of this ship.
      * @returns Life support
      */
-    getLifeSupport(): Module {
+    public getLifeSupport(): Module {
         return this.getModule('LifeSupport');
     }
 
@@ -396,7 +409,7 @@ export default class Ship extends DiffEmitter {
      * Get the power distributor of this ship.
      * @returns Power distributor
      */
-    getPowerDistributor(): Module {
+    public getPowerDistributor(): Module {
         return this.getModule('PowerDistributor');
     }
 
@@ -404,7 +417,7 @@ export default class Ship extends DiffEmitter {
      * Get the sensors of this ship.
      * @returns Sensors
      */
-    getSensors(): Module {
+    public getSensors(): Module {
         return this.getModule('Radar');
     }
 
@@ -412,7 +425,7 @@ export default class Ship extends DiffEmitter {
      * The core fuel tank of this ship.
      * @returns Core fuel tank
      */
-    getCoreFuelTank(): Module {
+    public getCoreFuelTank(): Module {
         return this.getModule('FuelTank');
     }
 
@@ -420,7 +433,7 @@ export default class Ship extends DiffEmitter {
      * The shield generator of this ship.
      * @returns Shield generator or undefined if not present
      */
-    getShieldGenerator(): (Module | undefined) {
+    public getShieldGenerator(): Module | undefined {
         return this.getModule(undefined, /int_shieldgenerator/);
     }
 
@@ -428,7 +441,7 @@ export default class Ship extends DiffEmitter {
      * Get an array of all shield boosters of this ship.
      * @returns Array of shield boosters, possibly empty
      */
-    getShieldBoosters(): Module[] {
+    public getShieldBoosters(): Module[] {
         return this.getModules(undefined, /hpt_shieldbooster/);
     }
 
@@ -436,7 +449,7 @@ export default class Ship extends DiffEmitter {
      * Get an array of all shield cell banks of this ship.
      * @returns Array of shield cell banks, possibly empty
      */
-    getSCBs(): Module[] {
+    public getSCBs(): Module[] {
         return this.getModules(undefined, /int_shieldcellbank/);
     }
 
@@ -445,8 +458,11 @@ export default class Ship extends DiffEmitter {
      * guardian and meta alloy hull reinforcement packages.
      * @returns Array of hull reinforcement packages, possibly empty
      */
-    getHRPs(): Module[] {
-        return this.getModules(undefined, /int_(metaalloy|guardian)?hullreinforcement/);
+    public getHRPs(): Module[] {
+        return this.getModules(
+            undefined,
+            /int_(metaalloy|guardian)?hullreinforcement/,
+        );
     }
 
     /**
@@ -454,7 +470,7 @@ export default class Ship extends DiffEmitter {
      * guardian module reinforcement packages.
      * @returns Array of module reinforcement packages, possibly empty
      */
-    getMRPs(): Module[] {
+    public getMRPs(): Module[] {
         return this.getModules(undefined, /int_(guardian)?modulereinforcement/);
     }
 
@@ -469,10 +485,16 @@ export default class Ship extends DiffEmitter {
      *      will be returned, i.e. which are just a slot.
      * @returns Array of internal modules. Possibly empty.
      */
-    getInternals(type?: (string | RegExp), includeEmpty: boolean = false): Module[] {
-        let ms = this.getModules(REG_INTERNAL_SLOT, type, includeEmpty, true);
-        let militaryMs = this.getModules(
-            REG_MILITARY_SLOT, type, includeEmpty, true
+    public getInternals(
+        type?: string | RegExp,
+        includeEmpty: boolean = false,
+    ): Module[] {
+        const ms = this.getModules(REG_INTERNAL_SLOT, type, includeEmpty, true);
+        const militaryMs = this.getModules(
+            REG_MILITARY_SLOT,
+            type,
+            includeEmpty,
+            true,
         );
         // @ts-ignore
         return ms.concat(militaryMs);
@@ -486,7 +508,10 @@ export default class Ship extends DiffEmitter {
      * which are just a slot.
      * @returns Hardpoint modules
      */
-    getHardpoints(type?: (string | RegExp), includeEmpty: boolean = false): Module[] {
+    public getHardpoints(
+        type?: string | RegExp,
+        includeEmpty: boolean = false,
+    ): Module[] {
         return this.getModules(REG_HARDPOINT_SLOT, type, includeEmpty, true);
     }
 
@@ -497,7 +522,10 @@ export default class Ship extends DiffEmitter {
      * which are just a slot.
      * @returns Utility modules
      */
-    getUtilities(type?: (string | RegExp), includeEmpty: boolean = false): Module[] {
+    public getUtilities(
+        type?: string | RegExp,
+        includeEmpty: boolean = false,
+    ): Module[] {
         return this.getModules(REG_UTILITY_SLOT, type, includeEmpty, true);
     }
 
@@ -507,8 +535,10 @@ export default class Ship extends DiffEmitter {
      * @param modified False to retrieve default value
      * @returns Property value
      */
-    get(property: ShipPropertyCalculator | ShipPropertyCalculatorClass,
-        modified: boolean = true): number {
+    public get(
+        property: ShipPropertyCalculator | IShipPropertyCalculatorClass,
+        modified: boolean = true,
+    ): number {
         if (typeof property === 'object') {
             return property.calculate(this, modified);
         }
@@ -519,7 +549,10 @@ export default class Ship extends DiffEmitter {
      * @param statistics
      * @param modified
      */
-    getMetrics<T>(calculator: ShipMetricsCalculator<T>, modified: boolean = true): T {
+    public getMetrics<T>(
+        calculator: ShipMetricsCalculator<T>,
+        modified: boolean = true,
+    ): T {
         return calculator(this, modified);
     }
 
@@ -528,23 +561,23 @@ export default class Ship extends DiffEmitter {
      * @param property Name of the property
      * @returns Value of the property
      */
-    getBaseProperty(property: string): number {
-        return getShipProperty(this._object.Ship, property);
+    public getBaseProperty(property: string): number {
+        return getShipProperty(this.object.Ship, property);
     }
 
     /**
      * Returns the player-set ship name.
      * @returns Ship name
      */
-    getShipName(): string {
-        return this._object.ShipName;
+    public getShipName(): string {
+        return this.object.ShipName;
     }
 
     /**
      * Sets a new ship name.
      * @param name Name to set
      */
-    setShipName(name: string) {
+    public setShipName(name: string) {
         this._writeObject('ShipName', name);
     }
 
@@ -552,15 +585,15 @@ export default class Ship extends DiffEmitter {
      * Returns player-set or auto-generated ship ID.
      * @returns Ship ID
      */
-    getShipID(): string {
-        return this._object.ShipIdent;
+    public getShipID(): string {
+        return this.object.ShipIdent;
     }
 
     /**
      * Sets the ship ID.
      * @param id ID to set
      */
-    setShipID(id: string) {
+    public setShipID(id: string) {
         // TODO: constrain value
         this._writeObject('ShipIdent', id);
     }
@@ -571,7 +604,12 @@ export default class Ship extends DiffEmitter {
      * @param unit
      * @param value
      */
-    getFormatted(property: string, modified: boolean = true, unit?: string, value?: number) {
+    public getFormatted(
+        property: string,
+        modified: boolean = true,
+        unit?: string,
+        value?: number,
+    ) {
         throw new NotImplementedError();
     }
 
@@ -579,7 +617,7 @@ export default class Ship extends DiffEmitter {
      * Returns the current power distributor settings.
      * @returns The distributor settings.
      */
-    getDistributorSettingsObject(): DistributorStateObject {
+    public getDistributorSettingsObject(): IDistributorStateObject {
         return cloneDeep(this.state.PowerDistributor);
     }
 
@@ -587,9 +625,10 @@ export default class Ship extends DiffEmitter {
      * Returns the current power distributor settings.
      * @returns The distributor settings.
      */
-    getDistributorSettings(): DistributorState {
-        return mapValues(this.state.PowerDistributor,
-            setting => setting.base + setting.mc
+    public getDistributorSettings(): IDistributorState {
+        return mapValues(
+            this.state.PowerDistributor,
+            (setting) => setting.base + setting.mc,
         );
     }
 
@@ -597,24 +636,25 @@ export default class Ship extends DiffEmitter {
      * Set the power distributor settings.
      * @param settings Power distributor settings
      */
-    setDistributorSettings(settings: DistributorStateObject) {
-        let mcSize = getShipMetaProperty(this._object.Ship, 'crew') - 1;
-        let newMc = settings.Sys.mc + settings.Eng.mc + settings.Wep.mc;
+    public setDistributorSettings(settings: IDistributorStateObject) {
+        const mcSize = getShipMetaProperty(this.object.Ship, 'crew') - 1;
+        const newMc = settings.Sys.mc + settings.Eng.mc + settings.Wep.mc;
         if (newMc < 0 || mcSize < newMc) {
             throw new IllegalStateError(`Illegal amount of mc pips: ${newMc}`);
         }
 
-        let newPips = settings.Sys.base + settings.Eng.base + settings.Wep.base;
-        if (newPips != 6) {
+        const newPips =
+            settings.Sys.base + settings.Eng.base + settings.Wep.base;
+        if (newPips !== 6) {
             throw new IllegalStateError(
-                `Can't set other than 6 pis - is ${newPips}`
+                `Can't set other than 6 pis - is ${newPips}`,
             );
         }
 
-        let pickProps = ['base', 'mc'];
+        const pickProps = ['base', 'mc'];
         this._writeState('PowerDistributor', {
-            Sys: pick(settings.Sys, pickProps),
             Eng: pick(settings.Eng, pickProps),
+            Sys: pick(settings.Sys, pickProps),
             Wep: pick(settings.Wep, pickProps),
         });
     }
@@ -623,7 +663,7 @@ export default class Ship extends DiffEmitter {
      * Resets pips to standard.
      * @param mcOnly True if only multi-crew pips should be reset.
      */
-    pipsReset(mcOnly: boolean) {
+    public pipsReset(mcOnly: boolean) {
         if (mcOnly) {
             this._prepareStateChange('PowerDistributor.Sys.mc', 0);
             this._prepareStateChange('PowerDistributor.Eng.mc', 0);
@@ -640,35 +680,39 @@ export default class Ship extends DiffEmitter {
      * @param pipType Either Sys, Eng or Wep.
      * @param isMc True if multi-crew pip should be incremented.
      */
-    incPip(pipType: string, isMc: boolean = false) {
-        let dist = this.state.PowerDistributor;
-        let pips = dist[pipType];
-        let other1, other1Key;
-        if (pipType == 'Sys') {
+    public incPip(pipType: string, isMc: boolean = false) {
+        const dist = this.state.PowerDistributor;
+        const pips = dist[pipType];
+        let other1;
+        let other1Key;
+        if (pipType === 'Sys') {
             other1 = dist.Eng;
             other1Key = 'Eng';
         } else {
             other1 = dist.Sys;
             other1Key = 'Sys';
         }
-        let other2, other2Key;
-        if (pipType == 'Wep') {
+        let other2;
+        let other2Key;
+        if (pipType === 'Wep') {
             other2 = dist.Eng;
             other2Key = 'Eng';
         } else {
             other2 = dist.Wep;
             other2Key = 'Wep';
-        };
+        }
 
         const left = Math.min(1, 4 - (pips.base + pips.mc));
         if (isMc) {
-            let mc = getShipMetaProperty(this._object.Ship, 'crew') - 1;
+            const mc = getShipMetaProperty(this.object.Ship, 'crew') - 1;
             if (left > 0.5 && dist.Sys.mc + dist.Eng.mc + dist.Wep.mc < mc) {
                 this._writeState(`PowerDistributor.${pipType}.mc`, pips.mc + 1);
             }
         } else if (left > 0) {
-            let sum, diff1, diff2;
-            if (left == 0.5) {
+            let sum;
+            let diff1;
+            let diff2;
+            if (left === 0.5) {
                 // Take from whichever is larger
                 if (other1 > other2) {
                     diff1 = other1.base - 0.5;
@@ -676,15 +720,22 @@ export default class Ship extends DiffEmitter {
                     diff2 = other2.base - 0.5;
                 }
                 sum = pips.base + 0.5;
-            } else {  // left == 1
-                let other1WasZero = other1.base == 0;
-                diff1 = other1.base - ((other2.base == 0) ? 1 : 0.5);
+            } else {
+                // left == 1
+                const other1WasZero = other1.base === 0;
+                diff1 = other1.base - (other2.base === 0 ? 1 : 0.5);
                 diff2 = other2.base - (other1WasZero ? 1 : 0.5);
                 sum = pips.base + 1;
             }
             this._prepareStateChange(`PowerDistributor.${pipType}.base`, sum);
-            this._prepareStateChange(`PowerDistributor.${other1Key}.base`, diff1);
-            this._prepareStateChange(`PowerDistributor.${other2Key}.base`, diff2);
+            this._prepareStateChange(
+                `PowerDistributor.${other1Key}.base`,
+                diff1,
+            );
+            this._prepareStateChange(
+                `PowerDistributor.${other2Key}.base`,
+                diff2,
+            );
             this._commitStateChanges();
         }
     }
@@ -693,7 +744,7 @@ export default class Ship extends DiffEmitter {
      * Increment the sys pip settings.
      * @param isMc True to increment multi-crew pips
      */
-    incSys(isMc: boolean = false) {
+    public incSys(isMc: boolean = false) {
         this.incPip('Sys', isMc);
     }
 
@@ -701,7 +752,7 @@ export default class Ship extends DiffEmitter {
      * Increment the eng pip settings.
      * @param isMc True to increment multi-crew pips
      */
-    incEng(isMc: boolean = false) {
+    public incEng(isMc: boolean = false) {
         this.incPip('Eng', isMc);
     }
 
@@ -709,7 +760,7 @@ export default class Ship extends DiffEmitter {
      * Increment the wep pip settings.
      * @param isMc True to increment multi-crew pips
      */
-    incWep(isMc: boolean = false) {
+    public incWep(isMc: boolean = false) {
         this.incPip('Wep', isMc);
     }
 
@@ -717,7 +768,7 @@ export default class Ship extends DiffEmitter {
      * Get the amount of cargo currently loaded.
      * @returns Tons of cargo loaded
      */
-    getCargo(): number {
+    public getCargo(): number {
         return this.state.Cargo;
     }
 
@@ -726,7 +777,7 @@ export default class Ship extends DiffEmitter {
      * lower than zero or above what can be carried.
      * @param cargo Cargo to be set; will be sanitized
      */
-    setCargo(cargo: number) {
+    public setCargo(cargo: number) {
         cargo = Math.max(0, cargo);
         cargo = Math.min(cargo, this.get(CARGO_CAPACITY, true));
         this._writeState('Cargo', cargo);
@@ -736,7 +787,7 @@ export default class Ship extends DiffEmitter {
      * Get the amount of fuel currently loaded.
      * @returns Tons of fuel loaded.
      */
-    getFuel(): number {
+    public getFuel(): number {
         return this.state.Fuel;
     }
 
@@ -745,7 +796,7 @@ export default class Ship extends DiffEmitter {
      * lower than zero or above what can be carried.
      * @param fuel Fuel currently in all tanks; will be sanitized
      */
-    setFuel(fuel: number) {
+    public setFuel(fuel: number) {
         fuel = Math.max(0, fuel);
         fuel = Math.min(fuel, this.get(FUEL_CAPACITY, true));
         this._writeState('Fuel', fuel);
@@ -755,7 +806,7 @@ export default class Ship extends DiffEmitter {
      * Returns whether the ship is currently boosting.
      * @returns True if the ship is boosting
      */
-    isBoosting(): boolean {
+    public isBoosting(): boolean {
         return this.state.BoostActive;
     }
 
@@ -763,7 +814,7 @@ export default class Ship extends DiffEmitter {
      * Set whether the ship is currently boosting
      * @param isBoosting True when boosting
      */
-    setBoosting(isBoosting: boolean) {
+    public setBoosting(isBoosting: boolean) {
         this._writeState('BoostActive', isBoosting);
     }
 
@@ -771,10 +822,11 @@ export default class Ship extends DiffEmitter {
      * Copies the ship build and returns a valid loadout-event.
      * @returns Loadout-event-style ship build.
      */
-    toJSON(): ShipObject {
-        let r = clone(this._object) as (ShipObject & ShipObjectHandler) as ShipObject;
-        r.Modules = map(values(this._object.Modules), m => m.toJSON());
-        r.Modules = r.Modules.concat(this._liveryModules);
+    public toJSON(): IShipObject {
+        const r = (clone(this.object) as (IShipObject &
+            IShipObjectHandler)) as IShipObject;
+        r.Modules = map(values(this.object.Modules), (m) => m.toJSON());
+        r.Modules = r.Modules.concat(this.liveryModules);
         return r;
     }
 
@@ -783,8 +835,30 @@ export default class Ship extends DiffEmitter {
      * string.
      * @returns Compressed loadout-event-style ship build.s
      */
-    compress(): string {
+    public compress(): string {
         return compress(this.toJSON());
+    }
+
+    /**
+     * Check whether all invariants still hold after a given module changed.
+     * @param m Module that changed
+     * @param diffs Changes to the module
+     */
+    private _checkInvariants(m: Module, ...diffs: IDiffEvent[]) {
+        for (const diff of diffs) {
+            const { path } = diff;
+            if (path === 'Item') {
+                const valid = checkInvariants(this, m);
+                if (!valid) {
+                    m.revert();
+                    m.clearHistory();
+                    throw new IllegalChangeError();
+                } else {
+                    // If this change is alright we can also clear the history
+                    m.clearHistory();
+                }
+            }
+        }
     }
 
     /**
@@ -817,7 +891,7 @@ export default class Ship extends DiffEmitter {
     }
 
     /**
-     * Write a value to [[_object]] and emit the changes as `'diff'` event.
+     * Write a value to [[object]] and emit the changes as `'diff'` event.
      * @param path Path for the object to write to
      * @param value Value to write
      */
@@ -827,13 +901,13 @@ export default class Ship extends DiffEmitter {
     }
 
     /**
-     * Write a value to [[_object]] and prepare the changes to be emitted
+     * Write a value to [[object]] and prepare the changes to be emitted
      * as `'diff'` event.
      * @param path Path for the object to write to
      * @param value Value to write
      */
     private _prepareObjectChange(path: string, value: any) {
         this._prepare(STATE_EVENT, path);
-        set(this._object, path, value);
+        set(this.object, path, value);
     }
 }

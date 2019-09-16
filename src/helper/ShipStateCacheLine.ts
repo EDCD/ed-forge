@@ -5,31 +5,37 @@
 /**
  * Ignore.
  */
-import ShipCacheLine, { Dependable } from "./ShipCacheLine";
-import { DiffEvent } from "./DiffEmitter";
+import { IDiffEvent } from './DiffEmitter';
+import ShipCacheLine, { IDependable } from './ShipCacheLine';
 
 /**
  * Extends [[ShipCacheLine]] to listen to state changes of ships.
  */
 export default class ShipStateCacheLine<T> extends ShipCacheLine<T> {
-    protected _listenTo: string = 'diff-state';
-    private _stateVars: string[] = [];
+    protected listenTo: string = 'diff-state';
+    private stateVars: string[] = [];
 
     /**
      * Create a new cache line and state its dependencies. When a dependency is
-     * of type [[ShipCacheLine]] or [[Dependable]], behavior is the same as for
+     * of type [[ShipCacheLine]] or [[IDependable]], behavior is the same as for
      * [[ShipCacheLine]]. If it is a string, the cache will be flushed whenever
      * a state variable named equally changes.
      * @param dependencies Dependencies that this cache relies upon
      */
-    constructor(...dependencies: (string | ShipCacheLine<any> | Dependable)[]) {
-        super(...dependencies.filter(
-            dep => dep instanceof ShipCacheLine || (typeof dep === 'object' && 'dependencies' in dep)
-        ) as (ShipCacheLine<any> | Dependable)[]);
+    constructor(
+        ...dependencies: (string | ShipCacheLine<any> | IDependable)[]
+    ) {
+        super(
+            ...(dependencies.filter(
+                (dep) =>
+                    dep instanceof ShipCacheLine ||
+                    (typeof dep === 'object' && 'dependencies' in dep),
+            ) as (ShipCacheLine<any> | IDependable)[]),
+        );
 
-        dependencies.forEach(dep => {
+        dependencies.forEach((dep) => {
             if (typeof dep === 'string') {
-                this._stateVars.push(dep);
+                this.stateVars.push(dep);
             }
         });
     }
@@ -39,14 +45,14 @@ export default class ShipStateCacheLine<T> extends ShipCacheLine<T> {
      * described in [[constructor]] and flush the cache accordingly.
      * @param events Events to check
      */
-    protected _checkDescriptors(...events: DiffEvent[]) {
+    protected _checkDescriptors(...events: IDiffEvent[]) {
         // No checks necessary if cache is not valid
-        if (this._cache === undefined) {
+        if (this.cache === undefined) {
             return;
         }
 
-        for (let v of this._stateVars) {
-            for (let event of events) {
+        for (const v of this.stateVars) {
+            for (const event of events) {
                 if (event.path === v) {
                     this._invalidate();
                     return;
@@ -54,6 +60,4 @@ export default class ShipStateCacheLine<T> extends ShipCacheLine<T> {
             }
         }
     }
-
-
 }

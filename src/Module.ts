@@ -1,35 +1,55 @@
 /**
-* @module Module
-*/
+ * @module Module
+ */
 
 /**
-* Ignore
-*/
-import {clamp, clone, cloneDeep, set, values, forEach} from 'lodash';
+ * Ignore
+ */
 import autoBind from 'auto-bind';
-import {validateModuleJson, moduleVarIsSpecified} from './validation';
-import {compress, decompress} from './compression';
+import { clamp, clone, cloneDeep, forEach, set, values } from 'lodash';
+
+import { compress, decompress } from './compression';
 import Factory from './data';
-import {itemFitsSlot, getClass, getModuleProperty, getRating, getModuleInfo} from './data/items';
+import {
+    calculateModifier,
+    getBlueprintProps,
+    IPropertyMap,
+} from './data/blueprints';
+import {
+    getClass,
+    getModuleInfo,
+    getModuleProperty,
+    getRating,
+    itemFitsSlot,
+} from './data/items';
 import { getSlotSize, REG_CORE_SLOT } from './data/slots';
-import {IllegalStateError, NotImplementedError, UnknownRestrictedError} from './errors';
-import Ship from './Ship';
-import {getBlueprintProps, calculateModifier, PropertyMap} from './data/blueprints';
-import MODULE_STATS, { ModulePropertyCalculator, ModulePropertyCalculatorClass } from './module-stats';
-import DiffEmitter from './helper/DiffEmitter';
+import {
+    IllegalStateError,
+    NotImplementedError,
+    UnknownRestrictedError,
+} from './errors';
 import { mapValuesDeep } from './helper';
+import DiffEmitter from './helper/DiffEmitter';
+import MODULE_STATS, {
+    IModulePropertyCalculatorClass,
+    ModulePropertyCalculator,
+} from './module-stats';
+import Ship from './Ship';
+import { moduleVarIsSpecified, validateModuleJson } from './validation';
 
 /**
  * Clones a given module.
  * @param module Module to clone
  * @returns Cloned module object
  */
-function cloneModuleToJSON(module: (string | Module | ModuleObject)): ModuleObject {
+function cloneModuleToJSON(
+    module: string | Module | IModuleObject,
+): IModuleObject {
     if (module instanceof Module) {
         module = module.toJSON();
     } else {
         if (typeof module === 'string') {
-            module = decompress<ModuleObject>(module);
+            module = decompress<IModuleObject>(module);
         }
         module = cloneDeep(module);
 
@@ -42,7 +62,7 @@ function cloneModuleToJSON(module: (string | Module | ModuleObject)): ModuleObje
 /**
  * Loadout-event style object describing a module
  */
-interface ModuleObjectBase {
+interface IIModuleObjectBase {
     /** Item/actual module that this module represents */
     Item: string;
     /** Power priority group */
@@ -50,17 +70,17 @@ interface ModuleObjectBase {
     /** Slot this module is on (possibly empty string) */
     Slot: string;
     /** True when this module is switched on */
-    On: boolean
+    On: boolean;
 }
 
-export interface ModuleObject extends ModuleObjectBase {
+export interface IModuleObject extends IIModuleObjectBase {
     /** Blueprint applied to this module */
-    Engineering?: BlueprintObject;
+    Engineering?: IBlueprintObject;
 }
 
-export interface ModuleObjectHandler extends ModuleObjectBase {
+export interface IModuleObjectHandler extends IIModuleObjectBase {
     /** Blueprint applied to this module */
-    Engineering?: BlueprintObjectHandler;
+    Engineering?: IBlueprintObjectHandler;
 }
 
 export type Slot = string | RegExp;
@@ -68,7 +88,7 @@ export type Slot = string | RegExp;
 /**
  * Engineer blueprint.
  */
-interface BlueprintObjectBase {
+interface IIBlueprintObjectBase {
     Engineer?: string;
     EngineerID?: number;
     BlueprintID?: number;
@@ -82,20 +102,20 @@ interface BlueprintObjectBase {
     ExperimentalEffect?: string;
 }
 
-export interface BlueprintObject extends BlueprintObjectBase {
+export interface IBlueprintObject extends IIBlueprintObjectBase {
     /** Array of all modifiers */
-    Modifiers: ModifierObject[]
+    Modifiers: IModifierObject[];
 }
 
-export interface BlueprintObjectHandler extends BlueprintObjectBase {
+export interface IBlueprintObjectHandler extends IIBlueprintObjectBase {
     /** Array of all modifiers */
-    Modifiers: PropertyMap;
+    Modifiers: IPropertyMap;
 }
 
 /**
  * Module property modifier overriding default values.
  */
-export interface ModifierObject {
+export interface IModifierObject {
     /** Property name */
     Label: string;
     /** Modified property value */
@@ -112,8 +132,13 @@ const DIFF_EVENT = 'diff';
  * A module that belongs to a Ship.
  */
 export default class Module extends DiffEmitter {
-    public _object: ModuleObjectHandler = { Item: '', Slot: '', On: true, Priority: 1 };
-    public _ship: Ship = null;
+    public object: IModuleObjectHandler = {
+        Item: '',
+        On: true,
+        Priority: 1,
+        Slot: '',
+    };
+    public ship: Ship = null;
 
     /**
      * Create a module by reading a module JSON given in a loadout-event-style
@@ -121,32 +146,31 @@ export default class Module extends DiffEmitter {
      * @param buildFrom Module to load
      * @param ship Ship to assign this module to
      */
-    constructor(buildFrom: (string | Module | ModuleObject), ship?: Ship) {
+    constructor(buildFrom: string | Module | IModuleObject, ship?: Ship) {
         super();
         autoBind(this);
 
         if (buildFrom) {
-            let object = mapValuesDeep(
-                cloneModuleToJSON(buildFrom),
-                v => typeof v === 'string' ? v.toLowerCase() : v
-            ) as ModuleObject & ModuleObjectHandler;
-            let handler = object as ModuleObjectHandler;
+            const object = mapValuesDeep(cloneModuleToJSON(buildFrom), (v) =>
+                typeof v === 'string' ? v.toLowerCase() : v,
+            ) as IModuleObject & IModuleObjectHandler;
+            const handler = object as IModuleObjectHandler;
             // Remember modifiers that need to be imported with a function
-            let imported = [];
-            let synthetics: PropertyMap = {};
+            const imported = [];
+            const synthetics: IPropertyMap = {};
             if (object.Engineering) {
-                let modifiers = object.Engineering.Modifiers;
+                const modifiers = object.Engineering.Modifiers;
                 handler.Engineering.Modifiers = {};
-                modifiers.forEach(modifier => {
-                    let label = modifier.Label.toLowerCase();
+                modifiers.forEach((modifier) => {
+                    const label = modifier.Label.toLowerCase();
                     // Only store stats that don't have a getter
-                    let stats = MODULE_STATS[label];
+                    const stats = MODULE_STATS[label];
                     if (stats) {
                         if (stats.getter) {
                             synthetics[label] = modifier;
                         }
 
-                        let importWith = stats.importer;
+                        const importWith = stats.importer;
                         if (importWith) {
                             imported.push([importWith, modifier]);
                         } else if (!stats.getter) {
@@ -155,16 +179,16 @@ export default class Module extends DiffEmitter {
                     }
                 });
             }
-            this._object = handler;
-            forEach(imported, info => {
-                let [importWith, modifier] = info;
+            this.object = handler;
+            forEach(imported, (info) => {
+                const [importWith, modifier] = info;
                 importWith(this, modifier, synthetics);
-            })
+            });
         }
 
-        this._trackFor(this._object, DIFF_EVENT);
+        this._trackFor(this.object, DIFF_EVENT);
         if (ship) {
-            this._ship = ship;
+            this.ship = ship;
         }
     }
 
@@ -173,8 +197,8 @@ export default class Module extends DiffEmitter {
      * @param property Property name
      * @returns Property value
      */
-    read(property: string): any {
-        return this._object[property];
+    public read(property: string): any {
+        return this.object[property];
     }
 
     /**
@@ -183,8 +207,8 @@ export default class Module extends DiffEmitter {
      * @param property Property name
      * @returns Property value
      */
-    readMeta(property: string): any {
-        return getModuleInfo(this._object.Item).meta[property] || '';
+    public readMeta(property: string): any {
+        return getModuleInfo(this.object.Item).meta[property] || '';
     }
 
     /**
@@ -197,10 +221,10 @@ export default class Module extends DiffEmitter {
      * @param property Property name
      * @param value Property value
      */
-    write(property: string, value: any) {
+    public write(property: string, value: any) {
         if (moduleVarIsSpecified(property)) {
             throw new IllegalStateError(
-                `Can't write protected property ${property}`
+                `Can't write protected property ${property}`,
             );
         }
 
@@ -215,22 +239,34 @@ export default class Module extends DiffEmitter {
      *      applies to this module but is not given or undefined when property
      *      does not apply to this type of module, e.g. "ammo" on a cargo rack.
      */
-    get(property: string | ModulePropertyCalculator | ModulePropertyCalculatorClass, modified: boolean = true): (number | null | undefined) {
+    public get(
+        property:
+            | string
+            | ModulePropertyCalculator
+            | IModulePropertyCalculatorClass,
+        modified: boolean = true,
+    ): number | null | undefined {
         if (typeof property === 'string') {
             property = property.toLowerCase();
-            let stats = MODULE_STATS[property];
+            const stats = MODULE_STATS[property];
             if (!stats) {
-                throw new UnknownRestrictedError(`Don't know property ${property}`);
+                throw new UnknownRestrictedError(
+                    `Don't know property ${property}`,
+                );
             }
 
-            let getter = MODULE_STATS[property].getter;
+            const getter = MODULE_STATS[property].getter;
             if (getter) {
                 property = getter;
             } else {
-                if (modified && this._object.Engineering && this._object.Engineering.Modifiers[property]) {
-                    return this._object.Engineering.Modifiers[property].Value;
+                if (
+                    modified &&
+                    this.object.Engineering &&
+                    this.object.Engineering.Modifiers[property]
+                ) {
+                    return this.object.Engineering.Modifiers[property].Value;
                 }
-                return getModuleProperty(this._object.Item, property);
+                return getModuleProperty(this.object.Item, property);
             }
         }
         if (typeof property === 'object') {
@@ -246,7 +282,10 @@ export default class Module extends DiffEmitter {
      * @param modified False to retrieve default value
      * @return Property value with the same exceptions as in [[Module.get]]
      */
-    getClean(property: string, modified: boolean = true): (number | null | undefined) {
+    public getClean(
+        property: string,
+        modified: boolean = true,
+    ): number | null | undefined {
         let value = this.get(property, modified);
         if (MODULE_STATS[property].percentage) {
             value /= 100;
@@ -254,9 +293,12 @@ export default class Module extends DiffEmitter {
         return value;
     }
 
-    getModifier(property: string): number | null {
-        if (this._object.Engineering && this._object.Engineering.Modifiers[property]) {
-            return this._object.Engineering.Modifiers[property].Modifier;
+    public getModifier(property: string): number | null {
+        if (
+            this.object.Engineering &&
+            this.object.Engineering.Modifiers[property]
+        ) {
+            return this.object.Engineering.Modifiers[property].Modifier;
         } else {
             return null;
         }
@@ -269,7 +311,12 @@ export default class Module extends DiffEmitter {
      * @param value
      * @returns
      */
-    getFormatted(property: string, modified: boolean = true, unit: string, value: number): string {
+    public getFormatted(
+        property: string,
+        modified: boolean = true,
+        unit: string,
+        value: number,
+    ): string {
         throw new NotImplementedError();
     }
 
@@ -278,23 +325,23 @@ export default class Module extends DiffEmitter {
      * @param property Property name
      * @param value Property value
      */
-    set(property: string, value: number) {
-        if (!this._object.Engineering) {
+    public set(property: string, value: number) {
+        if (!this.object.Engineering) {
             throw new IllegalStateError(
-                `Can't set property ${property} - no blueprint applied`
+                `Can't set property ${property} - no blueprint applied`,
             );
         }
 
         property = property.toLowerCase();
-        let propertyPath = `Engineering.Modifiers.${property}`;
-        if (this._object.Engineering.Modifiers[property]) {
+        const propertyPath = `Engineering.Modifiers.${property}`;
+        if (this.object.Engineering.Modifiers[property]) {
             this._writeObject(`${propertyPath}.Value`, value);
         } else {
             this._writeObject(propertyPath, {
                 Label: property,
+                Modifier: calculateModifier(this.object.Item, property, value),
+                UserSet: true,
                 Value: value,
-                Modifier: calculateModifier(this._object.Item, property, value),
-                UserSet: true
             });
         }
     }
@@ -303,16 +350,16 @@ export default class Module extends DiffEmitter {
      * Remove a modifier for a property and reset it to default values.
      * @param property Property name.
      */
-    clear(property: string) {
-        if (!this._object.Engineering) {
+    public clear(property: string) {
+        if (!this.object.Engineering) {
             throw new IllegalStateError(
-                `Can't clear property ${property} - no blueprint allied`
+                `Can't clear property ${property} - no blueprint allied`,
             );
         }
 
         property = property.toLowerCase();
         this._prepare(DIFF_EVENT, `Engineering.Modifiers.${property}`);
-        delete this._object.Engineering.Modifiers[property];
+        delete this.object.Engineering.Modifiers[property];
         this._commitObjectChanges();
     }
 
@@ -324,12 +371,22 @@ export default class Module extends DiffEmitter {
      * @param experimental Experimental effect to apply; if none is given old
      * experimental (if given) is preserved
      */
-    setBlueprint(name: string, grade: number = 1, progress: number = 0, experimental?: string) {
-        if (!this._object.Item) {
-            throw new IllegalStateError(`Can't set blueprint ${name} without item`);
+    public setBlueprint(
+        name: string,
+        grade: number = 1,
+        progress: number = 0,
+        experimental?: string,
+    ) {
+        if (!this.object.Item) {
+            throw new IllegalStateError(
+                `Can't set blueprint ${name} without item`,
+            );
         }
 
-        this._prepareObjectChange('Engineering', Factory.newBlueprint(name, grade, experimental));
+        this._prepareObjectChange(
+            'Engineering',
+            Factory.newBlueprint(name, grade, experimental),
+        );
         this.setBlueprintProgress(progress); // this will commit prepare changes
     }
 
@@ -337,23 +394,26 @@ export default class Module extends DiffEmitter {
      * Set the progress of the current blueprint.
      * @param progress Progress in range from 0 to 1
      */
-    setBlueprintProgress(progress?: number) {
-        if (!this._object.Engineering) {
-            throw new IllegalStateError('Can\'t set progress of no blueprint');
+    public setBlueprintProgress(progress?: number) {
+        if (!this.object.Engineering) {
+            throw new IllegalStateError("Can't set progress of no blueprint");
         }
 
         if (progress === undefined) {
-            progress = this._object.Engineering.Quality;
+            progress = this.object.Engineering.Quality;
         }
         progress = clamp(progress, 0, 1);
         this._prepareObjectChange('Engineering.Quality', progress);
-        this._prepareObjectChange('Engineering.Modifiers', getBlueprintProps(
-            this._object.Item,
-            this._object.Engineering.BlueprintName,
-            this._object.Engineering.Level,
-            this._object.Engineering.Quality,
-            this._object.Engineering.ExperimentalEffect
-        ));
+        this._prepareObjectChange(
+            'Engineering.Modifiers',
+            getBlueprintProps(
+                this.object.Item,
+                this.object.Engineering.BlueprintName,
+                this.object.Engineering.Level,
+                this.object.Engineering.Quality,
+                this.object.Engineering.ExperimentalEffect,
+            ),
+        );
         this._commitObjectChanges();
     }
 
@@ -361,10 +421,10 @@ export default class Module extends DiffEmitter {
      * Apply a special effect to this module.
      * @param name Special effect name
      */
-    setSpecial(name: string) {
-        if (!this._object.Engineering) {
+    public setSpecial(name: string) {
+        if (!this.object.Engineering) {
             throw new IllegalStateError(
-                `Can only set experimental ${name} when a blueprint has been applied.`
+                `Can only set experimental ${name} when a blueprint has been applied.`,
             );
         }
 
@@ -376,30 +436,39 @@ export default class Module extends DiffEmitter {
      * Clear all modifications and resets the slot completely. If the slot is a
      * core internal slot, the item won't get changed.
      */
-    reset() {
-        if (!this._object.Slot.match(REG_CORE_SLOT)) {
-            this._object.Item = '';
+    public reset() {
+        if (!this.object.Slot.match(REG_CORE_SLOT)) {
+            this.object.Item = '';
         }
-        this._object.Priority = 1;
-        this._object.On = true;
-        delete this._object.Engineering;
+        this.object.Priority = 1;
+        this.object.On = true;
+        delete this.object.Engineering;
     }
 
     /**
      * Returns a copy of this module as a loadout-event-style module.
      * @returns Module
      */
-    toJSON(): ModuleObject {
-        let r = clone(this._object) as (ModuleObject & ModuleObjectHandler) as ModuleObject;
-        if (this._object.Engineering) {
-            r.Engineering = clone(this._object.Engineering) as (BlueprintObject & BlueprintObjectHandler) as BlueprintObject;
-            r.Engineering.Modifiers = values(this._object.Engineering.Modifiers);
-            for (let stat in MODULE_STATS) {
-                let getter = MODULE_STATS[stat].getter
-                if (getter) {
-                    let Value = this.get(getter, true);
-                    if (Value) {
-                        r.Engineering.Modifiers.push({ Label: stat, Value });
+    public toJSON(): IModuleObject {
+        const r = (clone(this.object) as (IModuleObject &
+            IModuleObjectHandler)) as IModuleObject;
+        if (this.object.Engineering) {
+            r.Engineering = (clone(
+                this.object.Engineering,
+            ) as (IBlueprintObject &
+                IBlueprintObjectHandler)) as IBlueprintObject;
+            r.Engineering.Modifiers = values(this.object.Engineering.Modifiers);
+            for (const stat in MODULE_STATS) {
+                if (MODULE_STATS.hasOwnProperty(stat)) {
+                    const getter = MODULE_STATS[stat].getter;
+                    if (getter) {
+                        const Value = this.get(getter, true);
+                        if (Value) {
+                            r.Engineering.Modifiers.push({
+                                Label: stat,
+                                Value,
+                            });
+                        }
                     }
                 }
             }
@@ -411,8 +480,8 @@ export default class Module extends DiffEmitter {
      * Returns a compressed string representing the loadout-event-style module.
      * @returns Compressed string
      */
-    compress(): string {
-        return compress(this._object);
+    public compress(): string {
+        return compress(this.object);
     }
 
     /**
@@ -422,19 +491,20 @@ export default class Module extends DiffEmitter {
      * @param type Item type to check
      * @returns True if the item matches the type provided
      */
-    itemIsOfType(type: (string | RegExp)): boolean {
+    public itemIsOfType(type: string | RegExp): boolean {
         if (typeof type === 'string') {
-            return this._object.Item === type.toLowerCase();
+            return this.object.Item === type.toLowerCase();
         }
-        return Boolean(this._object.Item.match(type));
+        return Boolean(this.object.Item.match(type));
     }
 
     /**
-     * Returns the actual item of this module, e.g. `int_powerplant_size5_class1`.
+     * Returns the actual item of this module, e.g.
+     * `int_powerplant_size5_class1`.
      * @returns The item
      */
-    getItem(): string {
-        return this._object.Item;
+    public getItem(): string {
+        return this.object.Item;
     }
 
     /**
@@ -443,24 +513,28 @@ export default class Module extends DiffEmitter {
      * @param clazz
      * @param rating
      */
-    setItem(item: string, clazz: string = '', rating: string = '') {
+    public setItem(item: string, clazz: string = '', rating: string = '') {
         item = item.toLowerCase();
         try {
             item = Factory.getModuleId(item, clazz, rating);
-        // Don't handle errors as item might not have been a type to begin with
-        // Further errors will be handled when we check if this item fits on
-        // this slot
+            // Don't handle errors as item might not have been a type to begin
+            // with. Further errors will be handled when we check if this item
+            // fits on this slot
         } catch (e) {}
 
-        let fits = !itemFitsSlot(item, this._ship._object.Ship, this._object.Slot);
-        if (this._ship && this._object.Slot && fits) {
+        const fits = !itemFitsSlot(
+            item,
+            this.ship.object.Ship,
+            this.object.Slot,
+        );
+        if (this.ship && this.object.Slot && fits) {
             throw new IllegalStateError(
-                `Item ${item} does not fit ${this._object.Slot}`
+                `Item ${item} does not fit ${this.object.Slot}`,
             );
         }
 
         this._prepare(DIFF_EVENT, 'Engineering');
-        delete this._object.Engineering;
+        delete this.object.Engineering;
         this._writeObject('Item', item); // this will commit changes
     }
 
@@ -472,17 +546,18 @@ export default class Module extends DiffEmitter {
      * @returns True if the module is on the given slot or the RegExp matches,
      *  false if none of this holds; null if the slot is on no module at all.
      */
-    isOnSlot(slot: (Slot | Slot[])): (boolean | null) {
-        if (!this._object.Slot) {
+    public isOnSlot(slot: Slot | Slot[]): boolean | null {
+        if (!this.object.Slot) {
             return null;
         }
 
         if (typeof slot === 'string') {
-            return this._object.Slot === slot.toLowerCase();
+            return this.object.Slot === slot.toLowerCase();
         } else if (slot instanceof RegExp) {
-            return Boolean(this._object.Slot.match(slot));
-        } else { // Array
-            for (let s of slot) {
+            return Boolean(this.object.Slot.match(slot));
+        } else {
+            // Array
+            for (const s of slot) {
                 if (this.isOnSlot(s)) {
                     return true;
                 }
@@ -497,21 +572,24 @@ export default class Module extends DiffEmitter {
      * ship already has been assigned.
      * @param slot Slot to assign.
      */
-    setSlot(slot: string) {
+    public setSlot(slot: string) {
         slot = slot.toLowerCase();
-        if (!this._ship) {
+        if (!this.ship) {
             throw new IllegalStateError(
-                `Can't assign slot to ${slot} for unknown ship`
+                `Can't assign slot to ${slot} for unknown ship`,
             );
         }
 
-        if (this._object.Slot) {
+        if (this.object.Slot) {
             throw new IllegalStateError(`Can't reassign slot to ${slot}`);
         }
 
-        if (this._object.Item && itemFitsSlot(this._object.Item, this._ship._object.Ship, slot)) {
+        if (
+            this.object.Item &&
+            itemFitsSlot(this.object.Item, this.ship.object.Ship, slot)
+        ) {
             throw new IllegalStateError(
-                `Can't assign slot current item ${this._object.Item} does not fit on ${slot}`
+                `Can't assign slot current item ${this.object.Item} does not fit on ${slot}`,
             );
         }
 
@@ -522,8 +600,8 @@ export default class Module extends DiffEmitter {
      * Is the module currently enabled?
      * @returns True when enabled
      */
-    isEnabled(): boolean {
-        return this._object.On;
+    public isEnabled(): boolean {
+        return this.object.On;
     }
 
     /**
@@ -531,7 +609,7 @@ export default class Module extends DiffEmitter {
      * method hasn't any effect.
      * @param on True to turn the module on
      */
-    setEnabled(on: boolean) {
+    public setEnabled(on: boolean) {
         // if an module does not consume power, it is always on
         if (this.get('PowerDraw')) {
             this._writeObject('On', on);
@@ -543,28 +621,28 @@ export default class Module extends DiffEmitter {
      * bad states.
      * @param ship
      */
-    setShip(ship: Ship) {
-        if (this._ship !== null) {
+    public setShip(ship: Ship) {
+        if (this.ship !== null) {
             throw new IllegalStateError('Cannot reassign ship in Module');
         }
 
-        this._ship = ship;
+        this.ship = ship;
     }
 
     /**
      * Checks whether this module is empty, i.e. does not have an item assigned.
      * @returns True when empty, false otherwise.
      */
-    isEmpty(): boolean {
-        return this._object.Item === '';
+    public isEmpty(): boolean {
+        return this.object.Item === '';
     }
 
     /**
      * Checks whether this module is assigned to a slot.
      * @returns True when assigned, false otherwise.
      */
-    isAssigned(): boolean {
-        return this._ship && this._object.Slot !== '';
+    public isAssigned(): boolean {
+        return this.ship && this.object.Slot !== '';
     }
 
     /**
@@ -572,22 +650,22 @@ export default class Module extends DiffEmitter {
      * always zero. Class of hardpoints is in range 1 to 4 for small to huge.
      * @returns Item class or `null` if no item has been assigned
      */
-    getClass(): (number | null) {
-        if (!this._object.Item) {
+    public getClass(): number | null {
+        if (!this.object.Item) {
             return null;
         }
-        return getClass(this._object.Item);
+        return getClass(this.object.Item);
     }
 
     /**
      * Returns the rating of this module.
      * @returns Rating or `null` if no item has been assigned
      */
-    getRating(): (string | null) {
-        if (!this._object.Item) {
+    public getRating(): string | null {
+        if (!this.object.Item) {
             return null;
         }
-        return getRating(this._object.Item);
+        return getRating(this.object.Item);
     }
 
     /**
@@ -596,15 +674,30 @@ export default class Module extends DiffEmitter {
      * small to huge.
      * @returns Size or `null` if no slot has been assigned
      */
-    getSize(): (number | null) {
-        if (!this._ship || !this._object.Slot) {
+    public getSize(): number | null {
+        if (!this.ship || !this.object.Slot) {
             return null;
         }
-        return getSlotSize(this._ship._object.Ship, this._object.Slot);
+        return getSlotSize(this.ship.object.Ship, this.object.Slot);
     }
 
     /**
-     * Write a value to [[_object]] and emit the changes as `'diff'` event.
+     * Reverts the module `by` number of steps into history.
+     * @param [by=1] Number of steps to revert
+     */
+    public revert() {
+        super.revert(DIFF_EVENT, 1);
+    }
+
+    /**
+     * Clear the change history of this module.
+     */
+    public clearHistory() {
+        super.clear(DIFF_EVENT);
+    }
+
+    /**
+     * Write a value to [[object]] and emit the changes as `'diff'` event.
      * @param path Path for the object to write to
      * @param value Value to write
      */
@@ -614,35 +707,20 @@ export default class Module extends DiffEmitter {
     }
 
     /**
-     * Write a value to [[_object]] and prepare the changes to be emitted
+     * Write a value to [[object]] and prepare the changes to be emitted
      * as `'diff'` event.
      * @param path Path for the object to write to
      * @param value Value to write
      */
     private _prepareObjectChange(path: string, value: any) {
         this._prepare(DIFF_EVENT, path);
-        set(this._object, path, value);
+        set(this.object, path, value);
     }
 
     /**
-     * Emit all saved changes to [[_object]] as `'diff'` event.
+     * Emit all saved changes to [[object]] as `'diff'` event.
      */
     private _commitObjectChanges() {
         this._commit(DIFF_EVENT);
-    }
-
-    /**
-     * Reverts the module `by` number of steps into history.
-     * @param [by=1] Number of steps to revert
-     */
-    revert() {
-        super.revert(DIFF_EVENT, 1);
-    }
-
-    /**
-     * Clear the change history of this module.
-     */
-    clearHistory() {
-        super.clear(DIFF_EVENT);
     }
 }

@@ -6,11 +6,11 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import { Ship } from "..";
-import ShipPropsCacheLine from "../helper/ShipPropsCacheLine";
-import { moduleReduceEnabled, add, complMult } from '../helper';
+import { Ship } from '..';
+import { add, complMult, moduleReduceEnabled } from '../helper';
+import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
 
-export interface ModuleProtectionMetrics {
+export interface IModuleProtectionMetrics {
     moduleArmour: number;
     moduleProtection: number;
 }
@@ -21,19 +21,36 @@ export interface ModuleProtectionMetrics {
  * @param modified True when modifications should be taken into account
  * @returns Module protection metrics
  */
-function getModuleProtectionMetrics(ship: Ship, modified: boolean): ModuleProtectionMetrics {
-    let mrps = ship.getMRPs();
+function getModuleProtectionMetrics(
+    ship: Ship,
+    modified: boolean,
+): IModuleProtectionMetrics {
+    const mrps = ship.getMRPs();
     // By checking.enabled we filter out guardian MRPs being turned off
-    let moduleArmour = moduleReduceEnabled(mrps, 'integrity', modified, add, 0);
-    let moduleProtection = moduleReduceEnabled(mrps, 'protection', modified, complMult, 1);
+    const moduleArmour = moduleReduceEnabled(
+        mrps,
+        'integrity',
+        modified,
+        add,
+        0,
+    );
+    const moduleProtection = moduleReduceEnabled(
+        mrps,
+        'protection',
+        modified,
+        complMult,
+        1,
+    );
 
     return { moduleArmour, moduleProtection };
 }
 
 export default class ModuleProtectionProfile {
-    private _protectionMetrics: ShipPropsCacheLine<ModuleProtectionMetrics> = new ShipPropsCacheLine({
-        type: [ /ModuleReinforcement/i, ],
-        props: [ 'integrity', 'protection', ],
+    private protectionMetrics: ShipPropsCacheLine<
+        IModuleProtectionMetrics
+    > = new ShipPropsCacheLine({
+        props: ['integrity', 'protection'],
+        type: [/ModuleReinforcement/i],
     });
 
     constructor() {
@@ -46,12 +63,11 @@ export default class ModuleProtectionProfile {
      * @param modified True when modifications should be taken into account
      * @returns Module protection metrics
      */
-    getMetrics(ship: Ship, modified: boolean): ModuleProtectionMetrics {
-        return this._protectionMetrics.get(
+    public getMetrics(ship: Ship, modified: boolean): IModuleProtectionMetrics {
+        return this.protectionMetrics.get(ship, getModuleProtectionMetrics, [
             ship,
-            getModuleProtectionMetrics,
-            [ ship, modified ]
-        );
+            modified,
+        ]);
     }
 
     /**
@@ -61,7 +77,7 @@ export default class ModuleProtectionProfile {
      * @param modified True when modifications should be taken into account
      * @returns Module protection value
      */
-    getModuleProtection(ship: Ship, modified: boolean): number {
+    public getModuleProtection(ship: Ship, modified: boolean): number {
         return this.getMetrics(ship, modified).moduleProtection;
     }
 
@@ -72,7 +88,7 @@ export default class ModuleProtectionProfile {
      * @param modified True when modifications should be taken into account
      * @return Module armour value
      */
-    getModuleArmour(ship: Ship, modified: boolean): number {
+    public getModuleArmour(ship: Ship, modified: boolean): number {
         return this.getMetrics(ship, modified).moduleArmour;
     }
 }

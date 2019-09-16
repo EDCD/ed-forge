@@ -1,19 +1,23 @@
 /**
-* @module Validation
-*/
+ * @module Validation
+ */
 
 /**
-* Ignore
-*/
-import Ajv from "ajv";
+ * Ignore
+ */
+import Ajv from 'ajv';
 import { ImportExportError } from '../errors';
-import * as SHIP_SCHEMA from './ShipObject.schema.json';
 import * as MODULE_SCHEMA from './ModuleObject.schema.json';
+import * as SHIP_SCHEMA from './ShipObject.schema.json';
 
-const VALIDATOR = new Ajv({ schemas: [MODULE_SCHEMA, SHIP_SCHEMA]});
+const VALIDATOR = new Ajv({ schemas: [MODULE_SCHEMA, SHIP_SCHEMA] });
 
 function latestError(): string {
-    return JSON.stringify(VALIDATOR.errors[VALIDATOR.errors.length - 1], undefined, 2);
+    return JSON.stringify(
+        VALIDATOR.errors[VALIDATOR.errors.length - 1],
+        undefined,
+        2,
+    );
 }
 
 /**
@@ -22,13 +26,15 @@ function latestError(): string {
  * @param json Object to verify
  */
 export function validateShipJson(json: object) {
-    let isValid = VALIDATOR.validate(
+    const isValid = VALIDATOR.validate(
         'https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ShipObject.schema.json',
-        json
+        json,
     );
 
     if (!isValid) {
-        throw new ImportExportError(`Ship build is not valid because ${latestError()}`);
+        throw new ImportExportError(
+            `Ship build is not valid because ${latestError()}`,
+        );
     }
 }
 
@@ -38,13 +44,15 @@ export function validateShipJson(json: object) {
  * @param json Object to verify
  */
 export function validateModuleJson(json: object) {
-    let isValid = VALIDATOR.validate(
-        'https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json',
-        json
+    const isValid = VALIDATOR.validate(
+        'https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/IModuleObject.schema.json',
+        json,
     );
 
     if (!isValid) {
-        throw new ImportExportError(`Module is not valid because ${latestError()}`);
+        throw new ImportExportError(
+            `Module is not valid because ${latestError()}`,
+        );
     }
 }
 

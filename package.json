@@ -44,6 +44,7 @@
     "jest": "^24.1.0",
     "np": "^3.1.0",
     "npm-watch": "^0.4.0",
+    "tslint": "^5.20.0",
     "typedoc": "^0.14.2",
     "typedoc-plugin-external-module-name": "^2.0.0",
     "typescript": "^3.2.2"

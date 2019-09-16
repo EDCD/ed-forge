@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json",
-    "title": "ModuleObject",
+    "$id": "https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/IModuleObject.schema.json",
+    "title": "IModuleObject",
     "description": "A module installed in a ship in Elite: Dangerous. Specification follows Journal API",
     "type": "object",
     "properties": {

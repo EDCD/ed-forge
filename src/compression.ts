@@ -13,8 +13,8 @@ import pako from 'pako';
  * @returns Compressed string
  */
 export function compress(json: object): string {
-    const string = JSON.stringify(json);
-    const deflated = pako.gzip(string)
+    const str = JSON.stringify(json);
+    const deflated = pako.gzip(str);
     return Buffer.from(deflated).toString('base64');
 }
 

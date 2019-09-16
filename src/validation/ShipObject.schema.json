@@ -21,7 +21,7 @@
             "description": "All modules installed on this ship.",
             "type": "array",
             "items": {
-                "$ref": "https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/ModuleObject.schema.json"
+                "$ref": "https://raw.githubusercontent.com/felixlinker/ed-forge/master/src/validation/IModuleObject.schema.json"
             },
             "uniqueItems": false
         }

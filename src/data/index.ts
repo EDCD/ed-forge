@@ -1,19 +1,19 @@
 /**
-* @module Data
-*/
+ * @module Data
+ */
 
 /**
-* Ignore
-*/
+ * Ignore
+ */
+import { get } from 'lodash';
+
+import { UnknownRestrictedError } from '../errors';
+import Module, { IBlueprintObjectHandler } from '../Module';
 import Ship from '../Ship';
-import Module, { BlueprintObjectHandler } from '../Module';
 import { getModuleInfo } from './items';
 import { getShipInfo } from './ships';
-import { UnknownRestrictedError } from '../errors';
-import { get, fill } from 'lodash';
 
 import * as MODULE_CACHE from './module_cache.json';
-
 
 /**
  * Fetches a module ID from the cache. If the module does not have `clazz` or
@@ -25,9 +25,13 @@ import * as MODULE_CACHE from './module_cache.json';
  * @param rating Rating of the module to fetch.
  * @returns Item ID
  */
-function readModuleCache(type: string, clazz: string = '', rating: string = ''): string {
-    let path = [];
-    let rest = [type, clazz, rating];
+function readModuleCache(
+    type: string,
+    clazz: string = '',
+    rating: string = '',
+): string {
+    const path = [];
+    const rest = [type, clazz, rating];
     let item = {};
     while (item && rest.length) {
         path.push(rest.shift());
@@ -58,11 +62,15 @@ class Factory {
      * @param rating Rating of the module
      * @returns Item ID
      */
-    static getModuleId(group: string, clazz: string = '', rating: string = ''): string {
+    public static getModuleId(
+        group: string,
+        clazz: string = '',
+        rating: string = '',
+    ): string {
         group = group.toLowerCase();
         clazz = clazz.toLowerCase();
         rating = rating.toLowerCase();
-        let item = readModuleCache(group, clazz, rating);
+        const item = readModuleCache(group, clazz, rating);
         if (!item) {
             throw new UnknownRestrictedError(`Don't know module type ${group}`);
         }
@@ -77,11 +85,15 @@ class Factory {
      * @param rating Rating of the module
      * @return Module
      */
-    static newModule(type: string, clazz: string = '', rating: string = ''): Module {
+    public static newModule(
+        type: string,
+        clazz: string = '',
+        rating: string = '',
+    ): Module {
         type = type.toLowerCase();
         clazz = clazz.toLowerCase();
         rating = rating.toLowerCase();
-        let item = readModuleCache(type, clazz, rating);
+        const item = readModuleCache(type, clazz, rating);
         if (item) {
             return this.newModule(item);
         }
@@ -95,7 +107,7 @@ class Factory {
      * @param type Ship type
      * @returns Ship object
      */
-    static newShip(type: string): Ship {
+    public static newShip(type: string): Ship {
         type = type.toLowerCase();
         // We don't clone the prototype because this is done in Ship
         return new Ship(getShipInfo(type).proto);
@@ -107,13 +119,17 @@ class Factory {
      * @param grade Grade of the blueprints
      * @param progress Progress of the blueprint
      */
-    static newBlueprint(name: string, grade: number, experimental?: string): BlueprintObjectHandler {
+    public static newBlueprint(
+        name: string,
+        grade: number,
+        experimental?: string,
+    ): IBlueprintObjectHandler {
         name = name.toLowerCase();
-        let blueprint: BlueprintObjectHandler = {
-            'BlueprintName': name,
-            'Level': grade,
-            'Quality': undefined,
-            'Modifiers': {}
+        const blueprint: IBlueprintObjectHandler = {
+            BlueprintName: name,
+            Level: grade,
+            Modifiers: {},
+            Quality: undefined,
         };
         if (experimental) {
             blueprint.ExperimentalEffect = experimental.toLowerCase();
