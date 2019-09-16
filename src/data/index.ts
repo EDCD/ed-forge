@@ -14,6 +14,7 @@ import { getModuleInfo } from './items';
 import { getShipInfo } from './ships';
 
 import * as MODULE_CACHE from './module_cache.json';
+import * as SHIPS from './ships.json';
 
 /**
  * Fetches a module ID from the cache. If the module does not have `clazz` or
@@ -135,6 +136,16 @@ class Factory {
             blueprint.ExperimentalEffect = experimental.toLowerCase();
         }
         return blueprint;
+    }
+
+    /**
+     * Get an array of all available ship types.
+     */
+    public static getAllShipTypes(): string[] {
+        // Cast SHIPS to any because only this allows us to access the default
+        // key. If we were to call Object.keys with just SHIPS the key
+        // "default" would be included.
+        return Object.keys((SHIPS as any).default);
     }
 }
 
