@@ -256,8 +256,8 @@ export function complMult(x: number, y: number): number {
  * @returns Mapped object or array
  */
 export function mapValuesDeep(obj: object, f: (value: any) => any): object {
-    if (obj instanceof Object) {
-        if (obj instanceof Array) {
+    if (typeof obj === 'object') {
+        if (Array.isArray(obj)) {
             return map(obj, (x) => mapValuesDeep(x, f));
         } else {
             return mapValues(obj, (x) => mapValuesDeep(x, f)) as object;
