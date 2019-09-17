@@ -4,7 +4,7 @@
 /.vscode
 /src/data/modules.json
 /src/data/ships.json
-/src/data/module_cache.json
+/src/data/module_registry.json
 /src/data/blueprints.json
 /src/data/experimentals.json
 /docs

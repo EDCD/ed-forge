@@ -39,7 +39,7 @@ declare module 'src/data/experimentals.json' {
     export default value;
 }
 
-declare module 'src/data/module_cache.json' {
+declare module 'src/data/module_registry.json' {
     const value: {
         [grade: string]: {
             [rating: string]: string;
@@ -60,8 +60,8 @@ export interface MetaModuleInformation {
     class: number;
     /** Rating of the item */
     rating: string;
-    applicable: string[];
-    applicable_special: string[];
+    /** Group of the item */
+    type: string;
 }
 
 /**

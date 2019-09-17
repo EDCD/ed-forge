@@ -97,7 +97,7 @@ function writeDataJSON(filename, json) {
 }
 
 // --------------------------------------------------------------
-//  Create src/data/modules.json and src/data/module_cache.json
+//  Create src/data/modules.json and src/data/module_registry.json
 // --------------------------------------------------------------
 
 /**
@@ -127,7 +127,8 @@ function invertCatToEntries(entry) {
 function invertTypeToEntries(entry) {
     let [ type, blueprints ] = entry;
     type = type.toLowerCase();
-    let modulesOfThisType = _.chain(MODULE_CACHE[type]).values()
+    // Access 'items' with _.get because MODULE_REGISTRY[type] might be undefined
+    let modulesOfThisType = _.chain(_.get(MODULE_REGISTRY[type], 'items')).values()
         .flatMap(_.values)
         .value();
     return _.zip(blueprints, _.fill(_.range(blueprints.length), modulesOfThisType));
@@ -148,7 +149,16 @@ const TYPES_TO_SPECIALS = _.chain(Modifications.modules)
     .value();
 
 // Initialize the empty cache to hold an empty object for each item type
-const MODULE_CACHE = {};
+const MODULE_REGISTRY = _.chain(MODULES_REGEX)
+    .mapKeys((v, k) => k.toLowerCase())
+    .mapValues((v, k) => {
+        return {
+            regex: (v.reg || v).source,
+            applicable: TYPES_TO_BLUEPRINTS[k],
+            applicable_specials: TYPES_TO_SPECIALS[k],
+        };
+    })
+    .value();
 const MODULES = {
     // Empty module
     '': {
@@ -183,7 +193,7 @@ function consumeModule(module) {
             let m = moduleKey.match(reg);
             if (m) {
                 let path = groups.map(index => m[index] || '');
-                path.unshift(type);
+                path.unshift(type, 'items');
                 return path;
             }
             return null;
@@ -193,7 +203,7 @@ function consumeModule(module) {
         .value();
 
     // Use Object function as custom setter to ensure no array are created
-    _.setWith(MODULE_CACHE, path, moduleKey, Object);
+    _.setWith(MODULE_REGISTRY, path, moduleKey, Object);
     let [ type ] = path;
 
     // For some reasong, the range property of internals is stored in kilometers
@@ -214,8 +224,7 @@ function consumeModule(module) {
         props: _.mapKeys(_.pickBy(module, modulePropsPicker), mapper),
         meta: _.defaults(_.pick(module, META_KEYS), {
             'class': 0,
-            'applicable': TYPES_TO_BLUEPRINTS[type] || [],
-            'applicable_specials': TYPES_TO_SPECIALS[type] || [],
+            type,
         }),
     };
 
@@ -280,7 +289,7 @@ _.chain([ Modules.internal, Modules.standard, Modules.hardpoints ])
     .commit();
 
 writeDataJSON('modules.json', MODULES);
-writeDataJSON('module_cache.json', MODULE_CACHE);
+writeDataJSON('module_registry.json', MODULE_REGISTRY);
 
 // ----------------------------
 //  Create src/data/ships.json

@@ -13,7 +13,7 @@ import Ship from '../Ship';
 import { getModuleInfo } from './items';
 import { getShipInfo } from './ships';
 
-import * as MODULE_CACHE from './module_cache.json';
+import * as MODULE_REGISTRY from './module_registry.json';
 import * as SHIPS from './ships.json';
 
 /**
@@ -32,15 +32,15 @@ function readModuleCache(
     rating: string = '',
 ): string {
     const path = [];
-    const rest = [type, clazz, rating];
+    const rest = [type, 'items', clazz, rating];
     let item = {};
     while (item && rest.length) {
         path.push(rest.shift());
-        item = get(MODULE_CACHE, path);
+        item = get(MODULE_REGISTRY, path);
         // If we failed to fetch this item for the given sub-key, let's try ''
         if (!item) {
             path[path.length - 1] = '';
-            item = get(MODULE_CACHE, path);
+            item = get(MODULE_REGISTRY, path);
         }
     }
     return item as string;
@@ -57,7 +57,7 @@ class Factory {
      * Some modules have no class and/or rating because there is only a single
      * one available for that group. If a module does not have a rating, the
      * arguments given for clazz or rating don't matter.
-     * Details can be looked up in the `module_cache.json` file.
+     * Details can be looked up in the `module_registry.json` file.
      * @param group Type of the module
      * @param clazz Class of the module
      * @param rating Rating of the module
