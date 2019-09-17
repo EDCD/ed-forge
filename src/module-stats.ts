@@ -299,7 +299,8 @@ function importROF(
 
 export function DPS(module: Module, modified: boolean): number {
     const damage = module.get('damage', modified);
-    const roundsPerShot = module.get('roundspershot', modified) || 1;
+    const roundsPerShot = (module.get('roundspershot', modified) || 1)
+        * (module.get('burstsize', modified) || 1);
     const rateOfFire = module.get('rateoffire', modified) || 1;
 
     return damage * roundsPerShot * rateOfFire;
