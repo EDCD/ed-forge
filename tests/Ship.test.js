@@ -10,8 +10,8 @@ function randomString(length = -1) {
     return str.substring(0, strLen);
 }
 
-function prec2(number) {
-    return Math.round(number * 100) / 100;
+function prec3(number) {
+    return Math.round(number * 1000) / 1000;
 }
 
 for (let { name, build } of TEST_SUITES) {
@@ -50,7 +50,7 @@ for (let { name, build } of TEST_SUITES) {
                     }
                     test(`${Label} on ${module.Slot} with ${module.Item} is modified correctly`, () => {
                         let importedModule = ship.getModule(module.Slot);
-                        expect(prec2(importedModule.get(Label))).toEqual(prec2(Value));
+                        expect(prec3(importedModule.get(Label))).toEqual(prec3(Value));
                     });
                 }
             }
@@ -148,7 +148,7 @@ for (let { name, build } of TEST_SUITES) {
                 let checkNotEngineering = (v, k) => k != 'Engineering';
                 let checkNotModifiers = (v, k) => k != 'Modifiers';
                 let modifiersRestricted = modifier => {
-                    let Value = prec2(modifier.Value);
+                    let Value = prec3(modifier.Value);
                     let Label = modifier.Label;
                     return { Label, Value };
                 }
