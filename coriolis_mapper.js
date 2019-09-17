@@ -183,9 +183,6 @@ function consumeModule(module) {
             let m = moduleKey.match(reg);
             if (m) {
                 let path = groups.map(index => m[index] || '');
-                if (type === 'ARMOUR') {
-                    path[0] = ARMOUR_TO_SHIP[path[0]] || path[0];
-                }
                 path.unshift(type);
                 return path;
             }

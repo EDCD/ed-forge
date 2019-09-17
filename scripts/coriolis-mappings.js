@@ -488,9 +488,3 @@ module.exports.BLUEPRINT_EXCEPTION_TARGETS = {
     'sensor_wideangle_scanner': '^hpt_(cargo|cloud|crime)scanner',
     'mc_overcharged': '^hpt_multicannon',
 };
-
-module.exports.ARMOUR_TO_SHIP = {};
-_.forEach(_.entries(module.exports.SHIP_CORIOLIS_TO_FD), entry => {
-    let [ship, armourPrefix] = entry;
-    module.exports.ARMOUR_TO_SHIP[armourPrefix.toLowerCase()] = ship;
-});
