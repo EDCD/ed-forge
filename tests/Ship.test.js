@@ -58,25 +58,25 @@ for (let { name, build } of TEST_SUITES) {
 
         test('when querying core modules, only core modules are returned', () => {
             for (let core of ship.getCoreModules()) {
-                expect(core._object.Slot).toMatch(REG_CORE_SLOT);
+                expect(core.object.Slot).toMatch(REG_CORE_SLOT);
             }
         });
 
         test('when querying internal modules, only internal modules are returned', () => {
             for (let core of ship.getCoreModules()) {
-                expect(matchesAny(core._object.Slot, REG_INTERNAL_SLOT, REG_CORE_SLOT)).toBeTruthy();
+                expect(matchesAny(core.object.Slot, REG_INTERNAL_SLOT, REG_CORE_SLOT)).toBeTruthy();
             }
         });
 
         test('when querying hardpoints, only hardpoints are returned', () => {
             for (let hardpoint of ship.getHardpoints()) {
-                expect(hardpoint._object.Slot).toMatch(REG_HARDPOINT_SLOT);
+                expect(hardpoint.object.Slot).toMatch(REG_HARDPOINT_SLOT);
             }
         });
 
         test('when querying utilities, only utilities are returned', () => {
             for (let hardpoint of ship.getUtilities()) {
-                expect(hardpoint._object.Slot).toMatch(REG_UTILITY_SLOT);
+                expect(hardpoint.object.Slot).toMatch(REG_UTILITY_SLOT);
             }
         });
 
