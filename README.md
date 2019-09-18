@@ -27,6 +27,34 @@ alloys.setItem('Anaconda_Armour_Grade3');
 alloys.setBlueprint('Armour_HeavyDuty', 5, 1, 'special_armour_chunky');
 ```
 
+## API notice - strings
+
+Elite: Dangerous has a lot of string keys.
+Be it ship names (e.g. `'anaconda'`), event keys (e.g. `loadout_event.Modules[0].Slot`) or property names (e.g. `'mass'`).
+It is important to note how ed-forge handles such strings.
+In general it is true that:
+
+> 1. String arguments to public API functions are always handled case-insensitive
+> 2. String values are always handled in lower-case
+> 3. String object keys are always handled case-sensitive
+
+If you import non-public parts of the API and pass string-arguments to it, they better be in lower-case.
+ed-forge will not handle this and you might get unexpected results if arguments are not provided in lowercase.
+
+Public API is considered anything that can be accessed from importing ed-forge itself.
+For exmaple, in context of the initial code example, all the following statements have the same effect:
+```js
+alloys.setItem('Anaconda_Armour_Grade3');
+alloys.setItem('anaconda_armour_grade3');
+alloys.setItem('ANACONDA_ARMOUR_GRADE3');
+alloys.setItem('AnAcoNDa_ARMOUR_grade3');  // (but please don't do this)
+```
+
+To always handle string values in lowercase means that all values of a journal-style loadout event will be in lowercase if you for example perform `anaconda.toJSON()`.
+
+The actual keys of such an loadout event will always be handled case-sensitive, though.
+This includes keys such as `Modules` or `Slot` of the actual loadout event, e.g. this will always work for any build: `anaconda.toJSON().Modules[0].Slot`.
+
 ## Setting up a development environment with VS code
 
 Visual studio code allows debugging of javascript code that gets transpiled.
