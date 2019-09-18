@@ -145,3 +145,19 @@ export function getModuleProperty(item: string, property: string): number {
 
     return getModuleInfo(item).props[property];
 }
+
+/**
+ * Get a meta property value of an item.
+ * @param item Item ID
+ * @param property Meta property key
+ * @returns Meta property value
+ */
+export function getModuleMetaProperty(item: string, property: string): any {
+    if (!item) {
+        throw new IllegalStateError(
+            "Can't get module meta property for no item",
+        );
+    }
+
+    return getModuleInfo(item).meta[property];
+}

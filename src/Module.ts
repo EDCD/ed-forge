@@ -17,7 +17,7 @@ import {
 } from './data/blueprints';
 import {
     getClass,
-    getModuleInfo,
+    getModuleMetaProperty,
     getModuleProperty,
     getRating,
     itemFitsSlot,
@@ -208,7 +208,7 @@ export default class Module extends DiffEmitter {
      * @returns Property value
      */
     public readMeta(property: string): any {
-        return getModuleInfo(this.object.Item).meta[property] || '';
+        return getModuleMetaProperty(this.object.Item, property);
     }
 
     /**
