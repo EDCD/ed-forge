@@ -5,18 +5,16 @@
 /**
  * Ignore
  */
+import { values } from 'lodash';
+
 import { IllegalStateError, UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
-import { ModuleInformation } from '../types';
-import {
-    getSlotSize,
-    REG_HARDPOINT_SLOT,
-    REG_INTERNAL_SLOT,
-    REG_MILITARY_SLOT,
-    REG_UTILITY_SLOT,
-} from './slots';
+import { ModuleInformation, ModuleRegistryEntry } from '../types';
+import { getSlotSize } from './slots';
 
+import * as MODULE_REGISTRY from './module_registry.json';
 import * as MODULES from './modules.json';
+import { getShipInfo } from './ships';
 
 /**
  * Checks whether a given item id is valid.
@@ -59,52 +57,6 @@ export function getRating(item: string): string {
 }
 
 /**
- * Get information about where an item can fit.
- * @param item Item ID
- * @returns Item fit info
- */
-function getFittingSlots(item: string): RegExp[] {
-    assertValidModule(item);
-    let slots;
-    if (item.match(/_Armour_/i)) {
-        slots = [/Armour/i];
-    } else if (item.match(/Int_PowerPlant/i)) {
-        slots = [/PowerPlant/i];
-    } else if (item.match(/Int_Engine/i)) {
-        slots = [/MainEngines/i];
-    } else if (item.match(/Int_HyperDrive/i)) {
-        slots = [/FrameShiftDrive/i];
-    } else if (item.match(/Int_LifeSupport/i)) {
-        slots = [/LifeSupport/i];
-    } else if (item.match(/Int_PowerDistributor/i)) {
-        slots = [/PowerDistributor/i];
-    } else if (item.match(/Int_Sensors/i)) {
-        slots = [/Radar/i];
-    } else if (item.match(/Int_FuelTank/i)) {
-        slots = [/FuelTank/i, REG_INTERNAL_SLOT];
-    } else if (item.match(/Hpt_/i)) {
-        if (item.match(/size0/i) || item.match(/tiny/i)) {
-            slots = [REG_UTILITY_SLOT];
-        } else {
-            slots = [REG_HARDPOINT_SLOT];
-        }
-    } else if (item.match(/Int_/i)) {
-        slots = [REG_INTERNAL_SLOT];
-        if (
-            item.match(/HullReinforcement/i) ||
-            item.match(/ModuleReinforcement/i) ||
-            item.match(/ShieldReinforcement/i) ||
-            item.match(/ShieldCellBank/i)
-        ) {
-            slots.push(REG_MILITARY_SLOT);
-        }
-    } else {
-        throw new UnknownRestrictedError(`Don't know module ${item}`);
-    }
-    return slots.map(r => RegExp(r, 'i'));
-}
-
-/**
  * Checks whether an item fits on a slot of a given ship.
  * @param item Item ID
  * @param ship Ship type
@@ -116,20 +68,29 @@ export function itemFitsSlot(
     ship: string,
     slot: string,
 ): boolean {
-    assertValidModule(item);
+    const moduleInfo = getModuleInfo(item);
+    const registryEntry: ModuleRegistryEntry =
+        MODULE_REGISTRY[moduleInfo.meta.type];
+    item = item.toLowerCase();
+    ship = ship.toLowerCase();
     slot = slot.toLowerCase();
 
-    const itemClass = getClass(item);
-    const slots = getFittingSlots(item);
-
+    const type = moduleInfo.meta.type;
+    const slots: RegExp[] = registryEntry.slots.map((r) => RegExp(r, 'i'));
     // Does the item fit on this type of slot?
     if (!matchesAny(slot, ...slots)) {
         return false;
     }
 
+    let specialCondition = true;
+    if (type === 'armour') {
+        specialCondition = values(registryEntry.items[ship]).includes(item);
+    } else if (type === 'passengercabins' && item.match(/class4/i)) {
+        specialCondition = getShipInfo(ship).meta.luxuryCabins;
+    }
+
     // Does the item fit on this slot?
-    const slotSize = getSlotSize(ship, slot);
-    return itemClass <= slotSize;
+    return getClass(item) <= getSlotSize(ship, slot) && specialCondition;
 }
 
 /**

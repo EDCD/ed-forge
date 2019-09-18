@@ -148,12 +148,52 @@ const TYPES_TO_SPECIALS = _.chain(Modifications.modules)
     .fromPairs()
     .value();
 
+function moduleRegexToSlots(regex) {
+    let slots;
+    if (regex.match(/_Armour_/i)) {
+        slots = ['armour'];
+    } else if (regex.match(/Int_PowerPlant/i)) {
+        slots = ['powerplant'];
+    } else if (regex.match(/Int_Engine/i)) {
+        slots = ['mainengines'];
+    } else if (regex.match(/Int_HyperDrive/i)) {
+        slots = ['frameshiftdrive'];
+    } else if (regex.match(/Int_LifeSupport/i)) {
+        slots = ['lifesupport'];
+    } else if (regex.match(/Int_PowerDistributor/i)) {
+        slots = ['powerdistributor'];
+    } else if (regex.match(/Int_Sensors/i)) {
+        slots = ['radar'];
+    } else if (regex.match(/Int_FuelTank/i)) {
+        slots = ['fueltank', 'slot(\\d{2})_size(\\d)'];
+    } else if (regex.match(/Hpt_/i)) {
+        if (regex.match(/size0/i) || regex.match(/tiny/i)) {
+            slots = ['tinyhardpoint(\\d)'];
+        } else {
+            slots = ['(small|medium|large|huge)hardpoint'];
+        }
+    } else if (regex.match(/Int_/i)) {
+        slots = ['slot(\\d{2})_size(\\d)'];
+        if (
+            regex.match(/HullReinforcement/i) ||
+            regex.match(/ModuleReinforcement/i) ||
+            regex.match(/ShieldReinforcement/i) ||
+            regex.match(/ShieldCellBank/i)
+        ) {
+            slots.push('military(\\d{2})');
+        }
+    }
+    return slots;
+}
+
 // Initialize the empty cache to hold an empty object for each item type
 const MODULE_REGISTRY = _.chain(MODULES_REGEX)
     .mapKeys((v, k) => k.toLowerCase())
     .mapValues((v, k) => {
+        let regex = (v.r || v).source;
         return {
-            regex: (v.reg || v).source,
+            regex,
+            slots: moduleRegexToSlots(regex),
             applicable: TYPES_TO_BLUEPRINTS[k],
             applicable_specials: TYPES_TO_SPECIALS[k],
         };

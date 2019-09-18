@@ -41,6 +41,7 @@ declare module 'src/data/experimentals.json' {
 
 type ModuleRegistryEntry = {
     regex: string;
+    slots: string[];
     applicable: string[];
     applicable_specials: string[];
     items: {
