@@ -10,6 +10,7 @@ import {
     chain,
     clone,
     cloneDeep,
+    CollectionChain,
     map,
     mapValues,
     pick,
@@ -272,12 +273,12 @@ export default class Ship extends DiffEmitter {
             return undefined;
         }
 
-        let c;
+        let c: CollectionChain<Module>;
         if (typeof slot === 'string') {
             slot = slot.toLowerCase();
             c = chain([this.object.Modules[slot]]);
         } else {
-            c = chain(this.object.Modules).values();
+            c = chain(values(this.object.Modules));
             if (slot) {
                 c = c.filter((m) => m.isOnSlot(slot));
             }
