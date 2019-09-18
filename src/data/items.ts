@@ -17,14 +17,16 @@ import * as MODULES from './modules.json';
 import { getShipInfo } from './ships';
 
 /**
- * Checks whether a given item id is valid.
+ * Checks whether a given item id is valid and returns the sanitized item ID.
  * @param id Item id
+ * @returns Lowercase item ID
  */
-export function assertValidModule(id: string) {
+export function assertValidModule(id: string): string {
     id = id.toLowerCase();
     if (!MODULES[id]) {
         throw new UnknownRestrictedError(`Don't know module ${id}`);
     }
+    return id;
 }
 
 /**
@@ -33,8 +35,6 @@ export function assertValidModule(id: string) {
  * @returns Information object
  */
 export function getModuleInfo(item: string): ModuleInformation {
-    item = item.toLowerCase();
-    assertValidModule(item);
     return MODULES[item];
 }
 

@@ -10,8 +10,8 @@ import { get } from 'lodash';
 import { UnknownRestrictedError } from '../errors';
 import Module, { IBlueprintObjectHandler } from '../Module';
 import Ship from '../Ship';
-import { getModuleInfo } from './items';
-import { getShipInfo } from './ships';
+import { assertValidModule, getModuleInfo } from './items';
+import { assertValidShip, getShipInfo } from './ships';
 
 import * as MODULE_REGISTRY from './module_registry.json';
 import * as SHIPS from './ships.json';
@@ -96,10 +96,11 @@ class Factory {
         rating = rating.toLowerCase();
         const item = readModuleCache(type, clazz, rating);
         if (item) {
-            return this.newModule(item);
+            type = item;
         }
 
         // We don't clone the prototype because this is done in Module
+        type = assertValidModule(item);
         return new Module(getModuleInfo(type).proto);
     }
 
@@ -109,7 +110,7 @@ class Factory {
      * @returns Ship object
      */
     public static newShip(type: string): Ship {
-        type = type.toLowerCase();
+        type = assertValidShip(type);
         // We don't clone the prototype because this is done in Ship
         return new Ship(getShipInfo(type).proto);
     }

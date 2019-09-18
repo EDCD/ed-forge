@@ -16,13 +16,14 @@ import {
     IPropertyMap,
 } from './data/blueprints';
 import {
+    assertValidModule,
     getClass,
     getModuleMetaProperty,
     getModuleProperty,
     getRating,
     itemFitsSlot,
 } from './data/items';
-import { getSlotSize, REG_CORE_SLOT } from './data/slots';
+import { assertValidSlot, getSlotSize, REG_CORE_SLOT } from './data/slots';
 import {
     IllegalStateError,
     NotImplementedError,
@@ -286,6 +287,7 @@ export default class Module extends DiffEmitter {
         property: string,
         modified: boolean = true,
     ): number | null | undefined {
+        property = property.toLowerCase();
         let value = this.get(property, modified);
         if (MODULE_STATS[property].percentage) {
             value /= 100;
@@ -294,6 +296,7 @@ export default class Module extends DiffEmitter {
     }
 
     public getModifier(property: string): number | null {
+        property = property.toLowerCase();
         if (
             this.object.Engineering &&
             this.object.Engineering.Modifiers[property]
@@ -514,7 +517,6 @@ export default class Module extends DiffEmitter {
      * @param rating
      */
     public setItem(item: string, clazz: string = '', rating: string = '') {
-        item = item.toLowerCase();
         try {
             item = Factory.getModuleId(item, clazz, rating);
             // Don't handle errors as item might not have been a type to begin
@@ -522,6 +524,7 @@ export default class Module extends DiffEmitter {
             // fits on this slot
         } catch (e) {}
 
+        item = assertValidModule(item);
         const fits = !itemFitsSlot(
             item,
             this.ship.object.Ship,
@@ -573,7 +576,6 @@ export default class Module extends DiffEmitter {
      * @param slot Slot to assign.
      */
     public setSlot(slot: string) {
-        slot = slot.toLowerCase();
         if (!this.ship) {
             throw new IllegalStateError(
                 `Can't assign slot to ${slot} for unknown ship`,
@@ -584,6 +586,7 @@ export default class Module extends DiffEmitter {
             throw new IllegalStateError(`Can't reassign slot to ${slot}`);
         }
 
+        slot = assertValidSlot(slot);
         if (
             this.object.Item &&
             itemFitsSlot(this.object.Item, this.ship.object.Ship, slot)

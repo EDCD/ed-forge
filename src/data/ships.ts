@@ -11,14 +11,16 @@ import { ShipInfo } from '../types';
 import * as SHIPS from './ships.json';
 
 /**
- * Checks whether a given ship id is valid.
+ * Checks whether a given ship id is valid and returns the sanitized ship ID.
  * @param ship Ship ID
+ * @returns Lowercase ship ID
  */
-export function assertValidShip(ship: string) {
+export function assertValidShip(ship: string): string {
     ship = ship.toLowerCase();
     if (!SHIPS[ship]) {
         throw new UnknownRestrictedError(`Don't know ship ${ship}`);
     }
+    return ship;
 }
 
 /**
@@ -27,8 +29,6 @@ export function assertValidShip(ship: string) {
  * @returns Ship info object
  */
 export function getShipInfo(ship: string): ShipInfo {
-    ship = ship.toLowerCase();
-    assertValidShip(ship);
     return SHIPS[ship];
 }
 

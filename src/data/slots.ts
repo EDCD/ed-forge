@@ -7,7 +7,7 @@
  */
 import { UnknownRestrictedError } from '../errors';
 import { matchesAny } from '../helper';
-import { assertValidShip, getShipInfo } from './ships';
+import { getShipInfo } from './ships';
 
 export const REG_CORE_SLOT = /(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)/i;
 export const REG_INTERNAL_SLOT = /Slot(\d{2})_Size(\d)/i;
@@ -16,10 +16,12 @@ export const REG_HARDPOINT_SLOT = /(Small|Medium|Large|Huge)Hardpoint/i;
 export const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
 
 /**
- * Checks whether a slot is valid.
+ * Checks whether a slot is valid and returns the sanitized slot ID.
  * @param slot Slot ID
+ * @returns Lowercase slot ID
  */
-export function assertValidSlot(slot: string) {
+export function assertValidSlot(slot: string): string {
+    slot = slot.toLowerCase();
     if (
         !matchesAny(
             slot,
@@ -32,6 +34,7 @@ export function assertValidSlot(slot: string) {
     ) {
         throw new UnknownRestrictedError(`Don't know slot ${slot}`);
     }
+    return slot;
 }
 
 /**
@@ -41,7 +44,6 @@ export function assertValidSlot(slot: string) {
  * @returns Core slot size
  */
 export function getCoreSlotSize(ship: string, slot: string): number {
-    assertValidSlot(slot);
     return getShipInfo(ship).meta.coreSizes[slot];
 }
 
@@ -52,7 +54,6 @@ export function getCoreSlotSize(ship: string, slot: string): number {
  * @returns Military slot size
  */
 export function getMilitarySlotSize(ship: string, slot: string): number {
-    assertValidSlot(slot);
     return getShipInfo(ship).meta.militarySizes[slot];
 }
 
@@ -62,7 +63,6 @@ export function getMilitarySlotSize(ship: string, slot: string): number {
  * @returns Internal slot size
  */
 export function getInternalSlotSize(slot: string): number {
-    assertValidSlot(slot);
     const m = slot.match(REG_INTERNAL_SLOT);
     if (m) {
         return Number(m[2]);
@@ -76,7 +76,6 @@ export function getInternalSlotSize(slot: string): number {
  * @returns Hardpoint slot size
  */
 export function getHardpointSlotSize(slot: string): number {
-    assertValidSlot(slot);
     if (slot.match(/Tiny/i)) {
         return 0;
     } else if (slot.match(/Small/i)) {
@@ -97,8 +96,6 @@ export function getHardpointSlotSize(slot: string): number {
  * @returns Slot size
  */
 export function getSlotSize(ship: string, slot: string): number {
-    assertValidShip(ship);
-    assertValidSlot(slot);
     let slotSize = getCoreSlotSize(ship, slot);
     if (slotSize !== undefined) {
         return slotSize;

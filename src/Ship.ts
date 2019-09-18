@@ -19,6 +19,7 @@ import {
 
 import { compress, decompress } from './compression';
 import {
+    assertValidShip,
     getShipInfo,
     getShipMetaProperty,
     getShipProperty,
@@ -173,7 +174,8 @@ export default class Ship extends DiffEmitter {
         });
 
         // Check missing modules - journal builds don't include those
-        values(getShipInfo(buildFrom.Ship).proto.Modules).forEach((m) => {
+        const shipType = assertValidShip(buildFrom.Ship);
+        values(getShipInfo(shipType).proto.Modules).forEach((m) => {
             const slot = m.Slot.toLowerCase();
             if (!this.object.Modules[slot]) {
                 this.object.Modules[slot] = new Module(m, this);
@@ -233,7 +235,7 @@ export default class Ship extends DiffEmitter {
      * @returns Property value
      */
     public readProp(property: string): any {
-        return getShipProperty(this.object.Ship, property);
+        return getShipProperty(this.object.Ship, property.toLowerCase());
     }
 
     /**
@@ -338,7 +340,7 @@ export default class Ship extends DiffEmitter {
             );
         }
         if (type) {
-            ms = ms.filter((m) => Boolean(m.object.Item.match(type)));
+            ms = ms.filter((m) => m.itemIsOfType(type));
         }
         if (sort) {
             ms = ms.sortBy((m) => m.object.Slot);
