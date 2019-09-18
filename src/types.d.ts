@@ -39,12 +39,19 @@ declare module 'src/data/experimentals.json' {
     export default value;
 }
 
-declare module 'src/data/module_registry.json' {
-    const value: {
+type ModuleRegistryEntry = {
+    regex: string;
+    applicable: string[];
+    applicable_specials: string[];
+    items: {
         [grade: string]: {
             [rating: string]: string;
         };
     };
+};
+
+declare module 'src/data/module_registry.json' {
+    const value: { [type: string]: ModuleRegistryEntry };
     export default value;
 }
 
