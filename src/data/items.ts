@@ -10,7 +10,6 @@ import { matchesAny } from '../helper';
 import { ModuleInformation } from '../types';
 import {
     getSlotSize,
-    isPassengerSlot,
     REG_HARDPOINT_SLOT,
     REG_INTERNAL_SLOT,
     REG_MILITARY_SLOT,
@@ -65,8 +64,6 @@ export function getRating(item: string): string {
 interface IItemFitInfo {
     /** Array of regexes that match slots where this item can be equipped */
     Slots: RegExp[];
-    /** True if this module can be fit only to passenger slots */
-    passenger: boolean;
 }
 
 /**
@@ -78,7 +75,6 @@ function getItemInfo(item: string): IItemFitInfo {
     assertValidModule(item);
     const info = {
         Slots: [],
-        passenger: false,
     };
     if (item.match(/_Armour_/i)) {
         info.Slots = [/Armour/i];
@@ -111,15 +107,6 @@ function getItemInfo(item: string): IItemFitInfo {
             item.match(/ShieldCellBank/i)
         ) {
             info.Slots.push(REG_MILITARY_SLOT);
-        }
-
-        if (
-            item.match(/CargoRack/i) ||
-            item.match(/PassengerCabin/i) ||
-            item.match(/HullReinforcement/i) ||
-            item.match(/ModuleReinforcement/i)
-        ) {
-            info.passenger = true;
         }
     } else {
         throw new UnknownRestrictedError(`Don't know module ${item}`);

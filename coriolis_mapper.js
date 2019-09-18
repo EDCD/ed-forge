@@ -334,7 +334,6 @@ function consumeShip(entry) {
     // Save the size of the core slots as meta data
     j.meta.coreSizes = { armour: 0, };
     j.meta.militarySizes = {};
-    j.meta.passengerSlots = {};
 
     // Give lightweight armour to ship
     let armour = _.assign(
@@ -377,9 +376,6 @@ function consumeShip(entry) {
             slotNumber -= militaryCounter;  // And we don't count militaries
             let size = internal.class || internal;
             key = `Slot${leadingZero(slotNumber)}_Size${size}`;
-            if (typeof internal === 'object') { // => passenger slot
-                j.meta.passengerSlots[key] = true;
-            }
         }
         return key;
     };

@@ -57,17 +57,6 @@ export function getMilitarySlotSize(ship: string, slot: string): number {
 }
 
 /**
- * Returns whether a slot is a passenger slot on the given ship.
- * @param ship Ship ID
- * @param slot Slot ID
- * @returns True if slot is a passenger slot.
- */
-export function isPassengerSlot(ship: string, slot: string): boolean {
-    assertValidSlot(slot);
-    return getShipInfo(ship).meta.passengerSlots[slot];
-}
-
-/**
  * Returns the size of an internal slot.
  * @param slot Slot ID
  * @returns Internal slot size

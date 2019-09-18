@@ -99,8 +99,6 @@ export interface ShipMetaInfo {
     coreSizes: { [key: string]: number };
     /** Map from military slots to respective sizes */
     militarySizes: { [key: string]: number };
-    /** Map from slots to true if passenger slot */
-    passengerSlots: { [key: string]: boolean };
 }
 
 /**
