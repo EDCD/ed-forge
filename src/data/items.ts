@@ -59,59 +59,49 @@ export function getRating(item: string): string {
 }
 
 /**
- * Info about where an item can fit.
- */
-interface IItemFitInfo {
-    /** Array of regexes that match slots where this item can be equipped */
-    Slots: RegExp[];
-}
-
-/**
  * Get information about where an item can fit.
  * @param item Item ID
  * @returns Item fit info
  */
-function getItemInfo(item: string): IItemFitInfo {
+function getFittingSlots(item: string): RegExp[] {
     assertValidModule(item);
-    const info = {
-        Slots: [],
-    };
+    let slots;
     if (item.match(/_Armour_/i)) {
-        info.Slots = [/Armour/i];
+        slots = [/Armour/i];
     } else if (item.match(/Int_PowerPlant/i)) {
-        info.Slots = [/PowerPlant/i];
+        slots = [/PowerPlant/i];
     } else if (item.match(/Int_Engine/i)) {
-        info.Slots = [/MainEngines/i];
+        slots = [/MainEngines/i];
     } else if (item.match(/Int_HyperDrive/i)) {
-        info.Slots = [/FrameShiftDrive/i];
+        slots = [/FrameShiftDrive/i];
     } else if (item.match(/Int_LifeSupport/i)) {
-        info.Slots = [/LifeSupport/i];
+        slots = [/LifeSupport/i];
     } else if (item.match(/Int_PowerDistributor/i)) {
-        info.Slots = [/PowerDistributor/i];
+        slots = [/PowerDistributor/i];
     } else if (item.match(/Int_Sensors/i)) {
-        info.Slots = [/Radar/i];
+        slots = [/Radar/i];
     } else if (item.match(/Int_FuelTank/i)) {
-        info.Slots = [/FuelTank/i, REG_INTERNAL_SLOT];
+        slots = [/FuelTank/i, REG_INTERNAL_SLOT];
     } else if (item.match(/Hpt_/i)) {
         if (item.match(/size0/i) || item.match(/tiny/i)) {
-            info.Slots = [REG_UTILITY_SLOT];
+            slots = [REG_UTILITY_SLOT];
         } else {
-            info.Slots = [REG_HARDPOINT_SLOT];
+            slots = [REG_HARDPOINT_SLOT];
         }
     } else if (item.match(/Int_/i)) {
-        info.Slots = [REG_INTERNAL_SLOT];
+        slots = [REG_INTERNAL_SLOT];
         if (
             item.match(/HullReinforcement/i) ||
             item.match(/ModuleReinforcement/i) ||
             item.match(/ShieldReinforcement/i) ||
             item.match(/ShieldCellBank/i)
         ) {
-            info.Slots.push(REG_MILITARY_SLOT);
+            slots.push(REG_MILITARY_SLOT);
         }
     } else {
         throw new UnknownRestrictedError(`Don't know module ${item}`);
     }
-    return info;
+    return slots.map(r => RegExp(r, 'i'));
 }
 
 /**
@@ -130,10 +120,10 @@ export function itemFitsSlot(
     slot = slot.toLowerCase();
 
     const itemClass = getClass(item);
-    const itemInfo = getItemInfo(item);
+    const slots = getFittingSlots(item);
 
     // Does the item fit on this type of slot?
-    if (!matchesAny(slot, ...itemInfo.Slots)) {
+    if (!matchesAny(slot, ...slots)) {
         return false;
     }
 
