@@ -99,6 +99,8 @@ export interface ShipMetaInfo {
     coreSizes: { [key: string]: number };
     /** Map from military slots to respective sizes */
     militarySizes: { [key: string]: number };
+    /** Present and true if the ship supports luxus passenger cabins */
+    luxuryCabins?: boolean;
 }
 
 /**
