@@ -94,6 +94,8 @@ export function itemFitsSlot(
     let specialCondition = true;
     if (type === 'armour') {
         specialCondition = values(registryEntry.items[ship]).includes(item);
+    } else if (type === 'fighterbay') {
+        specialCondition = getShipInfo(ship).meta.fighterHangars;
     } else if (type === 'passengercabins' && item.match(/class4/i)) {
         specialCondition = getShipInfo(ship).meta.luxuryCabins;
     }

@@ -109,6 +109,8 @@ export interface ShipMetaInfo {
     militarySizes: { [key: string]: number };
     /** Present and true if the ship supports luxus passenger cabins */
     luxuryCabins?: boolean;
+    /** Present and true if the ship supports SLF hangars */
+    fighterHangars?: boolean;
 }
 
 /**
