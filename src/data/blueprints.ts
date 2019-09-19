@@ -14,7 +14,7 @@ import {
     FeatureObject,
     ModuleInformation,
 } from '../types';
-import { getModuleInfo, getModuleProperty } from './items';
+import { getModuleInfo, getModuleProperty, getModuleTypeInfo } from './items';
 
 import * as BLUEPRINTS from './blueprints.json';
 import * as EXPERIMENTALS from './experimentals.json';
@@ -239,4 +239,27 @@ function getModifiedProperty(
         default:
             throw new UnknownRestrictedError();
     }
+}
+
+/**
+ * Check whether a blueprint can be applied to an item.
+ * @param item Item ID
+ * @param blueprint Blueprint ID
+ * @returns True if blueprint can be applied
+ */
+export function canApplyBlueprint(item: string, blueprint: string): boolean {
+    return getModuleTypeInfo(item).applicable.includes(blueprint);
+}
+
+/**
+ * Check whether a experimental effect can be applied to an item.
+ * @param item Item ID
+ * @param experimental Experimental effect ID
+ * @returns True if experimental effect can be applied
+ */
+export function canApplyExperimental(
+    item: string,
+    experimental: string,
+): boolean {
+    return getModuleTypeInfo(item).applicable_specials.includes(experimental);
 }

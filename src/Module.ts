@@ -13,6 +13,8 @@ import Factory from './data';
 import {
     assertValidExperimental,
     calculateModifier,
+    canApplyBlueprint,
+    canApplyExperimental,
     getBlueprintProps,
     IPropertyMap,
 } from './data/blueprints';
@@ -26,6 +28,7 @@ import {
 } from './data/items';
 import { assertValidSlot, getSlotSize, REG_CORE_SLOT } from './data/slots';
 import {
+    IllegalChangeError,
     IllegalStateError,
     NotImplementedError,
     UnknownRestrictedError,
@@ -387,10 +390,18 @@ export default class Module extends DiffEmitter {
             );
         }
 
-        this._prepareObjectChange(
-            'Engineering',
-            Factory.newBlueprint(name, grade, experimental),
-        );
+        const blueprint = Factory.newBlueprint(name, grade, experimental);
+        if (!canApplyBlueprint(this.object.Item, name.toLowerCase())) {
+            throw new IllegalChangeError(`Can't apply ${name} to ${this.object.Item}`);
+        }
+
+        if (experimental && !canApplyExperimental(
+            this.object.Item,
+            experimental.toLowerCase(),
+        )) {
+            throw new IllegalChangeError(`Can't apply ${experimental} to ${this.object.Item}`);
+        }
+        this._prepareObjectChange('Engineering', blueprint);
         this.setBlueprintProgress(progress); // this will commit prepare changes
     }
 

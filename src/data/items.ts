@@ -39,6 +39,15 @@ export function getModuleInfo(item: string): ModuleInformation {
 }
 
 /**
+ * Returns an object with details about the type of an item.
+ * @param item Item ID
+ * @returns Item type information object
+ */
+export function getModuleTypeInfo(item: string): ModuleRegistryEntry {
+    return MODULE_REGISTRY[getModuleInfo(item).meta.type];
+}
+
+/**
  * Get the class of an item.
  * @param item Item id
  * @returns Item class
