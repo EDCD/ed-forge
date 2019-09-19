@@ -20,6 +20,22 @@ for (let { name, build } of TEST_SUITES) {
                 BlueprintName, Level, Quality, ExperimentalEffect, Modifiers
             } = Engineering;
 
+            describe('Could apply blueprint', () => {
+                test(`${BlueprintName} is listed`, () => {
+                    expect(module.getApplicableBlueprints()).toContain(
+                        BlueprintName.toLowerCase(),
+                    );
+                });
+
+                if (ExperimentalEffect) {
+                    test(`${ExperimentalEffect} is listed`, () => {
+                        expect(module.getApplicableExperimentals()).toContain(
+                            ExperimentalEffect.toLowerCase(),
+                        );
+                    });
+                }
+            });
+
             // We can't predict stats by quality if it is not fully progressed;
             // skip these cases
             if (Quality < 1) {

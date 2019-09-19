@@ -23,6 +23,7 @@ import {
     getClass,
     getModuleMetaProperty,
     getModuleProperty,
+    getModuleTypeInfo,
     getRating,
     itemFitsSlot,
 } from './data/items';
@@ -448,6 +449,34 @@ export default class Module extends DiffEmitter {
             assertValidExperimental(name),
         );
         this.setBlueprintProgress(); // this will commit prepare changes
+    }
+
+    /**
+     * Returns an array of applicable blueprints. This array is empty if the
+     * module has no item equipped.
+     * @returns Array of applicable blueprints
+     */
+    public getApplicableBlueprints(): string[] {
+        if (!this.object.Item) {
+            return [];
+        } else {
+            return clone(getModuleTypeInfo(this.object.Item).applicable);
+        }
+    }
+
+    /**
+     * Returns an array of applicable experimental effects. This array is empty
+     * if the module has no item equipped.
+     * @returns Array of applicable experimental effects
+     */
+    public getApplicableExperimentals(): string[] {
+        if (!this.object.Item) {
+            return [];
+        } else {
+            return clone(
+                getModuleTypeInfo(this.object.Item).applicable_specials,
+            );
+        }
     }
 
     /**
