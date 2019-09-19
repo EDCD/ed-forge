@@ -201,7 +201,10 @@ module.exports.PROP_CORIOLIS_TO_FD = {
  * If class and/or rating aren't given, "" will be default value.
  */
 module.exports.MODULES_REGEX = {
-    AbrasionBlaster: /^Hpt_Mining_AbrBlstr_(\w+)_(\w+)$/i,
+    AbrasionBlaster: {
+        r: /^Hpt_Mining_AbrBlstr_(\w+)_(\w+)$/i,
+        groups: [2, 1],
+    },
     AdvancedDockingComputer: /^Int_DockingComputer_Advanced$/i,
     Armour: /^(\S+)_Armour_(\S+)$/i,
     Powerplant: /^Int_PowerPlant_Size(\d)_Class(\d)$/i,
