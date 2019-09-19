@@ -11,6 +11,7 @@ import { clamp, clone, cloneDeep, forEach, set, values } from 'lodash';
 import { compress, decompress } from './compression';
 import Factory from './data';
 import {
+    assertValidExperimental,
     calculateModifier,
     getBlueprintProps,
     IPropertyMap,
@@ -431,7 +432,10 @@ export default class Module extends DiffEmitter {
             );
         }
 
-        this._prepareObjectChange('Engineering.ExperimentalEffect', name);
+        this._prepareObjectChange(
+            'Engineering.ExperimentalEffect',
+            assertValidExperimental(name),
+        );
         this.setBlueprintProgress(); // this will commit prepare changes
     }
 

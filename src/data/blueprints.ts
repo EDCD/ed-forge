@@ -43,6 +43,36 @@ export interface IPropertyMap {
 }
 
 /**
+ * Checks whether a given blueprint id is valid and returns the sanitized
+ * blueprint ID.
+ * @param id Blueprint id
+ * @returns Lowercase blueprint ID
+ */
+export function assertValidBlueprint(blueprint: string): string {
+    blueprint = blueprint.toLowerCase();
+    if (!BLUEPRINTS[blueprint]) {
+        throw new UnknownRestrictedError(`Don't know blueprint ${blueprint}`);
+    }
+    return blueprint;
+}
+
+/**
+ * Checks whether a given experimental effect id is valid and returns the
+ * sanitized experimental effect ID.
+ * @param id Experimental effect id
+ * @returns Lowercase experimental effect ID
+ */
+export function assertValidExperimental(experimental: string): string {
+    experimental = experimental.toLowerCase();
+    if (!EXPERIMENTALS[experimental]) {
+        throw new UnknownRestrictedError(
+            `Don't know experimental ${experimental}`,
+        );
+    }
+    return experimental;
+}
+
+/**
  * Get modified properties for a module.
  * @param module Item key
  * @param name Blueprint key

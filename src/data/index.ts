@@ -10,6 +10,7 @@ import { get } from 'lodash';
 import { UnknownRestrictedError } from '../errors';
 import Module, { IBlueprintObjectHandler } from '../Module';
 import Ship from '../Ship';
+import { assertValidBlueprint, assertValidExperimental } from './blueprints';
 import { assertValidModule, getModuleInfo } from './items';
 import { assertValidShip, getShipInfo } from './ships';
 
@@ -126,7 +127,7 @@ class Factory {
         grade: number,
         experimental?: string,
     ): IBlueprintObjectHandler {
-        name = name.toLowerCase();
+        name = assertValidBlueprint(name);
         const blueprint: IBlueprintObjectHandler = {
             BlueprintName: name,
             Level: grade,
@@ -134,7 +135,9 @@ class Factory {
             Quality: undefined,
         };
         if (experimental) {
-            blueprint.ExperimentalEffect = experimental.toLowerCase();
+            blueprint.ExperimentalEffect = assertValidExperimental(
+                experimental,
+            );
         }
         return blueprint;
     }
