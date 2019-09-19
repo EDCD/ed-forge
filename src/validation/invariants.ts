@@ -34,24 +34,6 @@ function maxChecker(type: RegExp, max: number): Invariant {
 }
 
 /**
- * Returns an invariant that checks that the given type of modules can only be
- * applied to ships listed.
- * @param type Module type to constrain
- * @param allowedShips Ships that are allowed to equip this type
- */
-function typeForShipChecker(type: RegExp, allowedShips: string[]): Invariant {
-    return (ship: Ship, module?: Module) => {
-        if (module && !module.itemIsOfType(type)) {
-            return true;
-        }
-        return (
-            !ship.getModules(undefined, type).length ||
-            allowedShips.includes(ship.object.Ship)
-        );
-    };
-}
-
-/**
  * Returns an invariant that checks that the maximum mass value of a given type
  * of module is not lower than the ships hull mass.
  * @param type Module type to check
@@ -71,20 +53,6 @@ function maxMassChecker(type: RegExp, maxMassKey: string) {
         return true;
     };
 }
-
-export const LUXURY_SHIPS = ['belugaliner', 'orca', 'dolphin'];
-export const SLF_SHIPS = [
-    'typex_2',
-    'anaconda',
-    'belugaliner',
-    'federation_corvette',
-    'cutter',
-    'krait_mkii',
-    'type9_military',
-    'type9',
-    'federation_gunship',
-    'independant_trader',
-];
 
 export const INVARIANTS: Invariant[] = [
     // Check that a ship only has one shield generator
@@ -130,10 +98,6 @@ export const INVARIANTS: Invariant[] = [
                 )
         );
     },
-    // Luxury class cabins only for Beluga, Orca and Dolphin
-    typeForShipChecker(/PassengerCabin_Size\d_Class4/i, LUXURY_SHIPS),
-    // Fighter hangars only for specific ships
-    typeForShipChecker(/Int_FighterBay/i, SLF_SHIPS),
     // Hull mass must not exceed what thrusters are capable to handle
     maxMassChecker(/Int_Engine/i, 'enginemaximalmass'),
     // Hull mass must not exceed what shields are capable to handle
