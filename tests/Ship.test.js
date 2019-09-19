@@ -2,7 +2,9 @@
 import { Ship } from '..';
 import { assertValidSlot, REG_CORE_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_HARDPOINT_SLOT, REG_UTILITY_SLOT } from '../lib/data/slots';
 import { matchesAny, mapValuesDeep } from '../lib/helper';
-import { clone, pickBy } from 'lodash';
+import { clone, pickBy, values } from 'lodash';
+
+import * as SHIPS from '../lib/data/ships.json';
 
 function randomString(length = -1) {
     let str = String(Math.round(Number.MAX_SAFE_INTEGER * Math.random()));
@@ -196,3 +198,59 @@ for (let { name, build } of TEST_SUITES) {
         });
     });
 }
+
+const HANGAR = 'int_fighterbay_size5_class1';
+describe('Adding SLF hangars', () => {
+    for (let shipDescriptor of values(SHIPS.default)) {
+        if (shipDescriptor.meta.fighterHangars) {
+            test(`Can equip a SLF on ${shipDescriptor.proto.Ship}`, () => {
+                let ship = new Ship(shipDescriptor.proto);
+                let slot = ship.getModule(/Size5/i);
+                expect(() => {
+                    slot.setItem(HANGAR);
+                }).not.toThrow();
+                expect(slot.getItem()).toEqual(HANGAR);
+            });
+        } else {
+            let ship = new Ship(shipDescriptor.proto);
+            let slot = ship.getModule(/Size5/i);
+            if (!slot) {
+                continue;
+            }
+
+            test(`Can't equip a SLF on ${shipDescriptor.proto.Ship}`, () => {
+                expect(() => {
+                    slot.setItem(HANGAR);
+                }).toThrow();
+            });
+        }
+    }
+});
+
+const LUXURY = 'int_passengercabin_size5_class4';
+describe('Adding luxury cabins', () => {
+    for (let shipDescriptor of values(SHIPS.default)) {
+        if (shipDescriptor.meta.luxuryCabins) {
+            test(`Can equip luxury cabins on ${shipDescriptor.proto.Ship}`, () => {
+                let ship = new Ship(shipDescriptor.proto);
+                let slot = ship.getModule(/Size5/i);
+                expect(() => {
+                    slot.setItem(LUXURY);
+                }).not.toThrow();
+                expect(slot.getItem()).toEqual(LUXURY);
+            });
+        } else {
+            let ship = new Ship(shipDescriptor.proto);
+            let slot = ship.getModule(/Size5/i);
+            if (!slot) {
+                continue;
+            }
+
+            test(`Can't equip luxury cabins on ${shipDescriptor.proto.Ship}`, () => {
+                expect(() => {
+                    slot.setItem(LUXURY);
+                }).toThrow();
+            });
+        }
+    }
+});
