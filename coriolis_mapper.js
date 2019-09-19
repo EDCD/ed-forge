@@ -135,8 +135,16 @@ function invertTypeToEntries(entry) {
 }
 
 // Create a map for modules mapping to blueprints that can be applied to them
-const TYPES_TO_BLUEPRINTS = _.chain(Modifications.modules)
+const TYPES_TO_CORIOLIS_BLUEPRINTS = _.chain(Modifications.modules)
     .mapValues(o => _.keys(o.blueprints))
+    .entries()
+    .flatMap(invertCatToEntries)
+    .fromPairs()
+    .value();
+const TYPES_TO_BLUEPRINTS = _.chain(Modifications.modules)
+    .mapValues(o => _.keys(o.blueprints).map(
+        bp => Modifications.blueprints[bp].fdname
+    ))
     .entries()
     .flatMap(invertCatToEntries)
     .fromPairs()
@@ -457,7 +465,7 @@ writeDataJSON('ships.json', SHIPS);
 //  Create src/data/blueprints.json
 // ---------------------------------
 
-const BLUEPRINTS_TO_MODULES = _.chain(TYPES_TO_BLUEPRINTS).entries()
+const BLUEPRINTS_TO_MODULES = _.chain(TYPES_TO_CORIOLIS_BLUEPRINTS).entries()
     // mapping of blueprints => [module]; but keys can repeat
     .flatMap(invertTypeToEntries)
     // group by keys to eliminate duplicates
