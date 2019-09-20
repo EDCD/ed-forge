@@ -202,7 +202,7 @@ module.exports.PROP_CORIOLIS_TO_FD = {
  */
 module.exports.MODULES_REGEX = {
     AbrasionBlaster: {
-        r: /^Hpt_Mining_AbrBlstr_(\w+)_(\w+)$/i,
+        r: /^Hpt_Mining_AbrBlstr_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     AdvancedDockingComputer: /^Int_DockingComputer_Advanced$/i,
@@ -218,30 +218,30 @@ module.exports.MODULES_REGEX = {
     Sensors: /^Int_Sensors_Size(\d)_Class(\d)$/i,
     FuelTank: /^Int_FuelTank_Size(\d)_Class(\d)$/i,
     AdvancedPlasmaAcc: {
-        r: /^Hpt_PlasmaAccelerator_(\w+)_(\w+)_Advanced$/i,
+        r: /^Hpt_PlasmaAccelerator_([^_]+)_([^_]+)_Advanced$/i,
         groups: [2, 1],
     },
     AFM: /^Int_Repairer_Size(\d)_Class(\d)$/i,
     AXDumbfireRack: {
-        r: /Hpt_ATDumbfireMissile_(\w+)_(\w+)/i,
+        r: /Hpt_ATDumbfireMissile_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     AXMultiCannon: {
-        r: /^Hpt_ATMultiCannon_(\w+)_(\w+)$/i,
+        r: /^Hpt_ATMultiCannon_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     BeamLaser: {
-        r: /^Hpt_BeamLaser_(\w+)_(\w+)$/i,
+        r: /^Hpt_BeamLaser_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     BiWeaveShieldGen: /^Int_ShieldGenerator_Size(\d)_Class(\d)_Fast$/i,
     BurstLaser: {
-        r: /^Hpt_PulseLaserBurst_(\w+)_(\w+)$/i,
+        r: /^Hpt_PulseLaserBurst_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     PassengerCabins: /^Int_PassengerCabin_Size(\d)_Class(\d)$/i,
     Cannon: {
-        r: /^Hpt_Cannon_(\w+)_(\w+)$/i,
+        r: /^Hpt_Cannon_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     CargoRack: /^Int_CargoRack_Size(\d)_Class1$/i,
@@ -249,39 +249,39 @@ module.exports.MODULES_REGEX = {
     CollectorLimpet: /^Int_DroneControl_Collection_Size(\d)_Class(\d)$/i,
     CorrosionResistantCargoRack: /^Int_CorrosionProofCargoRack_Size(\d)_Class(\d)$/i,
     CytoScrambler: {
-        r: /^Hpt_PulseLaserBurst_(\w+)_(\w+)_Scatter$/i,
+        r: /^Hpt_PulseLaserBurst_([^_]+)_([^_]+)_Scatter$/i,
         groups: [2, 1],
     },
     DecontaminationLimpet: /^Int_DroneControl_Decontamination_Size(\d)_Class(\d)$/i,
     Disruptor: {
-        r: /^Hpt_PulseLaser_(\w+)_(\w+)_Disruptor$/i,
+        r: /^Hpt_PulseLaser_([^_]+)_([^_]+)_Disruptor$/i,
         groups: [2, 1],
     },
     DockingComputer: /^Int_DockingComputer_Standard$/i,
-    DumbfireRack: /^Hpt_DumbfireMissileRack_Fixed_(\w+)$/i,
+    DumbfireRack: /^Hpt_DumbfireMissileRack_Fixed_([^_]+)$/i,
     ECM: /^Hpt_ElectronicCountermeasure_Tiny$/i,
     Enforcer: {
-        r: /^Hpt_MultiCannon_(\w+)_(\w+)_Strong$/i,
+        r: /^Hpt_MultiCannon_([^_]+)_([^_]+)_Strong$/i,
         groups: [2, 1],
     },
     EnzymeMissileRack: {
-        r: /^Hpt_CausticMissile_(\w+)_(\w+)$/i,
+        r: /^Hpt_CausticMissile_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     FlakLauncher: {
-        r: /^Hpt_FlakMortar_(\w+)_(\w+)$/i,
+        r: /^Hpt_FlakMortar_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     FlechetteLauncher: {
-        r: /^Hpt_FlechetteLauncher_(\w+)_(\w+)$/i,
+        r: /^Hpt_FlechetteLauncher_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     FragCannon: {
-        r: /^Hpt_SlugShot_(\w+)_(\w+)$/i,
+        r: /^Hpt_SlugShot_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     FSDDisruptor: {
-        r: /^Hpt_DumbfireMissileRack_(\w+)_(\w+)_Lasso$/i,
+        r: /^Hpt_DumbfireMissileRack_([^_]+)_([^_]+)_Lasso$/i,
         groups: [2, 1],
     },
     FSDInterdictor: /^Int_FSDInterdictor_Size(\d)_Class(\d)$/i,
@@ -290,17 +290,17 @@ module.exports.MODULES_REGEX = {
     FuelTransferLimpet: /^Int_DroneControl_FuelTransfer_Size(\d)_Class(\d)$/i,
     FighterBay: /^Int_FighterBay_Size(\d)_Class1$/i,
     GuardianGaussCannon: {
-        r: /^Hpt_Guardian_GaussCannon_(\w+)_(\w+)$/i,
+        r: /^Hpt_Guardian_GaussCannon_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     GuardianHRP: /^Int_GuardianHullReinforcement_Size(\d)_Class(\d)$/i,
     GuargianMRP: /^Int_GuardianModuleReinforcement_Size(\d)_Class(\d)$/i,
     GuardianPlasmaCharger: {
-        r: /^Hpt_Guardian_PlasmaLauncher_(\w+)_(\w+)$/i,
+        r: /^Hpt_Guardian_PlasmaLauncher_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     GuardianShardCannon: {
-        r: /^Hpt_Guardian_ShardCannon(\w+)_(\w+)$/i,
+        r: /^Hpt_Guardian_ShardCannon_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     GuardianSRP: /^Int_GuardianShieldReinforcement_Size(\d)_Class(\d)$/i,
@@ -308,7 +308,7 @@ module.exports.MODULES_REGEX = {
     HeatSinkLauncher: /^Hpt_HeatSinkLauncher_Turret_Tiny$/i,
     HRP: /^Int_HullReinforcement_Size(\d)_Class(\d)$/i,
     ImperialHammer: {
-        r: /^Hpt_Railgun_(\w+)_(\w+)_Burst$/i,
+        r: /^Hpt_Railgun_([^_]+)_([^_]+)_Burst$/i,
         groups: [2, 1],
     },
     KillWarrantScanner: {
@@ -320,38 +320,38 @@ module.exports.MODULES_REGEX = {
         groups: [-1, 1],
     },
     MultiCannon: {
-        r: /^Hpt_MultiCannon_(\w+)_(\w+)$/i,
+        r: /^Hpt_MultiCannon_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
-    MineLauncher: /^Hpt_MineLauncher_Fixed_(\w)+/i,
+    MineLauncher: /^Hpt_MineLauncher_Fixed_([^_]+)$/i,
     MiningLance: {
-        r: /^Hpt_MiningLaser_(\w+)_(\w+)_Advanced$/i,
+        r: /^Hpt_MiningLaser_([^_]+)_([^_]+)_Advanced$/i,
         groups: [2, 1],
     },
     MiningLaser: {
-        r: /^Hpt_MiningLaser_(\w+)_(\w+)$/i,
+        r: /^Hpt_MiningLaser_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     MRP: /^Int_ModuleReinforcement_Size(\d)_Class(\d)$/i,
     MetaAlloyHRP: /^Int_MetaAlloyHullReinforcement_Size(\d)_Class(\d)$/i,
     PackHound: {
-        r: /^Hpt_DrunkMissileRack_(\w+)_(\w+)$/i,
+        r: /^Hpt_DrunkMissileRack_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     Pacifier: {
-        r: /^Hpt_Slugshot_(\w+)_(\w+)_Range$/i,
+        r: /^Hpt_Slugshot_([^_]+)_([^_]+)_Range$/i,
         groups: [2, 1],
     },
     PlaneterayApproachSuite: /^Int_PlanetApproachSuite$/i,
     PlasmaAcc: {
-        r: /^Hpt_PlasmaAccelerator_(\w+)_(\w+)$/i,
+        r: /^Hpt_PlasmaAccelerator_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     PointDefence: /^Hpt_PlasmaPointDefence_Turret_Tiny$/i,
     PrismaticShieldGen: /^Int_ShieldGenerator_Size(\d)_Class(\d)_Strong$/i,
     ProspectorLimpet: /^Int_DroneControl_Prospector_Size(\d)_Class(\d)$/i,
     PulseLaser: {
-        r: /^Hpt_PulseLaser_(\w+)_(\w+)$/i,
+        r: /^Hpt_PulseLaser_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     PulseWaveAnalyzer: {
@@ -359,7 +359,7 @@ module.exports.MODULES_REGEX = {
         groups: [-1, 1],
     },
     RailGun: {
-        r: /^Hpt_RailGun_(\w+)_(\w+)$/i,
+        r: /^Hpt_RailGun_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
     ReconLimpet: /^Int_DroneControl_Recon_Size(\d)_Class(\d)$/i,
@@ -367,31 +367,27 @@ module.exports.MODULES_REGEX = {
     RepairLimpet: /^Int_DroneControl_Repair_Size(\d)_Class(\d)$/i,
     ResearchLimpet: /^Int_DroneControl_UnkVesselResearch$/i,
     Retributor: {
-        r: /^Hpt_BeamLaser_(\w+)_(\w+)_Heat$/i,
+        r: /^Hpt_BeamLaser_([^_]+)_([^_]+)_Heat$/i,
         groups: [2, 1],
     },
-    SeismicChargeLauncher: /^Hpt_Mining_SeismChrgWarhd_(\w+)_(\w+)$/i,
+    SeismicChargeLauncher: /^Hpt_Mining_SeismChrgWarhd_([^_]+)_([^_]+)$/i,
     ShieldBooster: {
         r: /^Hpt_ShieldBooster_Size0_Class(\d)$/i,
         groups: [-1, 1],
     },
     ShieldGen: /^Int_ShieldGenerator_Size(\d)_Class(\d)$/i,
-    SubsurfaceDisplacementMissile: /^Hpt_Mining_SubSurfDispMisle_(\w+)_(\w+)$/i,
-    DiscoveryScanner: {
-        r: /^Int_StellarBodyDiscoveryScanner_(\w+)$/i,
-        groups: [-1, 1],
-    },
+    SubsurfaceDisplacementMissile: /^Hpt_Mining_SubSurfDispMisle_([^_]+)_([^_]+)$/i,
     SCB: /^Int_ShieldCellBank_Size(\d)_Class(\d)$/i,
-    SeekerRack: /^Hpt_BasicMissileRack_Fixed_(\w+)/i,
+    SeekerRack: /^Hpt_BasicMissileRack_Fixed_([^_]+)$/i,
     ShockCannon: {
-        r: /^Hpt_PlasmaShockCannon_(\w+)_(\w+)$/i,
+        r: /^Hpt_PlasmaShockCannon_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
     },
-    ShockMine: /Hpt_MineLauncher_Fixed_Small_Impulse/i,
+    ShockMine: /Hpt_MineLauncher_Fixed_Small_Impulse$/i,
     ShutdownNeutralizer: /^Hpt_AntiUnknownShutdown_Tiny$/i,
     SupercruiseAssist: /^Int_SupercruiseAssist$/i,
     SurfaceScanner: /^Int_DetailedSurfaceScanner_Tiny$/i,
-    TorpedoPylon: /^Hpt_AdvancedTorpPylon_Fixed_(\w+)$/i,
+    TorpedoPylon: /^Hpt_AdvancedTorpPylon_Fixed_([^_]+)$/i,
     VehicleBay: /^Int_BuggyBay_Size(\d)_Class(\d)$/i,
     WakeScanner: {
         r: /^Hpt_CloudScanner_Size0_Class(\d)$/i,
