@@ -6,7 +6,7 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import { clamp, clone, cloneDeep, forEach, set, values } from 'lodash';
+import { clamp, clone, cloneDeep, forEach, map, set, values } from 'lodash';
 
 import { compress, decompress } from './compression';
 import Factory from './data';
@@ -34,7 +34,7 @@ import {
     NotImplementedError,
     UnknownRestrictedError,
 } from './errors';
-import { mapValuesDeep } from './helper';
+import { mapValuesDeep, matchesAny } from './helper';
 import DiffEmitter from './helper/DiffEmitter';
 import MODULE_STATS, {
     IModulePropertyCalculatorClass,
@@ -42,6 +42,9 @@ import MODULE_STATS, {
 } from './module-stats';
 import Ship from './Ship';
 import { moduleVarIsSpecified, validateModuleJson } from './validation';
+
+import * as MODULE_REGISTRY from './data/module_registry.json';
+import { ModuleRegistryEntry } from './types';
 
 /**
  * Clones a given module.
@@ -449,6 +452,66 @@ export default class Module extends DiffEmitter {
             assertValidExperimental(name),
         );
         this.setBlueprintProgress(); // this will commit prepare changes
+    }
+
+    /**
+     * Returns an array of all applicable items to this module. If neither a
+     * ship nor a slot is assigned to this module, an exception is raised.
+     * @returns Array of applicable items
+     */
+    public getApplicableItems(): string[] {
+        if (!this.ship || !this.object.Slot) {
+            throw new IllegalStateError(
+                'Can only get applicable items once a ship has been assigned to the module',
+            );
+        }
+
+        // Prepare module registry items indices ordered by size
+        const hardpointKeys = ['', 'small', 'medium', 'large', 'huge'];
+        const internalKeys = ['', '1', '2', '3', '4', '5', '6', '7', '8'];
+        if (this.object.Slot === 'armour') {
+            // If this is an armour slot, we only return all armour available
+            // to the module's ship
+            return values(
+                MODULE_REGISTRY.armour.items[this.ship.getShipType()],
+            );
+        } else {
+            // If this is not an armour slot, try each available module category
+            const size = this.getSize();
+            // MODULE_REGISTRY is a module and thus has the key 'default'; this
+            // key must be ignored in this context
+            return values((MODULE_REGISTRY as any).default).reduce(
+                (reduced: string[], entry: ModuleRegistryEntry) => {
+                    // Only consider categories that match this slot but ignore
+                    // the armour slot
+                    if (
+                        entry.slots[0] === 'armour' ||
+                        !matchesAny(
+                            this.object.Slot,
+                            ...entry.slots.map((r) => RegExp(r, 'i')),
+                        )
+                    ) {
+                        return reduced;
+                    }
+
+                    let selectors: string[];
+                    if (
+                        entry.slots[0] === '(small|medium|large|huge)hardpoint'
+                    ) {
+                        selectors = hardpointKeys;
+                    } else {
+                        selectors = internalKeys;
+                    }
+
+                    return reduced.concat(
+                        ...map(selectors.slice(0, size + 1), (k) =>
+                            values(entry.items[k]),
+                        ),
+                    );
+                },
+                [],
+            );
+        }
     }
 
     /**
