@@ -4,7 +4,8 @@ const fs = require('fs');
 const _ = require('lodash');
 const {
     SHIP_CORIOLIS_TO_FD, MODULES_REGEX, ARMOUR_TO_SHIP, CAT_CORIOLIS_TO_FD,
-    PROP_CORIOLIS_TO_FD, BLUEPRINT_EXCEPTION_TARGETS
+    PROP_CORIOLIS_TO_FD, BLUEPRINT_EXCEPTION_TARGETS,
+    EXPERIMENTAL_EXCEPTION_TARGETS,
 } = require('./scripts/coriolis-mappings');
 const MODULE_STATS = require('./lib/module-stats').default;
 
@@ -149,8 +150,16 @@ const TYPES_TO_BLUEPRINTS = _.chain(Modifications.modules)
     .flatMap(invertCatToEntries)
     .fromPairs()
     .value();
-const TYPES_TO_SPECIALS = _.chain(Modifications.modules)
+const TYPES_TO_CORIOLIS_SPECIALS = _.chain(Modifications.modules)
     .mapValues(o => o.specials)
+    .entries()
+    .flatMap(invertCatToEntries)
+    .fromPairs()
+    .value();
+const TYPES_TO_SPECIALS = _.chain(Modifications.modules)
+    .mapValues(o => (o.specials || []).map(
+        sp => Modifications.specials[sp].fdname
+    ))
     .entries()
     .flatMap(invertCatToEntries)
     .fromPairs()
@@ -158,8 +167,14 @@ const TYPES_TO_SPECIALS = _.chain(Modifications.modules)
 
 // Special effects for seekers and dumbfire racks are mapped by special keys;
 // cope with this here
-TYPES_TO_SPECIALS.dumbfirerack = Modifications.modules.mr.specials_D;
-TYPES_TO_SPECIALS.seekerrack = Modifications.modules.mr.specials_S;
+TYPES_TO_CORIOLIS_SPECIALS.dumbfirerack = Modifications.modules.mr.specials_D;
+TYPES_TO_CORIOLIS_SPECIALS.seekerrack = Modifications.modules.mr.specials_S;
+TYPES_TO_SPECIALS.dumbfirerack = TYPES_TO_CORIOLIS_SPECIALS.dumbfirerack.map(
+    sp => Modifications.specials[sp].fdname,
+);
+TYPES_TO_SPECIALS.seekerrack = TYPES_TO_CORIOLIS_SPECIALS.seekerrack.map(
+    sp => Modifications.specials[sp].fdname,
+);
 
 function moduleRegexToSlots(regex) {
     let slots;
@@ -536,6 +551,9 @@ function consumeBlueprint(head) {
 
 _.toPairs(Modifications.blueprints).map(consumeBlueprint);
 
+// Merge an array of exceptions into normal blueprints. Coriolis can not handle
+// exceptions in blueprints, i.e. features that only apply to a specific class
+// of items. ed-forge can do this so we merge those blueprints here.
 for (let { key, name, features, appliesTo } of exceptions) {
     // Original blueprint
     let blueprint = BLUEPRINTS[name];
@@ -579,7 +597,7 @@ writeDataJSON('blueprints.json', BLUEPRINTS);
 //  Create src/data/experimentals.json
 // ------------------------------------
 
-const SPECIALS_TO_MODULES = _.chain(TYPES_TO_SPECIALS).entries()
+const SPECIALS_TO_MODULES = _.chain(TYPES_TO_CORIOLIS_SPECIALS).entries()
     // mapping of blueprints => [module]; but keys can repeat
     .flatMap(invertTypeToEntries)
     // group by keys to eliminate duplicates
@@ -588,6 +606,8 @@ const SPECIALS_TO_MODULES = _.chain(TYPES_TO_SPECIALS).entries()
     .mapValues(vals => _.flatMap(vals, val => val[1]))
     .value();
 const EXPERIMENTALS = {};
+
+let experimentalExceptions = [];
 
 function consumeExperimental(head) {
     let [ key, features ] = head;
@@ -642,9 +662,56 @@ function consumeExperimental(head) {
     }
 
     features = _.mapValues(features, val => { return { 'min': val, 'max': val } } );
-    EXPERIMENTALS[name] = { features, appliesTo };
+    const { fdname } = Modifications.specials[key];
+    if (key !== fdname) {
+        experimentalExceptions.push({ key, fdname, features, appliesTo })
+    } else {
+        EXPERIMENTALS[name] = { features, appliesTo };
+    }
 }
 
+// Coriolis also keeps track of the legacy version of plasma slug which is not
+// needed here because on legacy builds, the stats can simply be altered freely.
+// We simply treat the plasma accelerator version of plasma slug as the
+// "default" experimental effect.
+Modifications.modifierActions.special_plasma_slug
+    = Modifications.modifierActions.special_plasma_slug_pa;
+delete Modifications.modifierActions.special_plasma_slug_pa;
 _.toPairs(Modifications.modifierActions).map(consumeExperimental);
+
+// Merge an array of exceptions into normal experimentals. Coriolis can not
+// handle exceptions in experimentals, i.e. features that only apply to a
+// specific class of items. ed-forge can do this so we merge those experimentals
+// here.
+for (let { key, fdname, features, appliesTo } of experimentalExceptions) {
+    // Original blueprint
+    let experimental = EXPERIMENTALS[fdname];
+
+    // Find distinct of the exception not in the original
+    let exceptionTarget = EXPERIMENTAL_EXCEPTION_TARGETS[key];
+    for (let featureName in features) {
+        if (!experimental.features[featureName]) {
+            features[featureName].only = exceptionTarget;
+        }
+    }
+
+    // It might be the case that the original blueprint has exceptions as well;
+    // then find features of the original that are not in the exception. We
+    // assume that there is only one additional exception per blueprint.
+    let experimentalTarget = BLUEPRINT_EXCEPTION_TARGETS[fdname];
+    if (experimentalTarget) {
+        for (let featureName in experimental.features) {
+            if (!features[featureName]) {
+                experimental.features[featureName].only = experimentalTarget;
+            }
+        }
+    }
+
+    // This will only overwrite shared features which are the same anyways
+    _.assign(experimental.features, features);
+
+    // Merge appliesTo; we assume those two arrays not to intersect
+    experimental.appliesTo.push(...appliesTo);
+}
 
 writeDataJSON('experimentals.json', EXPERIMENTALS);

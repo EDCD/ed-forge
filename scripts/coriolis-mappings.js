@@ -487,3 +487,10 @@ module.exports.BLUEPRINT_EXCEPTION_TARGETS = {
     'sensor_wideangle_scanner': '^hpt_(cargo|cloud|crime)scanner',
     'mc_overcharged': '^hpt_multicannon',
 };
+
+/**
+ * Same as BLUEPRINT_EXCEPTION_TARGETS but for experimental effects.
+ */
+module.exports.EXPERIMENTAL_EXCEPTION_TARGETS = {
+    'special_plasma_slug_cooled': '^hpt_railgun',
+};
