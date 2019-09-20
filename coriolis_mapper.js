@@ -156,6 +156,11 @@ const TYPES_TO_SPECIALS = _.chain(Modifications.modules)
     .fromPairs()
     .value();
 
+// Special effects for seekers and dumbfire racks are mapped by special keys;
+// cope with this here
+TYPES_TO_SPECIALS.dumbfirerack = Modifications.modules.mr.specials_D;
+TYPES_TO_SPECIALS.seekerrack = Modifications.modules.mr.specials_S;
+
 function moduleRegexToSlots(regex) {
     let slots;
     if (regex.match(/_Armour_/i)) {
