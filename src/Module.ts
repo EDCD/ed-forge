@@ -804,6 +804,44 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     * Get currently applied blueprint or null if no engineering is done to the
+     * module.
+     * @returns Blueprint key
+     */
+    public getBlueprint(): string | null {
+        if (this.object.Engineering) {
+            return this.object.Engineering.BlueprintName;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get currently applied experimental effect or null if no engineering is
+     * done to the module
+     * @returns Experimental effect key
+     */
+    public getExperimental(): string | null {
+        if (this.object.Engineering) {
+            return this.object.Engineering.ExperimentalEffect;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get grade of the currently applied blueprint.
+     * @returns Blueprint grade
+     */
+    public getBlueprintGrade(): number | null {
+        if (this.object.Engineering) {
+            return this.object.Engineering.Level;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Returns the size of the slot of this module. Size of utility slots and
      * bulkheads is always zero. Size of hardpoint slots is in range 1 to 4 for
      * small to huge.
