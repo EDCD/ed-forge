@@ -1,5 +1,10 @@
 import { Ship, ShipProps } from '..';
 
+function checkMonotonic(aggr, v) {
+    const [lastV, monotonic] = aggr;
+    return [v, monotonic && lastV <= v];
+}
+
 for (let { name, build } of TEST_SUITES) {
     describe(`Ship stats for ${name}`, () => {
 
@@ -114,5 +119,27 @@ for (let { name, build } of TEST_SUITES) {
             const { DAMAGE_METRICS } = ShipProps;
             expect(ship.getMetrics(DAMAGE_METRICS)).toMatchObject({});
         });
+
+        test('can calculate power profile', () => {
+            const {
+                POWER_METRICS, PRODUCED, CONSUMED_DEPL, CONSUMED_RETR,
+            } = ShipProps;
+            const metrics = ship.getMetrics(POWER_METRICS);
+            expect(metrics).toMatchObject({});
+            expect(metrics.relativeConsumed.length).toBeGreaterThan(0);
+            // Relative power consumption increases for each priority group
+            expect(metrics.relativeConsumed.reduce(
+                checkMonotonic, [0, true],
+            )[1]).toEqual(true);
+            expect(metrics.relativeConsumedRetracted.length).toBeGreaterThan(0);
+            // Relative power consumption increases for each priority group
+            expect(metrics.relativeConsumedRetracted.reduce(
+                checkMonotonic, [0, true],
+            )[1]).toEqual(true);
+            expect(ship.get(PRODUCED)).toBeGreaterThan(0);
+            const retracted = ship.get(CONSUMED_RETR);
+            expect(retracted).toBeGreaterThan(0);
+            expect(ship.get(CONSUMED_DEPL)).toBeGreaterThan(retracted);
+        })
     });
 }

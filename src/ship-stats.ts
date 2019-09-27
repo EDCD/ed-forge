@@ -14,6 +14,7 @@ import {
     JUMP_CALCULATOR,
     LADEN_MASS_CALCULATOR,
     MODULE_PROTECTION_CALCULATOR,
+    POWER_PROFILE_CALCULATOR,
     SHIELD_METRICS_CALCULATOR,
     SPEED_CALCULATOR,
     UNLADEN_MASS_CALCULATOR,
@@ -23,6 +24,7 @@ import { getCost, getRefuelCost } from './stats/Cost';
 import { IDamageProfile } from './stats/DamageProfile';
 import { IJumpRangeMetrics } from './stats/JumpRangeProfile';
 import { IModuleProtectionMetrics } from './stats/ModuleProtectionProfle';
+import PowerProfile, { IPowerMetrics } from './stats/PowerProfile';
 import { IShieldMetricsWithRecharge } from './stats/ShieldProfile';
 
 export interface IShipPropertyCalculatorClass {
@@ -116,3 +118,10 @@ export const KIN_DMG_PORTION: ShipPropertyCalculator =
     DAMAGE_PROFILE_CALCULATOR.getKinDamagePortion;
 export const THERM_DMG_PORTION: ShipPropertyCalculator =
     DAMAGE_PROFILE_CALCULATOR.getThermDamagePortion;
+
+export const POWER_METRICS: ShipMetricsCalculator<
+    IPowerMetrics
+> = POWER_PROFILE_CALCULATOR.getPowerMetrics;
+export const PRODUCED: ShipPropertyCalculator = POWER_PROFILE_CALCULATOR.getGenerated;
+export const CONSUMED_DEPL: ShipPropertyCalculator = POWER_PROFILE_CALCULATOR.getConsumedDeployed;
+export const CONSUMED_RETR: ShipPropertyCalculator = POWER_PROFILE_CALCULATOR.getConsumedRetracted;

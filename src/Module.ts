@@ -727,6 +727,31 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     * Get the power priority of the current module.
+     * @return Power priority group
+     */
+    public getPowerPriority(): number | null {
+        if (this.object.Item) {
+            return this.object.Priority;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Set the power priority group of the current module.
+     * @param priority Priority (greater than 1)
+     */
+    public setPowerPriority(priority: number) {
+        if (priority < 1) {
+            throw new IllegalChangeError(
+                'Priority groups must be greater than 0',
+            );
+        }
+        this.object.Priority = Math.floor(priority);
+    }
+
+    /**
      * Sets the ship of this module. A ship can only be assigned once to prevent
      * bad states.
      * @param ship
