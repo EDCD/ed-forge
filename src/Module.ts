@@ -217,7 +217,11 @@ export default class Module extends DiffEmitter {
      * @returns Property value
      */
     public readMeta(property: string): any {
-        return getModuleMetaProperty(this.object.Item, property);
+        if (!this.object.Item) {
+            return undefined;
+        } else {
+            return getModuleMetaProperty(this.object.Item, property);
+        }
     }
 
     /**
