@@ -681,6 +681,14 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     * Returns the slot name of this module.
+     * @returns Slot name
+     */
+    public getSlot(): string {
+        return this.object.Slot;
+    }
+
+    /**
      * Sets the slot of this module. Slots can only be set once (includes
      * constructor) to prevent bad states. A slot can only be assigned when a
      * ship already has been assigned.
