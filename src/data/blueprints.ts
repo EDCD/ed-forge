@@ -73,6 +73,22 @@ export function assertValidExperimental(experimental: string): string {
 }
 
 /**
+ * Returns an object with details about the blueprint.
+ * @param blueprint Blueprint name
+ */
+export function getBlueprintInfo(blueprint: string): BlueprintObject {
+    return BLUEPRINTS[blueprint];
+}
+
+/**
+ * Returns an object with details about the experimental effect.
+ * @param experimental Experimental effect name
+ */
+export function getExperimentalInfo(experimental: string): ExperimentalObject {
+    return EXPERIMENTALS[experimental];
+}
+
+/**
  * Get modified properties for a module.
  * @param module Item key
  * @param name Blueprint key
