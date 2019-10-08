@@ -70,6 +70,8 @@ export interface MetaModuleInformation {
     rating: string;
     /** Group of the item */
     type: string;
+    /** Mount of the item (if hardpint) */
+    mount?: string;
 }
 
 /**

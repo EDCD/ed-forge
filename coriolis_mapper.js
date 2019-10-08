@@ -313,6 +313,11 @@ function consumeModule(module) {
         }
     }
 
+    let mount = module.mount;
+    if (mount) {
+        j.meta.mount = path[3];
+    }
+
     // Map resistances to damage multipliers for modules
     for (let {res, eff} of RESISTANCE_MAPPINGS) {
         let resVal = j.props[res];
