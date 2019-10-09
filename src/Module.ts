@@ -445,19 +445,24 @@ export default class Module extends DiffEmitter {
     }
 
     /**
-     * Apply a special effect to this module.
-     * @param name Special effect name
+     * Apply a experimental effect to this module.
+     * @param [name] experimental effect name; if no experimental effect is
+     * given, the current effect will be cleared.
      */
-    public setExperimental(name: string) {
+    public setExperimental(name?: string) {
         if (!this.object.Engineering) {
             throw new IllegalStateError(
                 `Can only set experimental ${name} when a blueprint has been applied.`,
             );
         }
 
+        if (name !== undefined) {
+            name = assertValidExperimental(name);
+        }
+
         this._prepareObjectChange(
             'Engineering.ExperimentalEffect',
-            assertValidExperimental(name),
+            name,
         );
         this.setBlueprintProgress(); // this will commit prepare changes
     }
