@@ -194,7 +194,7 @@ export default class Ship extends DiffEmitter {
         values(this.object.Modules).forEach((m) =>
             m.on('diff', (...args) => {
                 this._checkInvariants(m, ...args);
-                args = args.map((diff) => {
+                args.forEach((diff) => {
                     diff.path = `Modules.${m.object.Slot}.${diff.path}`;
                 });
                 this.emit('diff', ...args);
