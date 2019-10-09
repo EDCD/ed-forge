@@ -444,7 +444,7 @@ export default class Module extends DiffEmitter {
      * Apply a special effect to this module.
      * @param name Special effect name
      */
-    public setSpecial(name: string) {
+    public setExperimental(name: string) {
         if (!this.object.Engineering) {
             throw new IllegalStateError(
                 `Can only set experimental ${name} when a blueprint has been applied.`,
