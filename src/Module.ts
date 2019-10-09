@@ -400,14 +400,18 @@ export default class Module extends DiffEmitter {
 
         const blueprint = Factory.newBlueprint(name, grade, experimental);
         if (!canApplyBlueprint(this.object.Item, name.toLowerCase())) {
-            throw new IllegalChangeError(`Can't apply ${name} to ${this.object.Item}`);
+            throw new IllegalChangeError(
+                `Can't apply ${name} to ${this.object.Item}`,
+            );
         }
 
-        if (experimental && !canApplyExperimental(
-            this.object.Item,
-            experimental.toLowerCase(),
-        )) {
-            throw new IllegalChangeError(`Can't apply ${experimental} to ${this.object.Item}`);
+        if (
+            experimental &&
+            !canApplyExperimental(this.object.Item, experimental.toLowerCase())
+        ) {
+            throw new IllegalChangeError(
+                `Can't apply ${experimental} to ${this.object.Item}`,
+            );
         }
         this._prepareObjectChange('Engineering', blueprint);
         this.setBlueprintProgress(progress); // this will commit prepare changes
