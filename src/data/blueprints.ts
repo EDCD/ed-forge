@@ -219,7 +219,6 @@ function applyBlueprintModifiers(
             if (!isNaN(Value)) {
                 propObject[prop] = {
                     Label: prop,
-                    LessIsGood: !propertyDescriptor.higherbetter,
                     Modifier,
                     Value,
                 };

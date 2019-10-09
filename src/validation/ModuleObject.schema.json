@@ -70,7 +70,7 @@
                         ],
                         "oneOf": [
                             {
-                                "required": [ "Value", "LessIsGood" ]
+                                "required": [ "Value" ]
                             },
                             {
                                 "required": [ "ValueStr" ]
@@ -80,7 +80,6 @@
                 }
             },
             "required": [
-                "Engineer",
                 "BlueprintName",
                 "Level",
                 "Quality",

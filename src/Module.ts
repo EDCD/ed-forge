@@ -131,7 +131,6 @@ export interface IModifierObject {
     Value: number;
     OriginalValue?: number;
     Modifier?: number;
-    LessIsGood?: boolean;
     UserSet?: boolean;
 }
 
