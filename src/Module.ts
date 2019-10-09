@@ -306,7 +306,13 @@ export default class Module extends DiffEmitter {
         return value;
     }
 
-    public getModifier(property: string): number | null {
+    /**
+     * Returns the modifier, i.e. change rate, of a given property or zero if
+     * the property hasn't been modified.
+     * @param property Property name
+     * @returns Modifier
+     */
+    public getModifier(property: string): number {
         property = property.toLowerCase();
         if (
             this.object.Engineering &&
@@ -314,7 +320,7 @@ export default class Module extends DiffEmitter {
         ) {
             return this.object.Engineering.Modifiers[property].Modifier;
         } else {
-            return null;
+            return 0;
         }
     }
 
