@@ -869,6 +869,18 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     * Returns the progress of the current blueprint or `null` if no blueprint
+     * is currently applied.
+     */
+    public getBlueprintProgress(): number | null {
+        if (this.object.Engineering) {
+            return this.object.Engineering.Quality;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Returns the size of the slot of this module. Size of utility slots and
      * bulkheads is always zero. Size of hardpoint slots is in range 1 to 4 for
      * small to huge.
