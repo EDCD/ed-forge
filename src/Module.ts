@@ -556,6 +556,13 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     * Clear all modifications.
+     */
+    public resetEngineering() {
+        delete this.object.Engineering;
+    }
+
+    /**
      * Clear all modifications and resets the slot completely. If the slot is a
      * core internal slot, the item won't get changed.
      */
@@ -565,7 +572,7 @@ export default class Module extends DiffEmitter {
         }
         this.object.Priority = 1;
         this.object.On = true;
-        delete this.object.Engineering;
+        this.resetEngineering();
     }
 
     /**
