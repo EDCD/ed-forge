@@ -163,12 +163,11 @@ export function calculateModifier(
     switch (propertyDescriptor.method) {
         case 'additive':
             return modifiedProperty - baseValue;
-        case 'multiplicative':
-            return modifiedProperty / baseValue;
         case 'overwrite':
             return modifiedProperty;
         default:
-            return modifiedProperty / baseValue;
+            // This includes method == 'multiplicative'
+            return modifiedProperty / baseValue - 1;
     }
 }
 
