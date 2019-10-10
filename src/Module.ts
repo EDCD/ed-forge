@@ -342,27 +342,33 @@ export default class Module extends DiffEmitter {
 
     /**
      * Sets the value of a property.
-     * @param property Property name
-     * @param value Property value
+     * @param Label Property name
+     * @param Value Property value
      */
-    public set(property: string, value: number) {
+    public set(Label: string, Value: number) {
         if (!this.object.Engineering) {
             throw new IllegalStateError(
-                `Can't set property ${property} - no blueprint applied`,
+                `Can't set property ${Label} - no blueprint applied`,
             );
         }
 
-        property = property.toLowerCase();
-        const propertyPath = `Engineering.Modifiers.${property}`;
-        if (this.object.Engineering.Modifiers[property]) {
-            this._writeObject(`${propertyPath}.Value`, value);
+        Label = Label.toLowerCase();
+        const propertyPath = `Engineering.Modifiers.${Label}`;
+        const Modifier = calculateModifier(
+            this.object.Item,
+            Label,
+            Value,
+        );
+        if (this.object.Engineering.Modifiers[Label]) {
+            this._prepareObjectChange(`${propertyPath}.Value`, Value);
+            this._prepareObjectChange(`${propertyPath}.Modifier`, Modifier);
+            this._prepareObjectChange(`${propertyPath}.UserSet`, true);
+            this._commitObjectChanges();
         } else {
-            this._writeObject(propertyPath, {
-                Label: property,
-                Modifier: calculateModifier(this.object.Item, property, value),
-                UserSet: true,
-                Value: value,
-            });
+            this._writeObject(
+                propertyPath,
+                { Label, Modifier, UserSet: true, Value },
+            );
         }
     }
 
