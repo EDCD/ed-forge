@@ -244,7 +244,8 @@ const META_KEYS = [ 'eddbID', 'edID', 'class', 'rating', 'fighterHangars',
     'experimental', 'cost', 'luxuryCabins' ];
 let NOT_PROPS_KEYS = [ 'rating', 'class', 'eddbID', 'id', 'edID', 'symbol',
     'grp', 'mount', 'damagedist', 'name', 'pp', 'missile', 'experimental',
-    'ukName', 'ukDiscript', 'passive', 'cost', 'ammocost', 'fightercost' ];
+    'ukName', 'ukDiscript', 'passive', 'cost', 'ammocost', 'fightercost',
+    'rechargerating' ];
 
 function modulePropsPicker(value, key) {
     return !NOT_PROPS_KEYS.includes(key);
