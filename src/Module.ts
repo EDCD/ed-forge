@@ -791,6 +791,13 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     * Returns the ship this module is assigned to or `null` if unassigned.
+     */
+    public getShip(): Ship | null {
+        return this.ship;
+    }
+
+    /**
      * Sets the ship of this module. A ship can only be assigned once to prevent
      * bad states.
      * @param ship
