@@ -127,8 +127,10 @@ export interface IDistributorSettingObject {
     mc: number;
 }
 
-const STATE_EVENT = 'diff-state';
-const OBJECT_EVENT = 'diff';
+/** Emitted by ship if the state changes (e.g. pips) */
+export const STATE_EVENT = 'diff-state';
+/** Emitted by ship if any property changes (includes module properties) */
+export const OBJECT_EVENT = 'diff';
 
 /**
  * An Elite: Dangerous ship build.
