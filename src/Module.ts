@@ -570,7 +570,7 @@ export default class Module extends DiffEmitter {
      * Clear all modifications.
      */
     public resetEngineering() {
-        delete this.object.Engineering;
+        this._writeObject('Engineering', undefined);
     }
 
     /**
@@ -579,10 +579,11 @@ export default class Module extends DiffEmitter {
      */
     public reset() {
         if (!this.object.Slot.match(REG_CORE_SLOT)) {
-            this.object.Item = '';
+            this._prepareObjectChange('Item', '');
         }
-        this.object.Priority = 1;
-        this.object.On = true;
+        this._prepareObjectChange('Priority', 1);
+        this._prepareObjectChange('On', true);
+        // resetEngineering will commit changes
         this.resetEngineering();
     }
 
