@@ -14,9 +14,10 @@ for (let { name, build } of TEST_SUITES) {
         });
 
         test('can calculate mass', () => {
-            const { UNLADEN_MASS, LADEN_MASS } = ShipProps;
+            const { UNLADEN_MASS, LADEN_MASS, MAXIMUM_MASS } = ShipProps;
             expect(ship.get(UNLADEN_MASS)).not.toBeNaN();
             expect(ship.get(LADEN_MASS)).not.toBeNaN();
+            expect(ship.get(MAXIMUM_MASS)).not.toBeNaN();
         });
 
         test('can calculate fuel/cargo capacity', () => {

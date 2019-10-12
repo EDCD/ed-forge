@@ -18,6 +18,7 @@ import {
     SHIELD_METRICS_CALCULATOR,
     SPEED_CALCULATOR,
     UNLADEN_MASS_CALCULATOR,
+    MAXIMUM_MASS_CALCULATOR,
 } from './stats';
 import { IArmourMetrics } from './stats/ArmourProfile';
 import { getCost, getRefuelCost } from './stats/Cost';
@@ -45,6 +46,8 @@ export const COST: ShipPropertyCalculator = getCost;
 export const REFUEL_COST: ShipPropertyCalculator = getRefuelCost;
 
 export const FUEL_CAPACITY: IShipPropertyCalculatorClass = FUEL_CAPACITY_CALCULATOR;
+
+export const MAXIMUM_MASS: IShipPropertyCalculatorClass = MAXIMUM_MASS_CALCULATOR;
 
 export const JUMP_METRICS: ShipMetricsCalculator<IJumpRangeMetrics> =
     JUMP_CALCULATOR.getJumpRangeMetrics;
