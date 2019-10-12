@@ -767,7 +767,8 @@ export default class Module extends DiffEmitter {
     }
 
     /**
-     * Get the power priority of the current module.
+     * Get the power priority of the current module. Priorities are indices
+     * starting with `0` which corresponds to the ingame priority group `1`.
      * @return Power priority group
      */
     public getPowerPriority(): number | null {

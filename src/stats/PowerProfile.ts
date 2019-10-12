@@ -75,7 +75,7 @@ function calculatePowerMetrics(ship: Ship, modified: boolean): IPowerMetrics {
     for (const module of ship.getModules()) {
         const draws = module.get('powerdraw', modified);
         if (0 < draws && module.isEnabled()) {
-            const priorityIndex = module.getPowerPriority() - 1;
+            const priorityIndex = module.getPowerPriority();
             const updater = (val: number) => (val || 0) + draws;
             groupsDraw = update(groupsDraw, priorityIndex, updater);
             if (!module.object.Slot.match(REG_HARDPOINT_SLOT)) {
