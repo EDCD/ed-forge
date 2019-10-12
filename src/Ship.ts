@@ -91,8 +91,6 @@ export interface IShipState {
     Cargo: number;
     /** Tones of fuel in tanks */
     Fuel: number;
-    /** Does the ship currently boost? */
-    BoostActive: boolean;
 }
 
 /**
@@ -139,7 +137,6 @@ export default class Ship extends DiffEmitter {
     public liveryModules: IModuleObject[] = [];
     public object: IShipObjectHandler = null;
     public state: IShipState = {
-        BoostActive: false,
         Cargo: 0,
         Fuel: 1,
         PowerDistributor: cloneDeep(RESET_PIPS),
@@ -805,22 +802,6 @@ export default class Ship extends DiffEmitter {
         fuel = Math.max(0, fuel);
         fuel = Math.min(fuel, this.get(FUEL_CAPACITY, true));
         this._writeState('Fuel', fuel);
-    }
-
-    /**
-     * Returns whether the ship is currently boosting.
-     * @returns True if the ship is boosting
-     */
-    public isBoosting(): boolean {
-        return this.state.BoostActive;
-    }
-
-    /**
-     * Set whether the ship is currently boosting
-     * @param isBoosting True when boosting
-     */
-    public setBoosting(isBoosting: boolean) {
-        this._writeState('BoostActive', isBoosting);
     }
 
     /**

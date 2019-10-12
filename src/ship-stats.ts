@@ -56,9 +56,17 @@ export const TOTAL_RANGE: ShipPropertyCalculator =
     JUMP_CALCULATOR.getTotalRange;
 
 export const SPEED: ShipPropertyCalculator = SPEED_CALCULATOR.getSpeed;
+export const BOOST_SPEED: ShipPropertyCalculator = SPEED_CALCULATOR.getBoostSpeed;
+export const MAX_SPEED: ShipPropertyCalculator = SPEED_CALCULATOR.getMaxSpeed;
 export const YAW: ShipPropertyCalculator = SPEED_CALCULATOR.getYaw;
+export const BOOST_YAW: ShipPropertyCalculator = SPEED_CALCULATOR.getBoostYaw;
+export const MAX_YAW: ShipPropertyCalculator = SPEED_CALCULATOR.getMaxYaw;
 export const ROLL: ShipPropertyCalculator = SPEED_CALCULATOR.getRoll;
+export const BOOST_ROLL: ShipPropertyCalculator = SPEED_CALCULATOR.getBoostRoll;
+export const MAX_ROLL: ShipPropertyCalculator = SPEED_CALCULATOR.getMaxRoll;
 export const PITCH: ShipPropertyCalculator = SPEED_CALCULATOR.getPitch;
+export const BOOST_PITCH: ShipPropertyCalculator = SPEED_CALCULATOR.getBoostPitch;
+export const MAX_PITCH: ShipPropertyCalculator = SPEED_CALCULATOR.getMaxPitch;
 
 export const SHIELD_METRICS: ShipMetricsCalculator<IShieldMetricsWithRecharge> =
     SHIELD_METRICS_CALCULATOR.getShieldMetrics;
