@@ -52,6 +52,10 @@ export function scaleMul(
     max: number,
     val: number,
 ): number {
+    if (max < val) {
+        return 0;
+    }
+
     const base = Math.min(1, (max - val) / (max - min));
     let exp = Math.log((optMul - minMul) / (maxMul - minMul));
     exp /= Math.log(Math.min(1, (max - opt) / (max - min)));
