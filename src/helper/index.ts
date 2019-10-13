@@ -10,15 +10,22 @@ import { map, mapValues, values } from 'lodash';
 import Module from '../Module';
 
 /**
- * Check whether a string matches any of the given regular expressions.
+ * Check whether a string matches any of the given regular expressions or equals
+ * any of the given strings.
  * @param str String to match
- * @param regs Regular expressions to match against
+ * @param regs Regular expressions/strings to match against
  * @returns True when there is some match
  */
-export function matchesAny(str: string, ...regs: RegExp[]): boolean {
+export function matchesAny(str: string, ...regs: (string | RegExp)[]): boolean {
     for (const r of regs) {
-        if (str.match(r)) {
-            return true;
+        if (r instanceof RegExp) {
+            if (str.match(r)) {
+                return true;
+            }
+        } else {
+            if (str === r) {
+                return true;
+            }
         }
     }
     return false;

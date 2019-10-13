@@ -315,28 +315,16 @@ export default class Ship extends DiffEmitter {
             return [];
         }
 
-        if (slots instanceof RegExp) {
-            slots = [slots];
-        }
-
         let ms = chain(this.object.Modules).values();
         if (!includeEmpty) {
             ms = ms.filter((m) => !m.isEmpty());
         }
         if (slots) {
-            const ss: string[] = [];
-            const rs: RegExp[] = [];
-            slots.forEach((slot) => {
-                if (typeof slot === 'string') {
-                    ss.push(slot);
-                } else {
-                    rs.push(slot);
-                }
-            });
             ms = ms.filter(
-                (module) =>
-                    module.object.Slot in ss ||
-                    matchesAny(module.object.Slot, ...rs),
+                (module) => matchesAny(
+                    module.object.Slot,
+                    ...(Array.isArray(slots) ? slots : [slots]),
+                ),
             );
         }
         if (type) {
