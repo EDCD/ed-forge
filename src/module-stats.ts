@@ -215,7 +215,7 @@ const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = {
     shotspeed: { method: 'multiplicative', higherbetter: true },
     sustaineddamagerpersecond: { higherbetter: true, getter: SDPS },
     sustainedenergypersecond: { higherbetter: true, getter: SEPS },
-    sustainedheatpersecond: { higherbetter: true, getter: SHPS },
+    sustainedheatpersecond: { higherbetter: false, getter: SHPS },
     systemscapacity: { method: 'multiplicative', higherbetter: true },
     systemsrecharge: { method: 'multiplicative', higherbetter: true },
     thermalload: { method: 'multiplicative', higherbetter: false },
