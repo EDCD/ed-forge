@@ -232,7 +232,7 @@ const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = {
 };
 export default MODULE_STATS;
 
-const PD_RECHARGE_MAP = {};
+export const PD_RECHARGE_MAP = {};
 for (let i = 0; i <= 4; i += 0.5) {
     PD_RECHARGE_MAP[i] = Math.pow(i, 1.1) / Math.pow(4, 1.1);
 }
