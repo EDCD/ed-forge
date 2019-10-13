@@ -214,6 +214,8 @@ const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = {
     },
     shotspeed: { method: 'multiplicative', higherbetter: true },
     sustaineddamagerpersecond: { higherbetter: true, getter: SDPS },
+    sustainedenergypersecond: { higherbetter: true, getter: SEPS },
+    sustainedheatpersecond: { higherbetter: true, getter: SHPS },
     systemscapacity: { method: 'multiplicative', higherbetter: true },
     systemsrecharge: { method: 'multiplicative', higherbetter: true },
     thermalload: { method: 'multiplicative', higherbetter: false },
@@ -306,11 +308,8 @@ export function DPS(module: Module, modified: boolean): number {
     return damage * roundsPerShot * rateOfFire;
 }
 
-export function SDPS(module: Module, modified: boolean): number {
-    let dps = DPS(module, modified);
+function getSustainedRate(module: Module, modified: boolean): number {
     let clipSize = module.get('ammoclipsize', modified);
-    // If auto-loader is applied, effective clip size will be nearly doubled
-    // as you get one reload for every two shots fired.
     if (clipSize) {
         if (
             modified &&
@@ -318,20 +317,31 @@ export function SDPS(module: Module, modified: boolean): number {
             module.object.Engineering.ExperimentalEffect ===
                 'special_auto_loader'
         ) {
+            // If auto-loader is applied, effective clip size will be nearly
+            // doubled as you get one reload for every two shots fired.
             clipSize += clipSize - 1;
         }
         const timeToDeplete = clipSize / module.get('rateoffire', modified);
-        dps *=
-            timeToDeplete /
-            (timeToDeplete + module.get('reloadtime', modified));
+        return (
+            timeToDeplete / (timeToDeplete + module.get('reloadtime', modified))
+        );
+    } else {
+        return 1;
     }
-    return dps;
+}
+
+export function SDPS(module: Module, modified: boolean): number {
+    return DPS(module, modified) * getSustainedRate(module, modified);
 }
 
 export function EPS(module: Module, modified: boolean): number {
     const distDraw = module.get('distributordraw', modified);
     const rof = module.get('rateoffire', modified) || 1;
     return distDraw * rof;
+}
+
+export function SEPS(module: Module, modified?: boolean): number {
+    return EPS(module, modified) * getSustainedRate(module, modified);
 }
 
 export function DPE(module: Module, modified: boolean): number {
@@ -345,8 +355,13 @@ export function HPS(module: Module, modified: boolean): number {
     return thermalLoad * rof;
 }
 
+export function SHPS(module: Module, modified: boolean): number {
+    return HPS(module, modified) * getSustainedRate(module, modified);
+}
+
 export function AMMO_TOTAL(module: Module, modified: boolean): number {
-    return module.get('ammomaximum') + module.get('ammoclipsize');
+    return module.get('ammomaximum', modified)
+        + module.get('ammoclipsize', modified);
 }
 
 function effToRes(eff: string, module: Module, modified: boolean): number {
