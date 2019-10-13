@@ -6,7 +6,7 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import { range } from 'lodash';
+import { mapValues, range } from 'lodash';
 
 import {
     LADEN_MASS_CALCULATOR,
@@ -184,7 +184,7 @@ export default class SpeedProfile {
     }
 
     public getSpeedProfile(ship: Ship, modified?: boolean): ISpeedProfile {
-        return {
+        const profile = {
             max: this.max.get(
                 ship,
                 getSpeedMetrics,
@@ -201,6 +201,15 @@ export default class SpeedProfile {
                 [ship, LADEN_MASS_CALCULATOR, modified],
             ),
         };
+        const canBoost =
+            ship.getBaseProperty('boostenergy') <
+            ship.getPowerDistributor().get('enginescapacity', modified);
+        if (!canBoost) {
+            profile.max.boost = mapValues(profile.max.boost, () => NaN);
+            profile.min.boost = mapValues(profile.min.boost, () => NaN);
+            profile.now.boost = mapValues(profile.now.boost, () => NaN);
+        }
+        return profile;
     }
 
     /**
