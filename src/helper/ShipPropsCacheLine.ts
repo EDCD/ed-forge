@@ -18,8 +18,8 @@ import ShipCacheLine, { IDependable } from './ShipCacheLine';
  * one of the regexes for [[slot]] and/or [[type]] (if given).
  */
 export interface IModuleDiffDescriptor {
-    slot?: RegExp[];
-    type?: RegExp[];
+    slot?: (string | RegExp)[];
+    type?: (string | RegExp)[];
     props: string[];
 }
 
