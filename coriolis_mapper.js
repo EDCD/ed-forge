@@ -234,7 +234,7 @@ const MODULES = {
             Slot: '',
             On: true,
             Item: '',
-            Priority: '',
+            Priority: 0,
         },
     },
 };
@@ -288,7 +288,7 @@ function consumeModule(module) {
             Slot: '',
             On: true,
             Item: module.symbol,
-            Priority: 1
+            Priority: 0
         },
         props: _.mapKeys(_.pickBy(module, modulePropsPicker), mapper),
         meta: _.defaults(_.pick(module, META_KEYS), {
@@ -457,7 +457,7 @@ function consumeShip(entry) {
         .forEach((slot, i) => {
             let defaultId = ship.defaults.internal[i];
             let module = defaultId ? _.clone(ID_TO_MODULE[defaultId].proto)
-                : { Slot: '', On: true, Item: '', Priority: 1 };
+                : { Slot: '', On: true, Item: '', Priority: 0 };
             module.Slot = slot;
 
             j.proto.Modules.push(module);
@@ -475,7 +475,7 @@ function consumeShip(entry) {
             let hardpointId = ship.defaults.hardpoints[i];
             // default IDs for hardpoints happen to be integers
             let module = hardpointId ? _.clone(ID_TO_MODULE_HP[String(hardpointId)].proto)
-                : { Slot: '', On: true, Item: '', Priority: 1 };
+                : { Slot: '', On: true, Item: '', Priority: 0 };
             module.Slot = slot;
             j.proto.Modules.push(module);
         });
