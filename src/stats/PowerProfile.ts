@@ -52,8 +52,12 @@ function absoluteToAggregatedRelative(
     return reduce(
         groups,
         (aggr, groupDraw) => {
-            consumed += groupDraw;
-            aggr.push(consumed / produced);
+            if (!groupDraw) {
+                aggr.push(undefined);
+            } else {
+                consumed += groupDraw;
+                aggr.push(consumed / produced);
+            }
             return aggr;
         },
         [],
@@ -85,8 +89,8 @@ function calculatePowerMetrics(ship: Ship, modified: boolean): IPowerMetrics {
     }
 
     return {
-        consumed: reduce(groupsDraw, add),
-        consumedRetracted: reduce(groupsDrawNoHP, add),
+        consumed: reduce(groupsDraw.filter(Boolean), add),
+        consumedRetracted: reduce(groupsDrawNoHP.filter(Boolean), add),
         generated,
         relativeConsumed: absoluteToAggregatedRelative(generated, groupsDraw),
         relativeConsumedRetracted: absoluteToAggregatedRelative(
