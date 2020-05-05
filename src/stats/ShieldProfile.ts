@@ -5,7 +5,6 @@
 /**
  * Ignore
  */
-import autoBind from 'auto-bind';
 import { assign, clone } from 'lodash';
 
 import { Module, Ship } from '..';
@@ -16,7 +15,6 @@ import {
     moduleReduceEnabled,
     scaleMul,
 } from '../helper';
-import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
 import { EFFECTIVE_SYS_RATE } from '../module-stats';
 
 /**
@@ -151,7 +149,7 @@ interface IRechargeTimes {
  * @param distributorEnabled Whether or not the power distributor is enabled
  * @returns Recharge time
  */
-function getRechargeTime(
+function calculateRechargeTime(
     rechargeSize: number,
     rechargeRate: number,
     distributorDraw: number,
@@ -210,7 +208,7 @@ function getShieldAddition(ship: Ship, modified: boolean): number {
     );
 }
 
-function getShieldMetrics(
+function calculateShieldMetrics(
     shieldGenerator: Module,
     baseShieldStrength: number,
     shieldAddition: number,
@@ -363,7 +361,7 @@ function getRechargeMetrics(
     );
     const distributorEnabled = powerDistributor.isEnabled();
 
-    const { recharge, minRecharge } = getRechargeTime(
+    const { recharge, minRecharge } = calculateRechargeTime(
         shieldStrength / 2,
         shieldGenerator.getClean('regenrate', modified),
         distributorDraw,
@@ -371,7 +369,7 @@ function getRechargeMetrics(
         distributorRecharge,
         distributorEnabled,
     );
-    const recoverTimes = getRechargeTime(
+    const recoverTimes = calculateRechargeTime(
         shieldStrength / 2,
         shieldGenerator.getClean('brokenregenrate', modified),
         distributorDraw,
@@ -388,258 +386,188 @@ function getRechargeMetrics(
     };
 }
 
-export default class ShieldProfile {
-    private shieldStrength: ShipPropsCacheLine<number> = new ShipPropsCacheLine(
-        {
-            props: [
-                'shieldgenminstrength',
-                'shieldgenstrength',
-                'shieldgenmaxstrength',
-                'shieldgenminimalmass',
-                'shieldgenoptimalmass',
-                'shieldgenmaximalmass',
-            ],
-            type: [/ShieldGenerator/i],
-        },
-    );
-    private shieldAddition: ShipPropsCacheLine<number> = new ShipPropsCacheLine(
-        {
-            props: ['defencemodifiershieldaddition'],
-            type: [/GuardianShieldReinforcement/i],
-        },
-    );
-    private shieldMetrics: ShipPropsCacheLine<
-        IShieldMetrics
-    > = new ShipPropsCacheLine(this.shieldStrength, {
-        props: [
-            'explosiveresistance',
-            'kineticresistance',
-            'thermicresistance',
-            'defencemodifiershieldmultiplier',
-        ],
-        type: [/ShieldGenerator/i, /ShieldBooster/i],
-    });
-    private scbAddition: ShipPropsCacheLine<number> = new ShipPropsCacheLine({
-        props: [
-            'ammomaximum',
-            'ammoclipsize',
-            'shieldbankduration',
-            'shieldbankreinforcement',
-        ],
-        type: [/ShieldCellBank/i],
-    });
-    private rechargeMetrics: ShipPropsCacheLine<
-        IRechargeMetrics
-    > = new ShipPropsCacheLine(
-        this.shieldMetrics,
-        {
-            props: ['regenrate', 'brokenregenrate'],
-            type: [/ShieldGenerator/i],
-        },
-        {
-            props: ['systemscapacity', 'systemsrecharge'],
-            type: [/PowerDistributor/i],
-        },
+/**
+ * Calculate shield metrics for a given ship
+ * @param ship Ship
+ * @param modified True when modifications should be taken into account
+ * @returns Shield metrics
+ */
+export function getShieldMetrics(
+    ship: Ship,
+    modified: boolean,
+): IShieldMetricsWithRecharge {
+    const shieldGenerator = ship.getShieldGenerator();
+    if (!shieldGenerator || !shieldGenerator.isEnabled()) {
+        return {
+            absolute: clone(NEUTRAL_DAMAGE_MULTIPLIERS),
+            byBoosters: 0,
+            byGenerator: 0,
+            byReinforcements: 0,
+            bySCBs: 0,
+            explosive: clone(NEUTRAL_DAMAGE_MULTIPLIERS),
+            kinetic: clone(NEUTRAL_DAMAGE_MULTIPLIERS),
+            minRecharge: undefined,
+            minRecover: undefined,
+            recharge: undefined,
+            recover: undefined,
+            shieldStrength: 0,
+            thermal: clone(NEUTRAL_DAMAGE_MULTIPLIERS),
+            withSCBs: 0,
+        };
+    }
+
+    const baseShieldStrength = getBaseShieldStrength(
+        shieldGenerator,
+        ship,
+        modified,
     );
 
-    constructor() {
-        autoBind(this);
-    }
+    const shieldAddition = getShieldAddition(ship, modified);
 
-    /**
-     * Calculate shield metrics for a given ship
-     * @param ship Ship
-     * @param modified True when modifications should be taken into account
-     * @returns Shield metrics
-     */
-    public getShieldMetrics(
-        ship: Ship,
-        modified: boolean,
-    ): IShieldMetricsWithRecharge {
-        const shieldGenerator = ship.getShieldGenerator();
-        if (!shieldGenerator || !shieldGenerator.isEnabled()) {
-            return {
-                absolute: clone(NEUTRAL_DAMAGE_MULTIPLIERS),
-                byBoosters: 0,
-                byGenerator: 0,
-                byReinforcements: 0,
-                bySCBs: 0,
-                explosive: clone(NEUTRAL_DAMAGE_MULTIPLIERS),
-                kinetic: clone(NEUTRAL_DAMAGE_MULTIPLIERS),
-                minRecharge: undefined,
-                minRecover: undefined,
-                recharge: undefined,
-                recover: undefined,
-                shieldStrength: 0,
-                thermal: clone(NEUTRAL_DAMAGE_MULTIPLIERS),
-                withSCBs: 0,
-            };
-        }
+    const metrics = calculateShieldMetrics(
+        shieldGenerator,
+        baseShieldStrength,
+        shieldAddition,
+        ship,
+        modified,
+    );
 
-        const baseShieldStrength = this.shieldStrength.get(
-            ship,
-            getBaseShieldStrength,
-            [shieldGenerator, ship, modified],
-        );
+    const scbAddition = getSCBAddition(ship, modified);
 
-        const shieldAddition = this.shieldAddition.get(
-            ship,
-            getShieldAddition,
-            [ship, modified],
-        );
+    metrics.bySCBs = scbAddition;
+    metrics.withSCBs = metrics.shieldStrength + scbAddition;
 
-        const metrics = this.shieldMetrics.get(ship, getShieldMetrics, [
-            shieldGenerator,
-            baseShieldStrength,
-            shieldAddition,
-            ship,
-            modified,
-        ]);
+    const powerDistributor = ship.getPowerDistributor();
+    const rechargeMetrics = getRechargeMetrics(
+        metrics.shieldStrength,
+        shieldGenerator,
+        powerDistributor,
+        modified,
+    );
+    assign(metrics, rechargeMetrics);
 
-        const scbAddition = this.scbAddition.get(ship, getSCBAddition, [
-            ship,
-            modified,
-        ]);
+    const sysPips = ship.getDistributorSettings().Sys;
+    const sysDamage = 1 - SYS_RES_MAP[sysPips];
+    metrics.absolute.withSys = sysDamage;
+    metrics.absolute.bySys = sysDamage;
+    metrics.explosive.withSys *= sysDamage;
+    metrics.explosive.bySys = sysDamage;
+    metrics.kinetic.withSys *= sysDamage;
+    metrics.kinetic.bySys = sysDamage;
+    metrics.thermal.withSys *= sysDamage;
+    metrics.thermal.bySys = sysDamage;
 
-        metrics.bySCBs = scbAddition;
-        metrics.withSCBs = metrics.shieldStrength + scbAddition;
+    return metrics as IShieldMetricsWithRecharge;
+}
 
-        const powerDistributor = ship.getPowerDistributor();
-        const rechargeMetrics = this.rechargeMetrics.get(
-            ship,
-            getRechargeMetrics,
-            [
-                metrics.shieldStrength,
-                shieldGenerator,
-                powerDistributor,
-                modified,
-            ],
-        );
-        assign(metrics, rechargeMetrics);
+/**
+ * Calculate the base shield strength for a ship; excluding effects from
+ * pips to sys and shield cell banks but including shield boosters and
+ * shield reinforcement.
+ * packages.
+ * @param ship Ship to get the shield strength for
+ * @param modified True when modifications should be taken into account
+ * @returns Total raw shield strength
+ */
+export function getStrength(ship: Ship, modified: boolean): number {
+    const metrics = getShieldMetrics(ship, modified);
+    return metrics.shieldStrength / metrics.absolute.damageMultiplier;
+}
 
-        const sysPips = ship.getDistributorSettings().Sys;
-        const sysDamage = 1 - SYS_RES_MAP[sysPips];
-        metrics.absolute.withSys = sysDamage;
-        metrics.absolute.bySys = sysDamage;
-        metrics.explosive.withSys *= sysDamage;
-        metrics.explosive.bySys = sysDamage;
-        metrics.kinetic.withSys *= sysDamage;
-        metrics.kinetic.bySys = sysDamage;
-        metrics.thermal.withSys *= sysDamage;
-        metrics.thermal.bySys = sysDamage;
+/**
+ * Calculate the explosive resistance of the shields for a ship; excluding
+ * effects from pips to sys.
+ * @param ship Ship to get the resistance for
+ * @param modified True when modifications should be taken into account
+ * @returns Explosive resistance
+ */
+export function getExplosiveResistance(ship: Ship, modified: boolean): number {
+    return (
+        1 - getShieldMetrics(ship, modified).explosive.damageMultiplier
+    );
+}
 
-        return metrics as IShieldMetricsWithRecharge;
-    }
+/**
+ * Calculate the shield strength against explosive attacks for a ship;
+ * excluding effects from pips to sys. and strength by shield cell banks.
+ * @param ship Ship to get the shield strength for
+ * @param modified True when modifications should be taken into account
+ * @returns Shield strength against explosive attacks
+ */
+export function getExplosiveStrength(ship: Ship, modified: boolean): number {
+    const metrics = getShieldMetrics(ship, modified);
+    return metrics.shieldStrength / metrics.explosive.damageMultiplier;
+}
 
-    /**
-     * Calculate the base shield strength for a ship; excluding effects from
-     * pips to sys and shield cell banks but including shield boosters and
-     * shield reinforcement.
-     * packages.
-     * @param ship Ship to get the shield strength for
-     * @param modified True when modifications should be taken into account
-     * @returns Total raw shield strength
-     */
-    public getStrength(ship: Ship, modified: boolean): number {
-        const metrics = this.getShieldMetrics(ship, modified);
-        return metrics.shieldStrength / metrics.absolute.damageMultiplier;
-    }
+/**
+ * Calculate the kinetic resistance of the shields for a ship; excluding
+ * effects from pips to sys.
+ * @param ship Ship to get the resistance for
+ * @param modified True when modifications should be taken into account
+ * @returns Kinetic resistance
+ */
+export function getKineticResistance(ship: Ship, modified: boolean) {
+    return (
+        1 - getShieldMetrics(ship, modified).kinetic.damageMultiplier
+    );
+}
 
-    /**
-     * Calculate the explosive resistance of the shields for a ship; excluding
-     * effects from pips to sys.
-     * @param ship Ship to get the resistance for
-     * @param modified True when modifications should be taken into account
-     * @returns Explosive resistance
-     */
-    public getExplosiveResistance(ship: Ship, modified: boolean): number {
-        return (
-            1 - this.getShieldMetrics(ship, modified).explosive.damageMultiplier
-        );
-    }
+/**
+ * Calculate the shield strength against kinetic attacks for a ship;
+ * excluding effects from pips to sys and strength by shield cell banks.
+ * @param ship Ship to get the shield strength for
+ * @param modified True when modifications should be taken into account
+ * @returns Shield strength against kinetic attacks
+ */
+export function getKineticStrength(ship: Ship, modified: boolean): number {
+    const metrics = getShieldMetrics(ship, modified);
+    return metrics.shieldStrength / metrics.kinetic.damageMultiplier;
+}
 
-    /**
-     * Calculate the shield strength against explosive attacks for a ship;
-     * excluding effects from pips to sys. and strength by shield cell banks.
-     * @param ship Ship to get the shield strength for
-     * @param modified True when modifications should be taken into account
-     * @returns Shield strength against explosive attacks
-     */
-    public getExplosiveStrength(ship: Ship, modified: boolean): number {
-        const metrics = this.getShieldMetrics(ship, modified);
-        return metrics.shieldStrength / metrics.explosive.damageMultiplier;
-    }
+/**
+ * Calculate the thermal resistance of the shields for a ship; excluding
+ * effects from pips to sys.
+ * @param ship Ship to the resistance for
+ * @param modified True when modifications should be taken into account
+ * @returns Thermal resistance
+ */
+export function getThermalResistance(ship: Ship, modified: boolean): number {
+    return (
+        1 - getShieldMetrics(ship, modified).thermal.damageMultiplier
+    );
+}
 
-    /**
-     * Calculate the kinetic resistance of the shields for a ship; excluding
-     * effects from pips to sys.
-     * @param ship Ship to get the resistance for
-     * @param modified True when modifications should be taken into account
-     * @returns Kinetic resistance
-     */
-    public getKineticResistance(ship: Ship, modified: boolean) {
-        return (
-            1 - this.getShieldMetrics(ship, modified).kinetic.damageMultiplier
-        );
-    }
+/**
+ * Calculate the shield strength against thermal attacks for a ship;
+ * excluding effects from pips to sys and strength by shield cell banks.
+ * @param ship Ship to get the shield strength for
+ * @param modified True when modifications should be taken into account
+ * @returns Shield strength against thermal attacks
+ */
+export function getThermalStrength(ship: Ship, modified: boolean): number {
+    const metrics = getShieldMetrics(ship, modified);
+    return metrics.shieldStrength / metrics.explosive.damageMultiplier;
+}
 
-    /**
-     * Calculate the shield strength against kinetic attacks for a ship;
-     * excluding effects from pips to sys and strength by shield cell banks.
-     * @param ship Ship to get the shield strength for
-     * @param modified True when modifications should be taken into account
-     * @returns Shield strength against kinetic attacks
-     */
-    public getKineticStrength(ship: Ship, modified: boolean): number {
-        const metrics = this.getShieldMetrics(ship, modified);
-        return metrics.shieldStrength / metrics.kinetic.damageMultiplier;
-    }
+/**
+ * Get the recharge time from 50% to 100% for the shields of a given ship
+ * not taking the effects of the power distributor into account.
+ * @param ship Ship to get the recharge time for
+ * @param modified True when modifications should be taken into account
+ * @returns Recharge time from 50% to 100%
+ */
+export function getRechargeTime(ship: Ship, modified: boolean): number {
+    return getShieldMetrics(ship, modified).minRecharge;
+}
 
-    /**
-     * Calculate the thermal resistance of the shields for a ship; excluding
-     * effects from pips to sys.
-     * @param ship Ship to the resistance for
-     * @param modified True when modifications should be taken into account
-     * @returns Thermal resistance
-     */
-    public getThermalResistance(ship: Ship, modified: boolean): number {
-        return (
-            1 - this.getShieldMetrics(ship, modified).thermal.damageMultiplier
-        );
-    }
-
-    /**
-     * Calculate the shield strength against thermal attacks for a ship;
-     * excluding effects from pips to sys and strength by shield cell banks.
-     * @param ship Ship to get the shield strength for
-     * @param modified True when modifications should be taken into account
-     * @returns Shield strength against thermal attacks
-     */
-    public getThermalStrength(ship: Ship, modified: boolean): number {
-        const metrics = this.getShieldMetrics(ship, modified);
-        return metrics.shieldStrength / metrics.explosive.damageMultiplier;
-    }
-
-    /**
-     * Get the recharge time from 50% to 100% for the shields of a given ship
-     * not taking the effects of the power distributor into account.
-     * @param ship Ship to get the recharge time for
-     * @param modified True when modifications should be taken into account
-     * @returns Recharge time from 50% to 100%
-     */
-    public getRechargeTime(ship: Ship, modified: boolean): number {
-        return this.getShieldMetrics(ship, modified).minRecharge;
-    }
-
-    /**
-     * Get the time to recover for the shields of the given ship, i.e. how long
-     * it takes shields to recover to 50% after they collapsed. Effects by the
-     * power distributor are ignored in the calculations.
-     * @param ship Ship to get the recover time for
-     * @param modified True when modifications should be taken into account
-     * @returns Time to recover to 50% after collapse
-     */
-    public getRecoverTime(ship: Ship, modified: boolean): number {
-        return this.getShieldMetrics(ship, modified).minRecover;
-    }
+/**
+ * Get the time to recover for the shields of the given ship, i.e. how long
+ * it takes shields to recover to 50% after they collapsed. Effects by the
+ * power distributor are ignored in the calculations.
+ * @param ship Ship to get the recover time for
+ * @param modified True when modifications should be taken into account
+ * @returns Time to recover to 50% after collapse
+ */
+export function getRecoverTime(ship: Ship, modified: boolean): number {
+    return getShieldMetrics(ship, modified).minRecover;
 }

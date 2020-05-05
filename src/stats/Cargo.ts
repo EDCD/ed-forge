@@ -5,26 +5,13 @@
 /**
  * Ignore
  */
-import autoBind from 'auto-bind';
-
-import { CARGO_CAPACITY_CALCULATOR } from '.';
 import { Ship } from '..';
-import ShipStateCacheLine from '../helper/ShipStateCacheLine';
+import { add, moduleReduce } from '../helper';
 
-function getCargo(ship: Ship, modified: boolean) {
-    return Math.min(
-        ship.state.Cargo,
-        CARGO_CAPACITY_CALCULATOR.calculate(ship, modified),
-    );
+export function getCargoCapacity(ship: Ship, modified: boolean): number {
+    return moduleReduce(ship.object.Modules, 'cargo', modified, add, 0);
 }
 
-export default class Cargo extends ShipStateCacheLine<number> {
-    constructor() {
-        super(CARGO_CAPACITY_CALCULATOR, 'Cargo');
-        autoBind(this);
-    }
-
-    public calculate(ship: Ship, modified: boolean): number {
-        return this.get(ship, getCargo, [ship, modified]);
-    }
+export function getCargo(ship: Ship, modified: boolean) {
+    return Math.min(ship.state.Cargo, getCargoCapacity(ship, modified));
 }

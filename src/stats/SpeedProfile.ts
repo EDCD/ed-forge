@@ -5,18 +5,11 @@
 /**
  * Ignore
  */
-import autoBind from 'auto-bind';
-import { mapValues, range } from 'lodash';
+import { range } from 'lodash';
 
-import {
-    LADEN_MASS_CALCULATOR,
-    MAXIMUM_MASS_CALCULATOR,
-    UNLADEN_MASS_CALCULATOR,
-} from '.';
 import { scaleMul } from '../helper';
-import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
 import Ship from '../Ship';
-import { IShipPropertyCalculatorClass } from '../ship-stats';
+import { getLadenMass } from './Mass';
 
 /**
  * Describes the manuverability of a ship
@@ -44,15 +37,6 @@ export interface ISpeedMetrics {
      * metrics.
      */
     pipped: IManeuverabilityMetrics[];
-}
-
-export interface ISpeedProfile {
-    /** Worst speed metrics, i.e. when fully loaded with cargo and fuel */
-    min: ISpeedMetrics;
-    /** Speed metrics with current mass, i.e. factoring in the ship's state */
-    now: ISpeedMetrics;
-    /** Best speed metrics, i.e. without fuel or cargo */
-    max: ISpeedMetrics;
 }
 
 /**
@@ -128,20 +112,28 @@ function getManeuverabilityMetrics(
  * @param [modified] True if modifications should be taken into account
  * @eturns Speed metrics of the ship
  */
-function getSpeedMetrics(
+export function getSpeedMetrics(
     ship: Ship,
-    massCalculator: IShipPropertyCalculatorClass,
     modified?: boolean,
 ): ISpeedMetrics {
     const multipliers = getSpeedMultipliers(
         ship,
-        ship.get(massCalculator, modified),
+        getLadenMass(ship, modified),
         modified,
     );
-    const boost = getManeuverabilityMetrics(
-        ship,
-        multipliers[8] * getBoostMultiplier(ship),
-    );
+
+    let boost;
+    const canBoost =
+        ship.getBaseProperty('boostenergy') <
+        ship.getPowerDistributor().get('enginescapacity', modified);
+    if (canBoost) {
+        boost = getManeuverabilityMetrics(
+            ship,
+            multipliers[8] * getBoostMultiplier(ship),
+        );
+    } else {
+        boost = { pitch: NaN, roll: NaN, speed: NaN, yaw: NaN };
+    }
     const pipped = multipliers.map((mult) =>
         getManeuverabilityMetrics(ship, mult),
     );
@@ -149,152 +141,70 @@ function getSpeedMetrics(
     return { boost, pipped };
 }
 
-const ENGINE_DEPENDENCIES = {
-    props: [
-        'engineminperformance',
-        'engineoptperformance',
-        'enginemaxperformance',
-        'engineminimalmass',
-        'engineoptimalmass',
-        'enginemaximalmass',
-    ],
-    type: [/Engine/i],
-};
-
 function getEngIndex(ship: Ship): number {
     return ship.getDistributorSettings().Eng / 0.5;
 }
 
-export default class SpeedProfile {
-    private min = new ShipPropsCacheLine<ISpeedMetrics>(
-        MAXIMUM_MASS_CALCULATOR,
-        ENGINE_DEPENDENCIES,
-    );
-    private max = new ShipPropsCacheLine<ISpeedMetrics>(
-        UNLADEN_MASS_CALCULATOR,
-        ENGINE_DEPENDENCIES,
-    );
-    private now = new ShipPropsCacheLine<ISpeedMetrics>(
-        LADEN_MASS_CALCULATOR,
-        ENGINE_DEPENDENCIES,
-    );
+/**
+ * Get the top speed of this ship taking into account whether it's currently
+ * boosting.
+ * @param ship Ship to get the speed for
+ * @param [modified] True when modifications should be taken into account
+ * @returns Top speed
+ */
+export function getSpeed(ship: Ship, modified?: boolean): number {
+    return _getNow(ship, modified).speed;
+}
 
-    constructor() {
-        autoBind(this);
-    }
+export function getBoostSpeed(ship: Ship, modified?: boolean): number {
+    return getSpeedMetrics(ship, modified).boost.speed;
+}
 
-    public getSpeedProfile(ship: Ship, modified?: boolean): ISpeedProfile {
-        const profile = {
-            max: this.max.get(
-                ship,
-                getSpeedMetrics,
-                [ship, UNLADEN_MASS_CALCULATOR, modified],
-            ),
-            min: this.min.get(
-                ship,
-                getSpeedMetrics,
-                [ship, MAXIMUM_MASS_CALCULATOR, modified],
-            ),
-            now: this.now.get(
-                ship,
-                getSpeedMetrics,
-                [ship, LADEN_MASS_CALCULATOR, modified],
-            ),
-        };
-        const canBoost =
-            ship.getBaseProperty('boostenergy') <
-            ship.getPowerDistributor().get('enginescapacity', modified);
-        if (!canBoost) {
-            profile.max.boost = mapValues(profile.max.boost, () => NaN);
-            profile.min.boost = mapValues(profile.min.boost, () => NaN);
-            profile.now.boost = mapValues(profile.now.boost, () => NaN);
-        }
-        return profile;
-    }
+/**
+ * Get the max pitch speed of this ship taking into account whether it's
+ * currently boosting.
+ * @param ship Ship to get the pitch speed for
+ * @param modified True when modifications should be taken into account
+ * @returns Max pitch speed
+ */
+export function getPitch(ship: Ship, modified?: boolean): number {
+    return _getNow(ship, modified).pitch;
+}
 
-    /**
-     * Get the top speed of this ship taking into account whether it's currently
-     * boosting.
-     * @param ship Ship to get the speed for
-     * @param [modified] True when modifications should be taken into account
-     * @returns Top speed
-     */
-    public getSpeed(ship: Ship, modified?: boolean): number {
-        return this._getNow(ship, modified).speed;
-    }
+export function getBoostPitch(ship: Ship, modified?: boolean): number {
+    return getSpeedMetrics(ship, modified).boost.speed;
+}
 
-    public getMaxSpeed(ship: Ship, modified?: boolean): number {
-        return this._getMax(ship, modified).speed;
-    }
+/**
+ * Get the max yaw speed of this ship taking into account whether it's
+ * currently boosting.
+ * @param ship Ship to get the yaw speed for
+ * @param modified True when modifications should be taken into account
+ * @returns Max yaw speed
+ */
+export function getYaw(ship: Ship, modified?: boolean): number {
+    return _getNow(ship, modified).yaw;
+}
 
-    public getBoostSpeed(ship: Ship, modified?: boolean): number {
-        return this.getSpeedProfile(ship, modified).now.boost.speed;
-    }
+export function getBoostYaw(ship: Ship, modified: boolean): number {
+    return getSpeedMetrics(ship, modified).boost.yaw;
+}
 
-    /**
-     * Get the max pitch speed of this ship taking into account whether it's
-     * currently boosting.
-     * @param ship Ship to get the pitch speed for
-     * @param modified True when modifications should be taken into account
-     * @returns Max pitch speed
-     */
-    public getPitch(ship: Ship, modified?: boolean): number {
-        return this._getNow(ship, modified).pitch;
-    }
+/**
+ * Get the max roll speed of this ship taking into account whether it's
+ * currently boosting.
+ * @param ship Ship to get the roll speed for
+ * @param modified True when modifications should be taken into account
+ * @returns Max roll speed
+ */
+export function getRoll(ship: Ship, modified?: boolean): number {
+    return _getNow(ship, modified).yaw;
+}
 
-    public getMaxPitch(ship: Ship, modified?: boolean): number {
-        return this._getMax(ship, modified).pitch;
-    }
+export function getBoostRoll(ship: Ship, modified?: boolean): number {
+    return getSpeedMetrics(ship, modified).boost.roll;
+}
 
-    public getBoostPitch(ship: Ship, modified?: boolean): number {
-        return this.getSpeedProfile(ship, modified).now.boost.speed;
-    }
-
-    /**
-     * Get the max yaw speed of this ship taking into account whether it's
-     * currently boosting.
-     * @param ship Ship to get the yaw speed for
-     * @param modified True when modifications should be taken into account
-     * @returns Max yaw speed
-     */
-    public getYaw(ship: Ship, modified?: boolean): number {
-        return this._getNow(ship, modified).yaw;
-    }
-
-    public getMaxYaw(ship: Ship, modified?: boolean): number {
-        return this._getMax(ship, modified).yaw;
-    }
-
-    public getBoostYaw(ship: Ship, modified: boolean): number {
-        return this.getSpeedProfile(ship, modified).now.boost.yaw;
-    }
-
-    /**
-     * Get the max roll speed of this ship taking into account whether it's
-     * currently boosting.
-     * @param ship Ship to get the roll speed for
-     * @param modified True when modifications should be taken into account
-     * @returns Max roll speed
-     */
-    public getRoll(ship: Ship, modified?: boolean): number {
-        return this._getNow(ship, modified).yaw;
-    }
-
-    public getMaxRoll(ship: Ship, modified?: boolean): number {
-        return this._getMax(ship, modified).yaw;
-    }
-
-    public getBoostRoll(ship: Ship, modified?: boolean): number {
-        return this.getSpeedProfile(ship, modified).now.boost.roll;
-    }
-
-    private _getNow(ship: Ship, modified?: boolean): IManeuverabilityMetrics {
-        return this.getSpeedProfile(ship, modified).now.pipped[
-            getEngIndex(ship)
-        ];
-    }
-
-    private _getMax(ship: Ship, modified?: boolean): IManeuverabilityMetrics {
-        return this.getSpeedProfile(ship, modified).max.pipped[8];
-    }
+function _getNow(ship: Ship, modified?: boolean): IManeuverabilityMetrics {
+    return getSpeedMetrics(ship, modified).pipped[getEngIndex(ship)];
 }

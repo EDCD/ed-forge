@@ -6,133 +6,113 @@
  * Ignore
  */
 import { Ship } from '.';
-import {
-    ARMOUR_METRICS_CALCULATOR,
-    CARGO_CAPACITY_CALCULATOR,
-    DAMAGE_PROFILE_CALCULATOR,
-    FUEL_CAPACITY_CALCULATOR,
-    JUMP_CALCULATOR,
-    LADEN_MASS_CALCULATOR,
-    MODULE_PROTECTION_CALCULATOR,
-    POWER_PROFILE_CALCULATOR,
-    SHIELD_METRICS_CALCULATOR,
-    SPEED_CALCULATOR,
-    UNLADEN_MASS_CALCULATOR,
-    MAXIMUM_MASS_CALCULATOR,
-} from './stats';
-import { IArmourMetrics } from './stats/ArmourProfile';
-import { getCost, getRefuelCost } from './stats/Cost';
-import { IDamageProfile } from './stats/DamageProfile';
-import { IJumpRangeMetrics } from './stats/JumpRangeProfile';
-import { IModuleProtectionMetrics } from './stats/ModuleProtectionProfle';
-import PowerProfile, { IPowerMetrics } from './stats/PowerProfile';
-import { IShieldMetricsWithRecharge } from './stats/ShieldProfile';
 
-export interface IShipPropertyCalculatorClass {
-    calculate(ship: Ship, modified: boolean): number;
-}
+import * as Armour from './stats/ArmourProfile';
+import * as Damage from './stats/DamageProfile';
+import * as JumpRange from './stats/JumpRangeProfile';
+import * as ModuleProtection from './stats/ModuleProtectionProfle';
+import * as Power from './stats/PowerProfile';
+import * as Shield from './stats/ShieldProfile';
+import * as Speed from './stats/SpeedProfile';
+
+import { getCargo, getCargoCapacity } from './stats/Cargo';
+import { getCost, getRefuelCost } from './stats/Cost';
+import { getFuel, getFuelCapacity } from './stats/Fuel';
+import { getLadenMass, getMaximumMass, getUnladenMass } from './stats/Mass';
 
 export type ShipPropertyCalculator = (ship: Ship, modified?: boolean) => number;
 
 export type ShipMetricsCalculator<T> = (ship: Ship, modified?: boolean) => T;
 
-export const UNLADEN_MASS: IShipPropertyCalculatorClass = UNLADEN_MASS_CALCULATOR;
+export const LADEN_MASS: ShipPropertyCalculator = getLadenMass;
+export const MAXIMUM_MASS: ShipPropertyCalculator = getMaximumMass;
+export const UNLADEN_MASS: ShipPropertyCalculator = getUnladenMass;
 
-export const LADEN_MASS: IShipPropertyCalculatorClass = LADEN_MASS_CALCULATOR;
-
-export const CARGO_CAPACITY: IShipPropertyCalculatorClass = CARGO_CAPACITY_CALCULATOR;
+export const CARGO: ShipPropertyCalculator = getCargo;
+export const CARGO_CAPACITY: ShipPropertyCalculator = getCargoCapacity;
 
 export const COST: ShipPropertyCalculator = getCost;
 export const REFUEL_COST: ShipPropertyCalculator = getRefuelCost;
 
-export const FUEL_CAPACITY: IShipPropertyCalculatorClass = FUEL_CAPACITY_CALCULATOR;
+export const FUEL: ShipPropertyCalculator = getFuel;
+export const FUEL_CAPACITY: ShipPropertyCalculator = getFuelCapacity;
 
-export const MAXIMUM_MASS: IShipPropertyCalculatorClass = MAXIMUM_MASS_CALCULATOR;
+export const JUMP_METRICS: ShipMetricsCalculator<JumpRange.IJumpRangeMetrics> =
+    JumpRange.getJumpRangeMetrics;
+export const JUMP_RANGE: ShipPropertyCalculator = JumpRange.getJumpRange;
+export const TOTAL_RANGE: ShipPropertyCalculator = JumpRange.getTotalRange;
 
-export const JUMP_METRICS: ShipMetricsCalculator<IJumpRangeMetrics> =
-    JUMP_CALCULATOR.getJumpRangeMetrics;
-export const JUMP_RANGE: ShipPropertyCalculator = JUMP_CALCULATOR.getJumpRange;
-export const TOTAL_RANGE: ShipPropertyCalculator =
-    JUMP_CALCULATOR.getTotalRange;
+export const SPEED_METRICS: ShipMetricsCalculator<Speed.ISpeedMetrics> =
+    Speed.getSpeedMetrics;
+export const SPEED: ShipPropertyCalculator = Speed.getSpeed;
+export const BOOST_SPEED: ShipPropertyCalculator = Speed.getBoostSpeed;
+export const YAW: ShipPropertyCalculator = Speed.getYaw;
+export const BOOST_YAW: ShipPropertyCalculator = Speed.getBoostYaw;
+export const ROLL: ShipPropertyCalculator = Speed.getRoll;
+export const BOOST_ROLL: ShipPropertyCalculator = Speed.getBoostRoll;
+export const PITCH: ShipPropertyCalculator = Speed.getPitch;
+export const BOOST_PITCH: ShipPropertyCalculator = Speed.getBoostPitch;
 
-export const SPEED: ShipPropertyCalculator = SPEED_CALCULATOR.getSpeed;
-export const BOOST_SPEED: ShipPropertyCalculator = SPEED_CALCULATOR.getBoostSpeed;
-export const MAX_SPEED: ShipPropertyCalculator = SPEED_CALCULATOR.getMaxSpeed;
-export const YAW: ShipPropertyCalculator = SPEED_CALCULATOR.getYaw;
-export const BOOST_YAW: ShipPropertyCalculator = SPEED_CALCULATOR.getBoostYaw;
-export const MAX_YAW: ShipPropertyCalculator = SPEED_CALCULATOR.getMaxYaw;
-export const ROLL: ShipPropertyCalculator = SPEED_CALCULATOR.getRoll;
-export const BOOST_ROLL: ShipPropertyCalculator = SPEED_CALCULATOR.getBoostRoll;
-export const MAX_ROLL: ShipPropertyCalculator = SPEED_CALCULATOR.getMaxRoll;
-export const PITCH: ShipPropertyCalculator = SPEED_CALCULATOR.getPitch;
-export const BOOST_PITCH: ShipPropertyCalculator = SPEED_CALCULATOR.getBoostPitch;
-export const MAX_PITCH: ShipPropertyCalculator = SPEED_CALCULATOR.getMaxPitch;
-
-export const SHIELD_METRICS: ShipMetricsCalculator<IShieldMetricsWithRecharge> =
-    SHIELD_METRICS_CALCULATOR.getShieldMetrics;
-export const SHIELD_STRENGTH: ShipPropertyCalculator =
-    SHIELD_METRICS_CALCULATOR.getStrength;
+export const SHIELD_METRICS: ShipMetricsCalculator<
+    Shield.IShieldMetricsWithRecharge
+> = Shield.getShieldMetrics;
+export const SHIELD_STRENGTH: ShipPropertyCalculator = Shield.getStrength;
 export const EXPL_SHIELD_RES: ShipPropertyCalculator =
-    SHIELD_METRICS_CALCULATOR.getExplosiveResistance;
+    Shield.getExplosiveResistance;
 export const EXPL_SHIELD_STRENGTH: ShipPropertyCalculator =
-    SHIELD_METRICS_CALCULATOR.getExplosiveStrength;
+    Shield.getExplosiveStrength;
 export const KIN_SHIELD_RES: ShipPropertyCalculator =
-    SHIELD_METRICS_CALCULATOR.getKineticResistance;
+    Shield.getKineticResistance;
 export const KIN_SHIELD_STRENGTH: ShipPropertyCalculator =
-    SHIELD_METRICS_CALCULATOR.getKineticStrength;
+    Shield.getKineticStrength;
 export const THERM_SHIELD_RES: ShipPropertyCalculator =
-    SHIELD_METRICS_CALCULATOR.getThermalResistance;
+    Shield.getThermalResistance;
 export const THERM_SHIELD_STRENGTH: ShipPropertyCalculator =
-    SHIELD_METRICS_CALCULATOR.getThermalStrength;
+    Shield.getThermalStrength;
 
-export const ARMOUR_METRICS: ShipMetricsCalculator<IArmourMetrics> =
-    ARMOUR_METRICS_CALCULATOR.getArmourMetrics;
-export const ARMOUR: ShipPropertyCalculator =
-    ARMOUR_METRICS_CALCULATOR.getArmour;
+export const ARMOUR_METRICS: ShipMetricsCalculator<Armour.IArmourMetrics> =
+    Armour.getArmourMetrics;
+export const ARMOUR: ShipPropertyCalculator = Armour.getArmour;
 export const EXPL_ARMOUR_RES: ShipPropertyCalculator =
-    ARMOUR_METRICS_CALCULATOR.getExplosiveResistance;
-export const EXPL_ARMOUR: ShipPropertyCalculator =
-    ARMOUR_METRICS_CALCULATOR.getExplosiveArmour;
+    Armour.getExplosiveResistance;
+export const EXPL_ARMOUR: ShipPropertyCalculator = Armour.getExplosiveArmour;
 export const KIN_ARMOUR_RES: ShipPropertyCalculator =
-    ARMOUR_METRICS_CALCULATOR.getKineticResistance;
-export const KIN_ARMOUR: ShipPropertyCalculator =
-    ARMOUR_METRICS_CALCULATOR.getKineticArmour;
+    Armour.getKineticResistance;
+export const KIN_ARMOUR: ShipPropertyCalculator = Armour.getKineticArmour;
 export const THERM_ARMOUR_RES: ShipPropertyCalculator =
-    ARMOUR_METRICS_CALCULATOR.getThermalResistance;
-export const THERM_ARMOUR: ShipPropertyCalculator =
-    ARMOUR_METRICS_CALCULATOR.getThermalArmour;
+    Armour.getThermalResistance;
+export const THERM_ARMOUR: ShipPropertyCalculator = Armour.getThermalArmour;
 export const CAUS_ARMOUR_RES: ShipPropertyCalculator =
-    ARMOUR_METRICS_CALCULATOR.getCausticResistance;
-export const CAUS_ARMOUR: ShipPropertyCalculator =
-    ARMOUR_METRICS_CALCULATOR.getCausticArmour;
+    Armour.getCausticResistance;
+export const CAUS_ARMOUR: ShipPropertyCalculator = Armour.getCausticArmour;
 
 export const MODULE_PROTECTION_METRICS: ShipMetricsCalculator<
-    IModuleProtectionMetrics
-> = MODULE_PROTECTION_CALCULATOR.getMetrics;
+    ModuleProtection.IModuleProtectionMetrics
+> = ModuleProtection.getModuleProtectionMetrics;
 export const MODULE_ARMOUR: ShipPropertyCalculator =
-    MODULE_PROTECTION_CALCULATOR.getModuleProtection;
+    ModuleProtection.getModuleProtection;
 export const MODULE_PROTECTION: ShipPropertyCalculator =
-    MODULE_PROTECTION_CALCULATOR.getModuleProtection;
+    ModuleProtection.getModuleProtection;
 
-export const DAMAGE_METRICS: ShipMetricsCalculator<IDamageProfile> =
-    DAMAGE_PROFILE_CALCULATOR.calculate;
-export const DPS: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
-export const SDPS: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
-export const EPS: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
-export const DPE: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
-export const HPS: ShipPropertyCalculator = DAMAGE_PROFILE_CALCULATOR.getDps;
+export const DAMAGE_METRICS: ShipMetricsCalculator<Damage.IDamageProfile> =
+Damage.getDamageProfile;
+export const DPS: ShipPropertyCalculator = Damage.getDps;
+export const SDPS: ShipPropertyCalculator = Damage.getDps;
+export const EPS: ShipPropertyCalculator = Damage.getDps;
+export const DPE: ShipPropertyCalculator = Damage.getDps;
+export const HPS: ShipPropertyCalculator = Damage.getDps;
 export const ABS_DMG_PORTION: ShipPropertyCalculator =
-    DAMAGE_PROFILE_CALCULATOR.getAbsDamagePortion;
+    Damage.getAbsDamagePortion;
 export const EXPL_DMG_PORTION: ShipPropertyCalculator =
-    DAMAGE_PROFILE_CALCULATOR.getExplDamagePortion;
+    Damage.getExplDamagePortion;
 export const KIN_DMG_PORTION: ShipPropertyCalculator =
-    DAMAGE_PROFILE_CALCULATOR.getKinDamagePortion;
+    Damage.getKinDamagePortion;
 export const THERM_DMG_PORTION: ShipPropertyCalculator =
-    DAMAGE_PROFILE_CALCULATOR.getThermDamagePortion;
+    Damage.getThermDamagePortion;
 
 export const POWER_METRICS: ShipMetricsCalculator<
-    IPowerMetrics
-> = POWER_PROFILE_CALCULATOR.getPowerMetrics;
-export const PRODUCED: ShipPropertyCalculator = POWER_PROFILE_CALCULATOR.getGenerated;
-export const CONSUMED_DEPL: ShipPropertyCalculator = POWER_PROFILE_CALCULATOR.getConsumedDeployed;
-export const CONSUMED_RETR: ShipPropertyCalculator = POWER_PROFILE_CALCULATOR.getConsumedRetracted;
+    Power.IPowerMetrics
+> = Power.getPowerMetrics;
+export const PRODUCED: ShipPropertyCalculator = Power.getGenerated;
+export const CONSUMED_DEPL: ShipPropertyCalculator = Power.getConsumedDeployed;
+export const CONSUMED_RETR: ShipPropertyCalculator = Power.getConsumedRetracted;

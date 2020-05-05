@@ -5,26 +5,13 @@
 /**
  * Ignore
  */
-import autoBind from 'auto-bind';
-
-import { FUEL_CAPACITY_CALCULATOR } from '.';
 import { Ship } from '..';
-import ShipStateCacheLine from '../helper/ShipStateCacheLine';
+import { add, moduleReduce } from '../helper';
 
-function getFuel(ship: Ship, modified: boolean) {
-    return Math.min(
-        ship.state.Fuel,
-        FUEL_CAPACITY_CALCULATOR.calculate(ship, modified),
-    );
+export function getFuelCapacity(ship: Ship, modified: boolean): number {
+    return moduleReduce(ship.object.Modules, 'fuel', modified, add, 0);
 }
 
-export default class Fuel extends ShipStateCacheLine<number> {
-    constructor() {
-        super(FUEL_CAPACITY_CALCULATOR, 'Fuel');
-        autoBind(this);
-    }
-
-    public calculate(ship: Ship, modified: boolean): number {
-        return this.get(ship, getFuel, [ship, modified]);
-    }
+export function getFuel(ship: Ship, modified: boolean): number {
+    return Math.min(ship.state.Fuel, getFuelCapacity(ship, modified));
 }

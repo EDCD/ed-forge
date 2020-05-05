@@ -5,9 +5,9 @@
 /**
  * Ignore
  */
-import { FUEL_CALCULATOR } from '.';
 import { Ship } from '..';
 import { add } from '../helper';
+import { getFuelCapacity } from './Fuel';
 
 export function getCost(ship: Ship, modified: boolean): number {
     return (
@@ -20,5 +20,5 @@ export function getCost(ship: Ship, modified: boolean): number {
 }
 
 export function getRefuelCost(ship: Ship, modified: boolean): number {
-    return FUEL_CALCULATOR.calculate(ship, modified) * 50;
+    return getFuelCapacity(ship, modified) * 50;
 }

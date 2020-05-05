@@ -44,7 +44,6 @@ import Module, { IModuleObject, Slot } from './Module';
 import {
     CARGO_CAPACITY,
     FUEL_CAPACITY,
-    IShipPropertyCalculatorClass,
     ShipMetricsCalculator,
     ShipPropertyCalculator,
 } from './ship-stats';
@@ -526,12 +525,9 @@ export default class Ship extends DiffEmitter {
      * @returns Property value
      */
     public get(
-        property: ShipPropertyCalculator | IShipPropertyCalculatorClass,
+        property: ShipPropertyCalculator,
         modified: boolean = true,
     ): number {
-        if (typeof property === 'object') {
-            return property.calculate(this, modified);
-        }
         return property(this, modified);
     }
 

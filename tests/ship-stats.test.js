@@ -44,7 +44,6 @@ for (let { name, build } of TEST_SUITES) {
             const {
                 SPEED, YAW, ROLL, PITCH,
                 BOOST_SPEED, BOOST_YAW, BOOST_ROLL, BOOST_PITCH,
-                MAX_SPEED, MAX_YAW, MAX_ROLL, MAX_PITCH,
             } = ShipProps;
             expect(ship.get(SPEED)).not.toBeNaN();
             expect(ship.get(YAW)).not.toBeNaN();
@@ -54,10 +53,6 @@ for (let { name, build } of TEST_SUITES) {
             expect(ship.get(BOOST_YAW)).not.toBeNaN();
             expect(ship.get(BOOST_ROLL)).not.toBeNaN();
             expect(ship.get(BOOST_PITCH)).not.toBeNaN();
-            expect(ship.get(MAX_SPEED)).not.toBeNaN();
-            expect(ship.get(MAX_YAW)).not.toBeNaN();
-            expect(ship.get(MAX_ROLL)).not.toBeNaN();
-            expect(ship.get(MAX_PITCH)).not.toBeNaN();
         });
 
         test('can calcuate shield metrics (individually)', () => {

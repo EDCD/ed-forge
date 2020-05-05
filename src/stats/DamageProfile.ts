@@ -1,9 +1,13 @@
-import autoBind from 'auto-bind';
+/**
+ * @module StatGetters
+ */
+
+/**
+ * Ignore
+ */
 import { range } from 'lodash';
 
-import { REG_HARDPOINT_SLOT } from '../data/slots';
 import { add, moduleMeanEnabled, moduleReduceEnabled } from '../helper';
-import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
 import Module from '../Module';
 import { PD_RECHARGE_MAP } from '../module-stats';
 import Ship from '../Ship';
@@ -39,7 +43,7 @@ export interface IDamageProfile extends IDamageMetrics {
     };
 }
 
-function getDamageProfile(
+function calculateDamageProfile(
     hardpoints: Module[],
     modified: boolean,
 ): IDamageProfile {
@@ -67,9 +71,27 @@ function getDamageProfile(
         ),
         hps: moduleReduceEnabled(hardpoints, 'heatpersecond', modified, add, 0),
         sustained: {
-            dps: 0,
-            eps: 0,
-            hps: 0,
+            dps: moduleReduceEnabled(
+                hardpoints,
+                'sustaineddamagerpersecond',
+                modified,
+                add,
+                0,
+            ),
+            eps: moduleReduceEnabled(
+                hardpoints,
+                'sustainedenergypersecond',
+                modified,
+                add,
+                0,
+            ),
+            hps: moduleReduceEnabled(
+                hardpoints,
+                'sustainedheatpersecond',
+                modified,
+                add,
+                0,
+            ),
             timeToDrain: [],
         },
         timeToDrain: [],
@@ -121,109 +143,49 @@ function setTimesToDrain<T extends IDamageMetrics>(
     return damageMetrics;
 }
 
-export default class DamageProfileCalculator {
-    private damageProfile: ShipPropsCacheLine<
-        IDamageProfile
-    > = new ShipPropsCacheLine({
-        props: [
-            'damage',
-            'roundspershot',
-            'rateoffire',
-            'ammoclipsize',
-            'reloadtime',
-            'distributordraw',
-            'thermalload',
-            'absolutedamageportion',
-            'explosivedamageportion',
-            'kineticdamageportion',
-            'thermicdamageportion',
-        ],
-        slot: [REG_HARDPOINT_SLOT],
-    });
-    private timedDamageProfile = new ShipPropsCacheLine<IDamageProfile>(
-        this.damageProfile,
-        {
-            props: [ 'weaponscapacity', 'weaponsrecharge' ],
-            slot: ['powerdistributor'],
-        },
-    );
+export function getDamageProfile(
+    ship: Ship,
+    modified: boolean,
+): IDamageProfile {
+    const hardpoints = ship.getHardpoints();
+    let profile = calculateDamageProfile(hardpoints, modified);
+    profile = setTimesToDrain(profile, ship, modified);
+    setTimesToDrain(profile.sustained, ship, modified);
+    return profile;
+}
 
-    constructor() {
-        autoBind(this);
-    }
+export function getDps(ship: Ship, modified: boolean): number {
+    return getDamageProfile(ship, modified).dps;
+}
 
-    public calculate(ship: Ship, modified: boolean): IDamageProfile {
-        const hardpoints = ship.getHardpoints();
-        let profile = this.damageProfile.get(ship, getDamageProfile, [
-            hardpoints,
-            modified,
-        ]);
-        profile = this.timedDamageProfile.get(
-            ship,
-            setTimesToDrain,
-            [ profile, ship, modified ],
-        );
+export function getSdps(ship: Ship, modified: boolean): number {
+    return getDamageProfile(ship, modified).sustained.dps;
+}
 
-        // TODO: autoloader change sustained rates but does not invalidate
-        // cache; don't cache sustained rates therefore
-        profile.sustained.dps = moduleReduceEnabled(
-            hardpoints,
-            'sustaineddamagerpersecond',
-            modified,
-            add,
-            0,
-        );
-        profile.sustained.eps = moduleReduceEnabled(
-            hardpoints,
-            'sustainedenergypersecond',
-            modified,
-            add,
-            0,
-        );
-        profile.sustained.hps = moduleReduceEnabled(
-            hardpoints,
-            'sustainedheatpersecond',
-            modified,
-            add,
-            0,
-        );
-        setTimesToDrain(profile.sustained, ship, modified);
-        return profile;
-    }
+export function getEps(ship: Ship, modified: boolean): number {
+    return getDamageProfile(ship, modified).eps;
+}
 
-    public getDps(ship: Ship, modified: boolean): number {
-        return this.calculate(ship, modified).dps;
-    }
+export function getDpe(ship: Ship, modified: boolean): number {
+    return getDamageProfile(ship, modified).dpe;
+}
 
-    public getSdps(ship: Ship, modified: boolean): number {
-        return this.calculate(ship, modified).sustained.dps;
-    }
+export function getHps(ship: Ship, modified: boolean): number {
+    return getDamageProfile(ship, modified).hps;
+}
 
-    public getEps(ship: Ship, modified: boolean): number {
-        return this.calculate(ship, modified).eps;
-    }
+export function getAbsDamagePortion(ship: Ship, modified: boolean): number {
+    return getDamageProfile(ship, modified).types.abs;
+}
 
-    public getDpe(ship: Ship, modified: boolean): number {
-        return this.calculate(ship, modified).dpe;
-    }
+export function getExplDamagePortion(ship: Ship, modified: boolean): number {
+    return getDamageProfile(ship, modified).types.expl;
+}
 
-    public getHps(ship: Ship, modified: boolean): number {
-        return this.calculate(ship, modified).hps;
-    }
+export function getKinDamagePortion(ship: Ship, modified: boolean): number {
+    return getDamageProfile(ship, modified).types.kin;
+}
 
-    public getAbsDamagePortion(ship: Ship, modified: boolean): number {
-        return this.calculate(ship, modified).types.abs;
-    }
-
-    public getExplDamagePortion(ship: Ship, modified: boolean): number {
-        return this.calculate(ship, modified).types.expl;
-    }
-
-    public getKinDamagePortion(ship: Ship, modified: boolean): number {
-        return this.calculate(ship, modified).types.kin;
-    }
-
-    public getThermDamagePortion(ship: Ship, modified: boolean): number {
-        return this.calculate(ship, modified).types.therm;
-    }
+export function getThermDamagePortion(ship: Ship, modified: boolean): number {
+    return getDamageProfile(ship, modified).types.therm;
 }

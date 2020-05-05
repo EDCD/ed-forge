@@ -5,8 +5,6 @@
 /**
  * Ignore
  */
-import autoBind from 'auto-bind';
-
 import { Ship } from '..';
 import {
     add,
@@ -14,7 +12,6 @@ import {
     diminishingDamageMultiplier,
     moduleReduceEnabled,
 } from '../helper';
-import ShipPropsCacheLine from '../helper/ShipPropsCacheLine';
 
 /**
  * Damage multipliers for a given resistance type.
@@ -61,7 +58,10 @@ function diminishingArmourRes(res: number): number {
     return diminishingDamageMultiplier(0.7, res);
 }
 
-function getArmourMetrics(ship: Ship, modified: boolean): IArmourMetrics {
+export function getArmourMetrics(
+    ship: Ship,
+    modified: boolean
+): IArmourMetrics {
     const alloys = ship.getAlloys();
 
     const baseArmour = ship.getBaseProperty('basearmour');
@@ -146,132 +146,104 @@ function getArmourMetrics(ship: Ship, modified: boolean): IArmourMetrics {
     };
 }
 
-export default class ArmourProfile extends ShipPropsCacheLine<IArmourMetrics> {
-    constructor() {
-        super({
-            props: [
-                'defencemodifierhealthmultiplier',
-                'explosiveresistance',
-                'kineticresistance',
-                'thermicresistance',
-                'causticresistance',
-                'defencemodifierhealthaddition',
-            ],
-            type: [/Armour/i, /HullReinforcement/i],
-        });
-        autoBind(this);
-    }
+/**
+ * Get the total armour of the ship.
+ * @param ship Ship to get the armour for
+ * @param modified True if modifications should be taken into account
+ * @returns Total armour of the ship
+ */
+export function getArmour(ship: Ship, modified: boolean): number {
+    return getArmourMetrics(ship, modified).armour;
+}
 
-    /**
-     * Prepare arguments for the armour metrics and calculate them using a
-     * cache.
-     * @param ship Ship to get metrics for
-     * @param modified True when modifications should be taken into account
-     * @returns Armour metrics of the ship
-     */
-    public getArmourMetrics(ship: Ship, modified: boolean): IArmourMetrics {
-        return this.get(ship, getArmourMetrics, [ship, modified]);
-    }
+/**
+ * Get the total explosive resistance of the ship.
+ * @param ship Ship to get the explosive resistance for
+ * @param modified True if modifications should be taken into account
+ * @returns Total explosive resistance of the ship
+ */
+export function getExplosiveResistance(ship: Ship, modified: boolean): number {
+    return (
+        1 - getArmourMetrics(ship, modified).explosive.damageMultiplier
+    );
+}
 
-    /**
-     * Get the total armour of the ship.
-     * @param ship Ship to get the armour for
-     * @param modified True if modifications should be taken into account
-     * @returns Total armour of the ship
-     */
-    public getArmour(ship: Ship, modified: boolean): number {
-        return this.getArmourMetrics(ship, modified).armour;
-    }
+/**
+ * Get the total armour against explosive attacks of the ship.
+ * @param ship Ship to get the armour for
+ * @param modified True if modifications should be taken into account
+ * @returns Total armour against explosive attacks of the ship
+ */
+export function getExplosiveArmour(ship: Ship, modified: boolean): number {
+    const metrics = getArmourMetrics(ship, modified);
+    return metrics.armour / metrics.explosive.damageMultiplier;
+}
 
-    /**
-     * Get the total explosive resistance of the ship.
-     * @param ship Ship to get the explosive resistance for
-     * @param modified True if modifications should be taken into account
-     * @returns Total explosive resistance of the ship
-     */
-    public getExplosiveResistance(ship: Ship, modified: boolean): number {
-        return (
-            1 - this.getArmourMetrics(ship, modified).explosive.damageMultiplier
-        );
-    }
+/**
+ * Get the total kinetic resistance of the ship.
+ * @param ship Ship to get the kinetic resistance for
+ * @param modified True if modifications should be taken into account
+ * @returns Total kinetic resistance of the ship
+ */
+export function getKineticResistance(ship: Ship, modified: boolean): number {
+    return (
+        1 - getArmourMetrics(ship, modified).kinetic.damageMultiplier
+    );
+}
 
-    /**
-     * Get the total armour against explosive attacks of the ship.
-     * @param ship Ship to get the armour for
-     * @param modified True if modifications should be taken into account
-     * @returns Total armour against explosive attacks of the ship
-     */
-    public getExplosiveArmour(ship: Ship, modified: boolean): number {
-        const metrics = this.getArmourMetrics(ship, modified);
-        return metrics.armour / metrics.explosive.damageMultiplier;
-    }
+/**
+ * Get the total armour against kinetic attacks of the ship.
+ * @param ship Ship to get the armour for
+ * @param modified True if modifications should be taken into account
+ * @returns Total armour against kinetic attacks of the ship
+ */
+export function getKineticArmour(ship: Ship, modified: boolean): number {
+    const metrics = getArmourMetrics(ship, modified);
+    return metrics.armour / metrics.kinetic.damageMultiplier;
+}
 
-    /**
-     * Get the total kinetic resistance of the ship.
-     * @param ship Ship to get the kinetic resistance for
-     * @param modified True if modifications should be taken into account
-     * @returns Total kinetic resistance of the ship
-     */
-    public getKineticResistance(ship: Ship, modified: boolean): number {
-        return (
-            1 - this.getArmourMetrics(ship, modified).kinetic.damageMultiplier
-        );
-    }
+/**
+ * Get the total thermal resistance of the ship.
+ * @param ship Ship to get the thermal resistance for
+ * @param modified True if modifications should be taken into account
+ * @returns Total thermal resistance of the ship
+ */
+export function getThermalResistance(ship: Ship, modified: boolean): number {
+    return (
+        1 - getArmourMetrics(ship, modified).thermal.damageMultiplier
+    );
+}
 
-    /**
-     * Get the total armour against kinetic attacks of the ship.
-     * @param ship Ship to get the armour for
-     * @param modified True if modifications should be taken into account
-     * @returns Total armour against kinetic attacks of the ship
-     */
-    public getKineticArmour(ship: Ship, modified: boolean): number {
-        const metrics = this.getArmourMetrics(ship, modified);
-        return metrics.armour / metrics.kinetic.damageMultiplier;
-    }
+/**
+ * Get the total armour against thermal attacks of the ship.
+ * @param ship Ship to get the armour for
+ * @param modified True if modifications should be taken into account
+ * @returns Total armour against thermal attacks of the ship
+ */
+export function getThermalArmour(ship: Ship, modified: boolean): number {
+    const metrics = getArmourMetrics(ship, modified);
+    return metrics.armour / metrics.thermal.damageMultiplier;
+}
 
-    /**
-     * Get the total thermal resistance of the ship.
-     * @param ship Ship to get the thermal resistance for
-     * @param modified True if modifications should be taken into account
-     * @returns Total thermal resistance of the ship
-     */
-    public getThermalResistance(ship: Ship, modified: boolean): number {
-        return (
-            1 - this.getArmourMetrics(ship, modified).thermal.damageMultiplier
-        );
-    }
+/**
+ * Get the total caustic resistance of the ship.
+ * @param ship Ship to get the caustic resistance for
+ * @param modified True if modifications should be taken into account
+ * @returns Total caustic resistance of the ship
+ */
+export function getCausticResistance(ship: Ship, modified: boolean): number {
+    return (
+        1 - getArmourMetrics(ship, modified).caustic.damageMultiplier
+    );
+}
 
-    /**
-     * Get the total armour against thermal attacks of the ship.
-     * @param ship Ship to get the armour for
-     * @param modified True if modifications should be taken into account
-     * @returns Total armour against thermal attacks of the ship
-     */
-    public getThermalArmour(ship: Ship, modified: boolean): number {
-        const metrics = this.getArmourMetrics(ship, modified);
-        return metrics.armour / metrics.thermal.damageMultiplier;
-    }
-
-    /**
-     * Get the total caustic resistance of the ship.
-     * @param ship Ship to get the caustic resistance for
-     * @param modified True if modifications should be taken into account
-     * @returns Total caustic resistance of the ship
-     */
-    public getCausticResistance(ship: Ship, modified: boolean): number {
-        return (
-            1 - this.getArmourMetrics(ship, modified).caustic.damageMultiplier
-        );
-    }
-
-    /**
-     * Get the total armour against caustic attacks of the ship.
-     * @param ship Ship to get the armour for
-     * @param modified True if modifications should be taken into account
-     * @returns Total armour against caustic attacks of the ship
-     */
-    public getCausticArmour(ship: Ship, modified: boolean): number {
-        const metrics = this.getArmourMetrics(ship, modified);
-        return metrics.armour / metrics.caustic.damageMultiplier;
-    }
+/**
+ * Get the total armour against caustic attacks of the ship.
+ * @param ship Ship to get the armour for
+ * @param modified True if modifications should be taken into account
+ * @returns Total armour against caustic attacks of the ship
+ */
+export function getCausticArmour(ship: Ship, modified: boolean): number {
+    const metrics = getArmourMetrics(ship, modified);
+    return metrics.armour / metrics.caustic.damageMultiplier;
 }
