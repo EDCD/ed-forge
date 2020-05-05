@@ -1,5 +1,4 @@
 import autoBind = require('auto-bind');
-import { EventEmitter } from 'events';
 
 import {
     CARGO_CAPACITY_CALCULATOR,
@@ -17,19 +16,17 @@ function getMaximumMass(ship: Ship, modified: boolean): number {
     );
 }
 
-export default class MaximumMass {
-    public mass = new ShipCacheLine<number>(
-        CARGO_CAPACITY_CALCULATOR,
-        FUEL_CAPACITY_CALCULATOR,
-        UNLADEN_MASS_CALCULATOR,
-    );
-    public dependencies: EventEmitter[] = [this.mass];
-
+export default class MaximumMass extends ShipCacheLine<number> {
     constructor() {
+        super(
+            CARGO_CAPACITY_CALCULATOR,
+            FUEL_CAPACITY_CALCULATOR,
+            UNLADEN_MASS_CALCULATOR
+        );
         autoBind(this);
     }
 
     public calculate(ship: Ship, modified: boolean): number {
-        return this.mass.get(ship, getMaximumMass, [ship, modified]);
+        return this.get(ship, getMaximumMass, [ship, modified]);
     }
 }

@@ -45,15 +45,14 @@ function getModuleProtectionMetrics(
     return { moduleArmour, moduleProtection };
 }
 
-export default class ModuleProtectionProfile {
-    private protectionMetrics: ShipPropsCacheLine<
-        IModuleProtectionMetrics
-    > = new ShipPropsCacheLine({
-        props: ['integrity', 'protection'],
-        type: [/ModuleReinforcement/i],
-    });
-
+export default class ModuleProtectionProfile extends ShipPropsCacheLine<
+    IModuleProtectionMetrics
+> {
     constructor() {
+        super({
+            props: ['integrity', 'protection'],
+            type: [/ModuleReinforcement/i],
+        });
         autoBind(this);
     }
 
@@ -64,7 +63,7 @@ export default class ModuleProtectionProfile {
      * @returns Module protection metrics
      */
     public getMetrics(ship: Ship, modified: boolean): IModuleProtectionMetrics {
-        return this.protectionMetrics.get(ship, getModuleProtectionMetrics, [
+        return this.get(ship, getModuleProtectionMetrics, [
             ship,
             modified,
         ]);

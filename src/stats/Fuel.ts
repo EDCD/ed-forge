@@ -6,7 +6,6 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import { EventEmitter } from 'events';
 
 import { FUEL_CAPACITY_CALCULATOR } from '.';
 import { Ship } from '..';
@@ -19,18 +18,13 @@ function getFuel(ship: Ship, modified: boolean) {
     );
 }
 
-export default class Fuel {
-    public fuel: ShipStateCacheLine<number> = new ShipStateCacheLine(
-        FUEL_CAPACITY_CALCULATOR,
-        'Fuel',
-    );
-    public dependencies: EventEmitter[] = [this.fuel];
-
+export default class Fuel extends ShipStateCacheLine<number> {
     constructor() {
+        super(FUEL_CAPACITY_CALCULATOR, 'Fuel');
         autoBind(this);
     }
 
     public calculate(ship: Ship, modified: boolean): number {
-        return this.fuel.get(ship, getFuel, [ship, modified]);
+        return this.get(ship, getFuel, [ship, modified]);
     }
 }

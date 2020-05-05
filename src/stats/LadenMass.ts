@@ -6,7 +6,6 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import { EventEmitter } from 'events';
 
 import { CARGO_CALCULATOR, FUEL_CALCULATOR, UNLADEN_MASS_CALCULATOR } from '.';
 import { Ship } from '..';
@@ -20,19 +19,13 @@ function getLadenMass(ship: Ship, modified: boolean): number {
     );
 }
 
-export default class LadenMass {
-    public mass: ShipPropsCacheLine<number> = new ShipPropsCacheLine<number>(
-        UNLADEN_MASS_CALCULATOR,
-        FUEL_CALCULATOR,
-        CARGO_CALCULATOR,
-    );
-    public dependencies: EventEmitter[] = [this.mass];
-
+export default class LadenMass extends ShipPropsCacheLine<number> {
     constructor() {
+        super(UNLADEN_MASS_CALCULATOR, FUEL_CALCULATOR, CARGO_CALCULATOR);
         autoBind(this);
     }
 
     public calculate(ship: Ship, modified: boolean): number {
-        return this.mass.get(ship, getLadenMass, [ship, modified]);
+        return this.get(ship, getLadenMass, [ship, modified]);
     }
 }

@@ -146,22 +146,19 @@ function getArmourMetrics(ship: Ship, modified: boolean): IArmourMetrics {
     };
 }
 
-export default class ArmourProfile {
-    private armourMetrics: ShipPropsCacheLine<
-        IArmourMetrics
-    > = new ShipPropsCacheLine({
-        props: [
-            'defencemodifierhealthmultiplier',
-            'explosiveresistance',
-            'kineticresistance',
-            'thermicresistance',
-            'causticresistance',
-            'defencemodifierhealthaddition',
-        ],
-        type: [/Armour/i, /HullReinforcement/i],
-    });
-
+export default class ArmourProfile extends ShipPropsCacheLine<IArmourMetrics> {
     constructor() {
+        super({
+            props: [
+                'defencemodifierhealthmultiplier',
+                'explosiveresistance',
+                'kineticresistance',
+                'thermicresistance',
+                'causticresistance',
+                'defencemodifierhealthaddition',
+            ],
+            type: [/Armour/i, /HullReinforcement/i],
+        });
         autoBind(this);
     }
 
@@ -173,7 +170,7 @@ export default class ArmourProfile {
      * @returns Armour metrics of the ship
      */
     public getArmourMetrics(ship: Ship, modified: boolean): IArmourMetrics {
-        return this.armourMetrics.get(ship, getArmourMetrics, [ship, modified]);
+        return this.get(ship, getArmourMetrics, [ship, modified]);
     }
 
     /**
