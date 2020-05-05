@@ -856,6 +856,20 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     * Get the module class and rating as a string, e.g. `"5E"`. Might return
+     * null when slot is empty.
+     * @returns Class and rating
+     */
+    public getClassRating(): string | null {
+        const clazz = this.getClass();
+        const rating = this.getRating();
+        if (!clazz || !rating) {
+            return null;
+        }
+        return String(clazz) + rating;
+    }
+
+    /**
      * Get currently applied blueprint or null if no engineering is done to the
      * module.
      * @returns Blueprint key
