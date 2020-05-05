@@ -757,10 +757,14 @@ export default class Module extends DiffEmitter {
     /**
      * Turn this module on/off. If the module does not consume power, this
      * method hasn't any effect.
-     * @param on True to turn the module on
+     * @param [on] True to turn the module on, false to turn it off. Passing
+     * nothing will flip the state.
      */
-    public setEnabled(on: boolean) {
+    public setEnabled(on?: boolean) {
         // if an module does not consume power, it is always on
+        if (on === undefined) {
+            on = !this.isEnabled();
+        }
         if (this.get('PowerDraw')) {
             this._writeObject('On', on);
         }
