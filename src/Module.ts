@@ -6,7 +6,7 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import { clamp, clone, cloneDeep, forEach, map, set, values } from 'lodash';
+import { clamp, clone, cloneDeep, forEach, map, mapValues, set, values } from 'lodash';
 
 import { compress, decompress } from './compression';
 import Factory from './data';
@@ -27,7 +27,7 @@ import {
     getRating,
     itemFitsSlot,
 } from './data/items';
-import { assertValidSlot, getSlotSize, REG_CORE_SLOT } from './data/slots';
+import { assertValidSlot, getSlotSize, REG_CORE_SLOT, REG_HARDPOINT_SLOT } from './data/slots';
 import {
     IllegalChangeError,
     IllegalStateError,
@@ -44,6 +44,7 @@ import Ship from './Ship';
 import { moduleVarIsSpecified, validateModuleJson } from './validation';
 
 import * as MODULE_REGISTRY from './data/module_registry.json';
+import { POWER_METRICS } from './ship-stats';
 import { ModuleRegistryEntry } from './types';
 
 /**
@@ -66,6 +67,19 @@ function cloneModuleToJSON(
     }
 
     return module;
+}
+
+export interface IPowered {
+    /**
+     * Is the module powered when hardpoints are deployed? If undefined, module
+     * does not consume any power and as such is always turned "on".
+     */
+    deployed: boolean;
+    /**
+     * Is the module powered when hardpoints are retracted? If undefined, module
+     * does not consume any power and as such is always turned "on".
+     */
+    retracted: boolean;
 }
 
 /**
@@ -752,6 +766,41 @@ export default class Module extends DiffEmitter {
      */
     public isEnabled(): boolean {
         return this.object.On;
+    }
+
+    /**
+     * Is the module powered?
+     * @returns Mapping to boolean; might be undefined when the module cannot
+     * be turned on or off, e.g. is a hull reinforcement package.
+     */
+    public isPowered(): IPowered {
+        if (!this.ship) {
+            throw new IllegalStateError('Can only check whether a module is enabled if it is assigned to a ship.');
+        }
+
+        const isHardPoint = this.object.Slot.match(REG_HARDPOINT_SLOT);
+        const powered = {
+            deployed: true,
+            retracted: isHardPoint ? undefined : true,
+        };
+
+        if (this.get('powerdraw') === 0) {
+            return powered;
+        }
+
+        if (!this.isEnabled()) {
+            // Use `... && false` so that undefined stays undefined
+            return mapValues(powered, (isPowered) => isPowered && false);
+        }
+
+        const prio = this.getPowerPriority();
+        const metrics = this.ship.getMetrics(POWER_METRICS);
+        const gen = metrics.generated;
+        powered.deployed = metrics.relativeConsumed[prio] <= gen;
+        if (!isHardPoint) {
+            powered.retracted = metrics.relativeConsumedRetracted[prio] <= gen;
+        }
+        return powered;
     }
 
     /**
