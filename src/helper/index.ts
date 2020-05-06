@@ -92,7 +92,7 @@ function _moduleReduce<T>(
     modules: Module[] | { [key: string]: Module },
     prop: string,
     modified: boolean,
-    filters: ((Module) => boolean)[],
+    filters: ((m: Module) => boolean)[],
     fn: (acc: T, v: number) => T,
     initial: T | undefined,
 ): T {
@@ -172,7 +172,7 @@ function _moduleMean(
     modules: Module[] | { [key: string]: Module },
     prop: string,
     modified: boolean,
-    filters: ((Module) => boolean)[],
+    filters: ((m: Module) => boolean)[],
 ): number {
     const fn = (acc: number[], v: number): number[] => {
         const [reduced, length] = acc;
