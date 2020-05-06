@@ -81,7 +81,7 @@ export function diminishingDamageMultiplier(startAt, multiplier) {
  * Reduce a property for a list of modules with a given function. Only take
  * values into account that are not NaN.
  * @param modules List or map of modules to reduce props for
- * @param prop Property name
+ * @param get Property name or callback
  * @param modified Should modifications be taken into account?
  * @param filters Filters to apply to the modules
  * @param fn Reduce function
@@ -90,12 +90,18 @@ export function diminishingDamageMultiplier(startAt, multiplier) {
  */
 function _moduleReduce<T>(
     modules: Module[] | { [key: string]: Module },
-    prop: string,
+    get: string | ((m: Module) => number),
     modified: boolean,
     filters: ((m: Module) => boolean)[],
     fn: (acc: T, v: number) => T,
     initial: T | undefined,
 ): T {
+    let getter: (m: Module) => number;
+    if (typeof get === 'string') {
+        getter = (m) => m.getClean(get, modified);
+    } else {
+        getter = get;
+    }
     // apply all filters
     const props = filters
         .concat([(m) => !m.isEmpty()])
@@ -104,7 +110,7 @@ function _moduleReduce<T>(
             values(modules),
             // get the properties
         )
-        .map((m) => m.getClean(prop, modified))
+        .map(getter)
         .filter((v) => !isNaN(v));
     // reduce the properties
     return props.reduce(fn, initial);
@@ -114,7 +120,7 @@ function _moduleReduce<T>(
  * Reduce a property for a list of modules with a given function. Only take
  * values into account that are not NaN.
  * @param modules List or map of modules to reduce props for
- * @param prop Property name
+ * @param get Property name or callback
  * @param modified Should modifications be taken into account?
  * @param fn Reduce function
  * @param initial Initial value
@@ -122,19 +128,19 @@ function _moduleReduce<T>(
  */
 export function moduleReduce<T>(
     modules: Module[] | { [key: string]: Module },
-    prop: string,
+    get: string | ((m: Module) => number),
     modified: boolean,
     fn: (acc: T, v: number) => T,
     initial: T | undefined,
 ): T {
-    return _moduleReduce(modules, prop, modified, [], fn, initial);
+    return _moduleReduce(modules, get, modified, [], fn, initial);
 }
 
 /**
  * Reduce a property for a list of modules with a given function. Only take
  * values into account that are not NaN and only from modules that are enabled.
  * @param modules List or map of modules to reduce props for
- * @param prop Property name
+ * @param get Property name or callback
  * @param modified Should modifications be taken into account?
  * @param filters Filters to apply to the modules
  * @param fn Reduce function
@@ -143,14 +149,14 @@ export function moduleReduce<T>(
  */
 export function moduleReduceEnabled<T>(
     modules: Module[] | { [key: string]: Module },
-    prop: string,
+    get: string | ((m: Module) => number),
     modified: boolean,
     fn: (acc: T, v: number) => T,
     initial: T | undefined,
 ): T {
     return _moduleReduce(
         modules,
-        prop,
+        get,
         modified,
         [(m) => m.isEnabled()],
         fn,
@@ -162,7 +168,7 @@ export function moduleReduceEnabled<T>(
  * Calculate the mean of a property for a list of modules with a given function.
  * Only take values into account that are not NaN.
  * @param modules List or map of modules to reduce props for
- * @param prop Property name
+ * @param get Property name or callback
  * @param modified Should modifications be taken into account?
  * @param filters Filters to apply to the modules
  * @param initial Initial value
@@ -170,7 +176,7 @@ export function moduleReduceEnabled<T>(
  */
 function _moduleMean(
     modules: Module[] | { [key: string]: Module },
-    prop: string,
+    get: string | ((m: Module) => number),
     modified: boolean,
     filters: ((m: Module) => boolean)[],
 ): number {
@@ -181,7 +187,7 @@ function _moduleMean(
 
     const [red, len] = _moduleReduce<number[]>(
         modules,
-        prop,
+        get,
         modified,
         filters,
         fn,
@@ -197,17 +203,17 @@ function _moduleMean(
  * Calculate the mean of a property for a list of modules with a given function.
  * Only take values into account that are not NaN.
  * @param modules List or map of modules to reduce props for
- * @param prop Property name
+ * @param get Property name or callback
  * @param modified Should modifications be taken into account?
  * @param initial Initial value
  * @returns Mean value
  */
 export function moduleMean(
     modules: Module[] | { [key: string]: Module },
-    prop: string,
+    get: string | ((m: Module) => number),
     modified: boolean,
 ): number {
-    return _moduleMean(modules, prop, modified, []);
+    return _moduleMean(modules, get, modified, []);
 }
 
 /**
@@ -215,17 +221,17 @@ export function moduleMean(
  * Only take values into account that are not NaN and only from modules that are
  * enabled.
  * @param modules List or map of modules to reduce props for
- * @param prop Property name
+ * @param get Property name or callback
  * @param modified Should modifications be taken into account?
  * @param initial Initial value
  * @returns Mean value
  */
 export function moduleMeanEnabled(
     modules: Module[] | { [key: string]: Module },
-    prop: string,
+    get: string | ((m: Module) => number),
     modified: boolean,
 ): number {
-    return _moduleMean(modules, prop, modified, [(m) => m.isEnabled()]);
+    return _moduleMean(modules, get, modified, [(m) => m.isEnabled()]);
 }
 
 /**
