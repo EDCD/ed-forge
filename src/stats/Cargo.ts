@@ -6,10 +6,10 @@
  * Ignore
  */
 import { Ship } from '..';
-import { add, moduleReduce } from '../helper';
+import { moduleSum } from '../helper';
 
 export function getCargoCapacity(ship: Ship, modified: boolean): number {
-    return moduleReduce(ship.object.Modules, 'cargo', modified, add, 0);
+    return moduleSum(ship.object.Modules, 'cargo', modified);
 }
 
 export function getCargo(ship: Ship, modified: boolean) {

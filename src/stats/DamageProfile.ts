@@ -7,7 +7,7 @@
  */
 import { range } from 'lodash';
 
-import { add, moduleMeanEnabled, moduleReduceEnabled } from '../helper';
+import { moduleMeanEnabled, moduleSumEnabled } from '../helper';
 import Module from '../Module';
 import { PD_RECHARGE_MAP } from '../module-stats';
 import Ship from '../Ship';
@@ -47,50 +47,27 @@ function calculateDamageProfile(
     hardpoints: Module[],
     modified: boolean,
 ): IDamageProfile {
+    const dps = moduleSumEnabled(hardpoints, 'damagepersecond', modified);
     return {
-        dpe: moduleReduceEnabled(
-            hardpoints,
-            'damageperenergy',
-            modified,
-            add,
-            0,
-        ),
-        dps: moduleReduceEnabled(
-            hardpoints,
-            'damagepersecond',
-            modified,
-            add,
-            0,
-        ),
-        eps: moduleReduceEnabled(
-            hardpoints,
-            'energypersecond',
-            modified,
-            add,
-            0,
-        ),
-        hps: moduleReduceEnabled(hardpoints, 'heatpersecond', modified, add, 0),
+        dpe: moduleSumEnabled(hardpoints, 'damageperenergy', modified),
+        eps: moduleSumEnabled(hardpoints, 'energypersecond', modified),
+        dps: moduleSumEnabled(hardpoints, 'damagepersecond',modified),
+        hps: moduleSumEnabled(hardpoints, 'heatpersecond', modified),
         sustained: {
-            dps: moduleReduceEnabled(
+            dps: moduleSumEnabled(
                 hardpoints,
                 'sustaineddamagerpersecond',
                 modified,
-                add,
-                0,
             ),
-            eps: moduleReduceEnabled(
+            eps: moduleSumEnabled(
                 hardpoints,
                 'sustainedenergypersecond',
                 modified,
-                add,
-                0,
             ),
-            hps: moduleReduceEnabled(
+            hps: moduleSumEnabled(
                 hardpoints,
                 'sustainedheatpersecond',
                 modified,
-                add,
-                0,
             ),
             timeToDrain: [],
         },

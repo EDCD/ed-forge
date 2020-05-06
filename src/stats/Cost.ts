@@ -6,16 +6,13 @@
  * Ignore
  */
 import { Ship } from '..';
-import { add } from '../helper';
+import { moduleSum } from '../helper';
 import { getFuelCapacity } from './Fuel';
 
 export function getCost(ship: Ship, modified: boolean): number {
     return (
         ship.getBaseProperty('hullcost') +
-        ship
-            .getModules()
-            .map((m) => m.readMeta('cost'))
-            .reduce(add, 0)
+        moduleSum(ship.getModules(), (m) => m.readMeta('cost'), modified)
     );
 }
 

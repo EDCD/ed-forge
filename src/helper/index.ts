@@ -137,6 +137,22 @@ export function moduleReduce<T>(
 }
 
 /**
+ * Sum property for a list of modules with a given function. Only take values
+ * into account that are not NaN.
+ * @param modules List or map of modules to reduce props for
+ * @param get Property name or callback
+ * @param modified Should modifications be taken into account?
+ * @returns Sum
+ */
+export function moduleSum(
+    modules: Module[] | { [key: string]: Module },
+    get: string | ((m: Module) => number),
+    modified: boolean,
+): number {
+    return moduleReduce(modules, get, modified, add, 0);
+}
+
+/**
  * Reduce a property for a list of modules with a given function. Only take
  * values into account that are not NaN and only from modules that are enabled.
  * @param modules List or map of modules to reduce props for
@@ -162,6 +178,22 @@ export function moduleReduceEnabled<T>(
         fn,
         initial,
     );
+}
+
+/**
+ * Sum property for a list of modules with a given function. Only take values
+ * into account that are not NaN and only from modules that are enabled.
+ * @param modules List or map of modules to reduce props for
+ * @param get Property name or callback
+ * @param modified Should modifications be taken into account?
+ * @returns Sum
+ */
+export function moduleSumEnabled(
+    modules: Module[] | { [key: string]: Module },
+    get: string | ((m: Module) => number),
+    modified: boolean,
+): number {
+    return moduleReduceEnabled(modules, get, modified, add, 0);
 }
 
 /**

@@ -6,13 +6,13 @@
  * Ignore
  */
 import { Ship } from '..';
-import { add, moduleReduce } from '../helper';
+import { moduleSum } from '../helper';
 import { getCargo, getCargoCapacity } from './Cargo';
 import { getFuel, getFuelCapacity } from './Fuel';
 
 export function getUnladenMass(ship: Ship, modified: boolean): number {
     return ship.getBaseProperty('hullmass')
-        + moduleReduce(ship.object.Modules, 'mass', modified, add, 0);
+        + moduleSum(ship.object.Modules, 'mass', modified);
 }
 
 export function getLadenMass(ship: Ship, modified: boolean): number {
