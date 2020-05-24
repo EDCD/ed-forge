@@ -39,6 +39,8 @@ export interface IArmourMetrics {
     byHRPs: number;
     /** Total armour of the ship */
     armour: number;
+    /** Hardness of the ship */
+    hardness: number;
     /** Damage multipliers against explosive attacks */
     explosive: IArmourDamageMultiplier;
     /** Damage multipliers against kinetic attacks */
@@ -129,6 +131,7 @@ export function getArmourMetrics(
             damageMultiplier: diminishingArmourRes(explDamage * hrpExplDamage),
             resVal: 1 - diminishingArmourRes(explDamage * hrpExplDamage),
         },
+        hardness: ship.getBaseProperty('hardness'),
         kinetic: {
             byAlloys: kinDamage,
             byHRPs: hrpKinDamage,

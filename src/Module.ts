@@ -387,6 +387,50 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     * How relatively effective is this weapon against the enemy armour based
+     * on its penetration value?
+     * @param modified Should modifications be taken into account?
+     * @returns Efficiency in range `[0, 1]` or `NaN` if this module is not a
+     * weapon
+     */
+    public getArmourEffectiveness(modified?: boolean): number {
+        if (!this.ship || !this.ship.getOpponent()) {
+            return 1;
+        }
+
+        const opponent = this.ship.getOpponent();
+        let hardness;
+        // In theory, we could simply use the interface in the first place,
+        // however this might trigger a calculation on every call of
+        // `armourEfficiency` for every module. To save performance, simple read
+        // the base property for ships.
+        if (opponent instanceof Ship) {
+            hardness = opponent.getBaseProperty('hardness');
+        } else {
+            hardness = opponent.getArmour().hardness;
+        }
+        return Math.min(1, hardness / this.get('armourpenetration', modified));
+    }
+
+    /**
+     * How relatively effective is this weapon based on the engagement range and
+     * its falloff value?
+     * @param modified Should modifications be taken into account?
+     * @returns Efficiency in range `[0, 1]` or `NaN` if this module is not a
+     * weapon
+     */
+    public getRangeEffectiveness(modified?: boolean) {
+        if (!this.ship || isNaN(this.ship.getEngagementRange())) {
+            return 1;
+        }
+
+        const falloff = this.get('damagefalloffrange', modified);
+        const oppRange = this.ship.getEngagementRange();
+        const range = this.get('maximumrange', modified);
+        return Math.min(1, Math.max(0, (range - oppRange) / falloff));
+    }
+
+    /**
      * Remove a modifier for a property and reset it to default values.
      * @param property Property name.
      */

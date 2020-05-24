@@ -26,6 +26,8 @@ export interface IDamageMetrics {
  * Damage profile for all weapons of a ship.
  */
 export interface IDamageProfile extends IDamageMetrics {
+    hardnessMultiplier: number;
+    rangeMultiplier: number;
     /** Damage per energy */
     dpe: number;
     /** Damage metrics taking into account reload times */
@@ -50,9 +52,19 @@ function calculateDamageProfile(
     const dps = moduleSumEnabled(hardpoints, 'damagepersecond', modified);
     return {
         dpe: moduleSumEnabled(hardpoints, 'damageperenergy', modified),
+        dps,
         eps: moduleSumEnabled(hardpoints, 'energypersecond', modified),
-        dps: moduleSumEnabled(hardpoints, 'damagepersecond',modified),
+        hardnessMultiplier: moduleSumEnabled(
+            hardpoints,
+            (m) => m.get('damagepersecond') / dps * m.getArmourEffectiveness(),
+            modified,
+        ),
         hps: moduleSumEnabled(hardpoints, 'heatpersecond', modified),
+        rangeMultiplier: moduleSumEnabled(
+            hardpoints,
+            (m) => m.get('damagepersecond') / dps * m.getRangeEffectiveness(),
+            modified,
+        ),
         sustained: {
             dps: moduleSumEnabled(
                 hardpoints,

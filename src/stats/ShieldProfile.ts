@@ -31,8 +31,8 @@ export interface IShieldDamageMultiplier {
      */
     damageMultiplier: number;
     /**
-     * Overall damage multiplier excluding effects from pips to sys with
-     * diminishing returns applied
+     * Overall resistance excluding effects from pips to sys with diminishing
+     * returns applied
      */
     resVal: number;
     /** Additional damage multiplier provided by pip to sys */
@@ -127,7 +127,7 @@ function sysRes(pips: number): number {
 }
 
 /** Store the resistance multipliers per pip setting */
-const SYS_RES_MAP = {};
+export const SYS_RES_MAP = {};
 for (let i = 0; i <= 4; i += 0.5) {
     SYS_RES_MAP[i] = sysRes(i);
 }
