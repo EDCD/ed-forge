@@ -56,7 +56,7 @@ function calculateDamageProfile(
         sustained: {
             dps: moduleSumEnabled(
                 hardpoints,
-                'sustaineddamagerpersecond',
+                'sustaineddamagepersecond',
                 modified,
             ),
             eps: moduleSumEnabled(

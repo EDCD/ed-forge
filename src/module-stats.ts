@@ -213,7 +213,7 @@ const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = {
         percentage: true,
     },
     shotspeed: { method: 'multiplicative', higherbetter: true },
-    sustaineddamagerpersecond: { higherbetter: true, getter: SDPS },
+    sustaineddamagepersecond: { higherbetter: true, getter: SDPS },
     sustainedenergypersecond: { higherbetter: true, getter: SEPS },
     sustainedheatpersecond: { higherbetter: false, getter: SHPS },
     systemscapacity: { method: 'multiplicative', higherbetter: true },
