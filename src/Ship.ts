@@ -41,12 +41,19 @@ import {
 import { matchesAny } from './helper';
 import DiffEmitter, { IDiffEvent } from './helper/DiffEmitter';
 import Module, { IModuleObject, Slot } from './Module';
+import { IOpponent } from './Opponent';
 import {
+    ARMOUR_METRICS,
     CARGO_CAPACITY,
+    DAMAGE_METRICS,
     FUEL_CAPACITY,
+    SHIELD_METRICS,
     ShipMetricsCalculator,
     ShipPropertyCalculator,
 } from './ship-stats';
+import { IArmourMetrics } from './stats/ArmourProfile';
+import { IDamageProfile } from './stats/DamageProfile';
+import { IShieldMetrics } from './stats/ShieldProfile';
 import { shipVarIsSpecified, validateShipJson } from './validation';
 import { checkInvariants } from './validation/invariants';
 
@@ -90,6 +97,10 @@ export interface IShipState {
     Cargo: number;
     /** Tones of fuel in tanks */
     Fuel: number;
+    /** Opponent to compare this ship to */
+    Opponent: IOpponent;
+    /** Engagement range to the opponent */
+    EngagementRange: number;
 }
 
 /**
@@ -132,12 +143,14 @@ export const OBJECT_EVENT = 'diff';
 /**
  * An Elite: Dangerous ship build.
  */
-export default class Ship extends DiffEmitter {
+export default class Ship extends DiffEmitter implements IOpponent {
     public liveryModules: IModuleObject[] = [];
     public object: IShipObjectHandler = null;
     public state: IShipState = {
         Cargo: 0,
+        EngagementRange: 1000,
         Fuel: 1,
+        Opponent: undefined,
         PowerDistributor: cloneDeep(RESET_PIPS),
     };
 
@@ -786,6 +799,50 @@ export default class Ship extends DiffEmitter {
         fuel = Math.max(0, fuel);
         fuel = Math.min(fuel, this.get(FUEL_CAPACITY, true));
         this._writeState('Fuel', fuel);
+    }
+
+    /**
+     * Set the opponent of this ship to make comparisons to.
+     * @param opponent New opponent
+     */
+    public setOpponent(opponent: IOpponent) {
+        this._writeState('Opponent', opponent);
+    }
+
+    /**
+     * Get the current opponent of this ship.
+     * @returns Current opponent
+     */
+    public getOpponent(): IOpponent {
+        return this.state.Opponent;
+    }
+
+    /**
+     * Set the engagement range to the opponent.
+     * @param range Engagement range in meters
+     */
+    public setEngagementRange(range: number) {
+        this._writeState('EngagementRange', range);
+    }
+
+    /**
+     * Get the engagement range to the opponent.
+     * @returns Engagement range in meters
+     */
+    public getEngagementRange(): number {
+        return this.state.EngagementRange;
+    }
+
+    public getArmour(): IArmourMetrics {
+        return this.getMetrics(ARMOUR_METRICS);
+    }
+
+    public getShield(): IShieldMetrics {
+        return this.getMetrics(SHIELD_METRICS);
+    }
+
+    public getDamage(): IDamageProfile {
+        return this.getMetrics(DAMAGE_METRICS);
     }
 
     /**
