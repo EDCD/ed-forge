@@ -701,6 +701,7 @@ export default class Ship extends DiffEmitter implements IOpponent {
             other2Key = 'Wep';
         }
 
+        // How many pips can still be put into this system?
         const left = Math.min(1, 4 - (pips.base + pips.mc));
         if (isMc) {
             const mc = getShipMetaProperty(this.object.Ship, 'crew') - 1;
@@ -713,7 +714,7 @@ export default class Ship extends DiffEmitter implements IOpponent {
             let diff2;
             if (left === 0.5) {
                 // Take from whichever is larger
-                if (other1 > other2) {
+                if (other1.base > other2.base) {
                     diff1 = other1.base - 0.5;
                 } else {
                     diff2 = other2.base - 0.5;
@@ -722,8 +723,11 @@ export default class Ship extends DiffEmitter implements IOpponent {
             } else {
                 // left == 1
                 const other1WasZero = other1.base === 0;
-                diff1 = other1.base - (other2.base === 0 ? 1 : 0.5);
-                diff2 = other2.base - (other1WasZero ? 1 : 0.5);
+                const other2WasZero = other2.base === 0;
+                diff1 = other1.base
+                    - (other2WasZero ? 1 : other1WasZero ? 0 : 0.5);
+                diff2 = other2.base
+                    - (other1WasZero ? 1 : other2WasZero ? 0 : 0.5);
                 sum = pips.base + 1;
             }
             this._prepareStateChange(`PowerDistributor.${pipType}.base`, sum);
