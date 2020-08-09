@@ -886,7 +886,9 @@ export default class Module extends DiffEmitter {
                 'Priority groups must be greater than 0',
             );
         }
-        this.object.Priority = Math.floor(priority);
+        if (this.get('PowerDraw')) {
+            this._writeObject('Priority', Math.floor(priority));
+        }
     }
 
     /**
