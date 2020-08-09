@@ -88,7 +88,7 @@ export interface IPowered {
 interface IIModuleObjectBase {
     /** Item/actual module that this module represents */
     Item: string;
-    /** Power priority group */
+    /** Power priority group (zero indexed) */
     Priority: number;
     /** Slot this module is on (possibly empty string) */
     Slot: string;
@@ -157,7 +157,7 @@ export default class Module extends DiffEmitter {
     public object: IModuleObjectHandler = {
         Item: '',
         On: true,
-        Priority: 1,
+        Priority: 0,
         Slot: '',
     };
     public ship: Ship = null;
@@ -639,7 +639,7 @@ export default class Module extends DiffEmitter {
         if (!this.object.Slot.match(REG_CORE_SLOT)) {
             this._prepareObjectChange('Item', '');
         }
-        this._prepareObjectChange('Priority', 1);
+        this._prepareObjectChange('Priority', 0);
         this._prepareObjectChange('On', true);
         // resetEngineering will commit changes
         this.resetEngineering();
@@ -878,12 +878,12 @@ export default class Module extends DiffEmitter {
 
     /**
      * Set the power priority group of the current module.
-     * @param priority Priority (greater than 1)
+     * @param priority Priority (not negative)
      */
     public setPowerPriority(priority: number) {
-        if (priority < 1) {
+        if (priority < 0) {
             throw new IllegalChangeError(
-                'Priority groups must be greater than 0',
+                'Priority groups must not be negative',
             );
         }
         if (this.get('PowerDraw')) {
