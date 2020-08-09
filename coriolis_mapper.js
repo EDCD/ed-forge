@@ -306,10 +306,10 @@ function consumeModule(module) {
         j.props.absolutedamageportion = 0;
         for (let type in dist) {
             switch (type) {
-                case "T": j.props.thermicdamageportion = dist.T;
-                case "E": j.props.explosivedamageportion = dist.E;
-                case "K": j.props.kineticdamageportion = dist.K;
-                case "A": j.props.absolutedamageportion = dist.A;
+                case "T": j.props.thermicdamageportion = dist.T; break;
+                case "E": j.props.explosivedamageportion = dist.E; break;
+                case "K": j.props.kineticdamageportion = dist.K; break;
+                case "A": j.props.absolutedamageportion = dist.A; break;
             }
         }
     }
