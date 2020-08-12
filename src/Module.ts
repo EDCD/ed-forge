@@ -409,7 +409,7 @@ export default class Module extends DiffEmitter {
         } else {
             hardness = opponent.getArmour().hardness;
         }
-        return Math.min(1, hardness / this.get('armourpenetration', modified));
+        return Math.min(1, this.get('armourpenetration', modified) / hardness);
     }
 
     /**
