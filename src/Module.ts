@@ -427,7 +427,10 @@ export default class Module extends DiffEmitter {
         const falloff = this.get('damagefalloffrange', modified);
         const oppRange = this.ship.getEngagementRange();
         const range = this.get('maximumrange', modified);
-        return Math.min(1, Math.max(0, (range - oppRange) / falloff));
+        return Math.min(
+            1,
+            Math.max(0, 1 - (oppRange - falloff) / (range - falloff)),
+        );
     }
 
     /**
