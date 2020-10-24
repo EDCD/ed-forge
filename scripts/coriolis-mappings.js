@@ -172,6 +172,7 @@ module.exports.PROP_CORIOLIS_TO_FD = {
     'reload': 'reloadtime',
     'rof': 'rateoffire',
     'scantime': 'scannertimetoscan',
+    'shieldaddition': 'defencemodifiershieldaddition',
     'shieldreinforcement': 'shieldbankreinforcement',
     'spinup': 'shieldbankspinup',
     'sdps': 'sustaineddamagepersecond',
