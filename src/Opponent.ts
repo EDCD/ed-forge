@@ -57,6 +57,12 @@ export default class AbstractOpponent implements IOpponent {
         base: 0,
         byAlloys: 0,
         byHRPs: 0,
+        absolute: {
+            byAlloys: 1,
+            byHRPs: 1,
+            damageMultiplier: 1,
+            resVal: 0,
+        },
         caustic: {
             byAlloys: 1,
             byHRPs: 1,

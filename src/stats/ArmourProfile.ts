@@ -41,6 +41,8 @@ export interface IArmourMetrics {
     armour: number;
     /** Hardness of the ship */
     hardness: number;
+    /** Damage multipliers against absolute attacks */
+    absolute: IArmourDamageMultiplier;
     /** Damage multipliers against explosive attacks */
     explosive: IArmourDamageMultiplier;
     /** Damage multipliers against kinetic attacks */
@@ -119,6 +121,12 @@ export function getArmourMetrics(
         base: baseArmour,
         byAlloys: boostedArmour,
         byHRPs: hrpReinforcement,
+        absolute: {
+            byAlloys: 1,
+            byHRPs: 1,
+            damageMultiplier: 1,
+            resVal: 0,
+        },
         caustic: {
             byAlloys: causDamage,
             byHRPs: hrpCausDamage,
