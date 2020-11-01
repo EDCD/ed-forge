@@ -9,6 +9,7 @@ import { Ship } from '.';
 import { IPropertyMap } from './data/blueprints';
 import { IllegalStateError } from './errors';
 import Module, { IModifierObject } from './Module';
+import { getModuleProperty } from './data/items';
 
 function getReciprocal(prop: string): ModulePropertyCalculator {
     return (module, modified) => {
@@ -132,10 +133,20 @@ const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = {
     energyperregen: { method: 'multiplicative', higherbetter: false },
     energypersecond: { higherbetter: false, getter: EPS },
     engineheatrate: { method: 'multiplicative', higherbetter: false },
-    enginemaximalmass: {},
-    enginemaxperformance: {},
-    engineminimalmass: {},
-    engineminperformance: {},
+    enginemaximalmass: {
+        getter: useOptModifier.bind(undefined, 'enginemaximalmass', 'engineoptimalmass'),
+    },
+    enginemaxperformance: {
+        getter: useOptModifier.bind(undefined, 'enginemaxperformance', 'engineoptperformance'),
+        percentage: true,
+    },
+    engineminimalmass: {
+        getter: useOptModifier.bind(undefined, 'engineminimalmass', 'engineoptimalmass'),
+    },
+    engineminperformance: {
+        getter: useOptModifier.bind(undefined, 'engineminperformance', 'engineoptperformance'),
+        percentage: true,
+    },
     engineoptimalmass: { method: 'multiplicative', higherbetter: true },
     engineoptperformance: {
         higherbetter: true,
@@ -202,10 +213,20 @@ const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = {
     shieldbankheat: { method: 'multiplicative', higherbetter: false },
     shieldbankreinforcement: { method: 'multiplicative', higherbetter: true },
     shieldbankspinup: { method: 'multiplicative', higherbetter: false },
+    // Shield generator maximal mass is not modified with optimal mass, although
+    // engine maximal mass is.
     shieldgenmaximalmass: {},
-    shieldgenmaxstrength: {},
-    shieldgenminimalmass: {},
-    shieldgenminstrength: {},
+    shieldgenmaxstrength: {
+        getter: useOptModifier.bind(undefined, 'shieldgenmaxstrength', 'shieldgenstrength'),
+        percentage: true,
+    },
+    shieldgenminimalmass: {
+        getter: useOptModifier.bind(undefined, 'shieldgenminimalmass', 'shieldgenoptimalmass'),
+    },
+    shieldgenminstrength: {
+        getter: useOptModifier.bind(undefined, 'shieldgenminstrength', 'shieldgenstrength'),
+        percentage: true,
+    },
     shieldgenoptimalmass: { method: 'multiplicative', higherbetter: true },
     shieldgenstrength: {
         higherbetter: true,
@@ -375,4 +396,18 @@ function importEff(
     const Label = name + 'effectiveness';
     const Value = 1 - res / 100;
     module.object.Engineering.Modifiers[Label] = { Label, Value };
+}
+
+function useOptModifier(
+    prop: string,
+    optProp: string,
+    module: Module,
+    modified: boolean,
+): number {
+    const base = getModuleProperty(module.getItem().toLowerCase(), prop);
+    if (!modified) {
+        return base;
+    } else {
+        return base * (1 + (module.getModifier(optProp) || 0));
+    }
 }
