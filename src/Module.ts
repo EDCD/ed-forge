@@ -36,10 +36,7 @@ import {
 } from './errors';
 import { mapValuesDeep, matchesAny } from './helper';
 import DiffEmitter from './helper/DiffEmitter';
-import MODULE_STATS, {
-    IModulePropertyCalculatorClass,
-    ModulePropertyCalculator,
-} from './module-stats';
+import MODULE_STATS, { ModulePropertyCalculator } from './module-stats';
 import Ship from './Ship';
 import { moduleVarIsSpecified, validateModuleJson } from './validation';
 
@@ -273,8 +270,7 @@ export default class Module extends DiffEmitter {
     public get(
         property:
             | string
-            | ModulePropertyCalculator
-            | IModulePropertyCalculatorClass,
+            | ModulePropertyCalculator,
         modified: boolean = true,
     ): number | null | undefined {
         if (typeof property === 'string') {
@@ -288,7 +284,7 @@ export default class Module extends DiffEmitter {
 
             const getter = MODULE_STATS[property].getter;
             if (getter) {
-                property = getter;
+                return getter(this, modified);
             } else {
                 if (
                     modified &&
@@ -300,10 +296,6 @@ export default class Module extends DiffEmitter {
                 return getModuleProperty(this.object.Item, property);
             }
         }
-        if (typeof property === 'object') {
-            return property.calculate(this, modified);
-        } // else: function
-        return property(this, modified);
     }
 
     /**

@@ -47,7 +47,7 @@ export interface IModulePropertyDescriptor {
      * sense of what is better.
      */
     higherbetter?: boolean;
-    getter?: ModulePropertyCalculator | IModulePropertyCalculatorClass;
+    getter?: ModulePropertyCalculator;
     /**
      * If a property has an importer it won't be set when a module is imported.
      * Instead, all other properties will be imported first, then all importers
@@ -245,10 +245,6 @@ export type ModulePropertyCalculator = (
     module: Module,
     modified: boolean,
 ) => number;
-
-export interface IModulePropertyCalculatorClass {
-    calculate(module: Module, modified: boolean): number;
-}
 
 export function EFFECTIVE_SYS_RATE(module: Module, modified: boolean): number {
     if (!module.ship) {
