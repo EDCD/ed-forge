@@ -102,7 +102,7 @@ function getManeuverabilityMetrics(
         pitch: ship.getBaseProperty('pitch') * multiplier,
         roll: ship.getBaseProperty('roll') * multiplier,
         speed: ship.getBaseProperty('speed') * multiplier,
-        yaw: ship.getBaseProperty('pitch') * multiplier,
+        yaw: ship.getBaseProperty('yaw') * multiplier,
     };
 }
 
@@ -172,7 +172,7 @@ export function getPitch(ship: Ship, modified?: boolean): number {
 }
 
 export function getBoostPitch(ship: Ship, modified?: boolean): number {
-    return getSpeedMetrics(ship, modified).boost.speed;
+    return getSpeedMetrics(ship, modified).boost.pitch;
 }
 
 /**
@@ -198,7 +198,7 @@ export function getBoostYaw(ship: Ship, modified: boolean): number {
  * @returns Max roll speed
  */
 export function getRoll(ship: Ship, modified?: boolean): number {
-    return _getNow(ship, modified).yaw;
+    return _getNow(ship, modified).roll;
 }
 
 export function getBoostRoll(ship: Ship, modified?: boolean): number {
