@@ -569,8 +569,8 @@ module.exports.TYPE_TO_GROUP = {
 module.exports.BLUEPRINT_EXCEPTION_TARGETS = {
     'sensor_longrange': '^int_sensors',
     'sensor_wideangle': '^int_sensors',
-    'sensor_longrange_scanner': '^hpt_(cargo|cloud|crime)scanner',
-    'sensor_wideangle_scanner': '^hpt_(cargo|cloud|crime)scanner',
+    'scanner_longrange': '^hpt_(cargo|cloud|crime)scanner',
+    'scanner_wideangle': '^hpt_(cargo|cloud|crime)scanner',
     'mc_overcharged': '^hpt_multicannon',
 };
 
