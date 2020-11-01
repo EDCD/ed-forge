@@ -26,10 +26,8 @@ const BLUEPRINT_EXTRAS = {
         propObject: IPropertyMap,
     ) => {
         const falloff = propObject.maximumrange.Value;
-        const baseFalloff = moduleInfo.props[FALLOFF_KEY];
         propObject[FALLOFF_KEY] = {
             Label: FALLOFF_KEY,
-            Modifier: falloff / baseFalloff,
             Value: falloff,
         };
     },
@@ -143,7 +141,10 @@ export function getBlueprintProps(
 }
 
 /**
- * Return a modifier based on a modified property.
+ * Return a modifier based on a modified property. This modifier does not
+ * necessarily reflect the modifier used internally to calculate the value, e.g.
+ * for properties that are changed using the boost method. It reflects the
+ * change rate displayed in-game.
  * @param module Item id
  * @param name Property name
  * @param modifiedProperty New property value
@@ -195,8 +196,8 @@ function applyBlueprintModifiers(
 
             // Allow subsequent applications of modifier objects for
             // experimental effects
-            const baseValue =
-                (propObject[prop] && propObject[prop].Value) ||
+            const baseValue = propObject[prop] ?
+                propObject[prop].Value :
                 moduleInfo.props[prop];
             const { min, max, only } = ModifierObject[prop];
 
@@ -204,11 +205,14 @@ function applyBlueprintModifiers(
                 continue;
             }
 
-            const Modifier = (max - min) * progress + min;
+            // Never store this modifier in the modifier object because it does
+            // not necessarily reflect the change displayed in-game, e.g. for
+            // boost method.
+            const modifier = (max - min) * progress + min;
             let Value = getModifiedProperty(
                 propertyDescriptor,
                 baseValue,
-                Modifier,
+                modifier,
             );
 
             if (propertyDescriptor.integer) {
@@ -216,11 +220,7 @@ function applyBlueprintModifiers(
             }
 
             if (!isNaN(Value)) {
-                propObject[prop] = {
-                    Label: prop,
-                    Modifier,
-                    Value,
-                };
+                propObject[prop] = { Label: prop, Value };
             }
         }
     }
@@ -240,10 +240,10 @@ function getModifiedProperty(
     modifier: number,
 ): number {
     switch (propertyDescriptor.method) {
-        // Additive mods can add new properties
         case 'boost':
             const pBase = propertyDescriptor.percentage ? base / 100 : base;
             return base + 100 * ((1 + pBase) * (1 + modifier) - (1 + pBase));
+        // Additive mods can add new properties
         case 'additive':
             return (base || 0) + modifier;
         case 'multiplicative':
