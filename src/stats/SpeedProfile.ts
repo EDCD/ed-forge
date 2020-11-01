@@ -54,7 +54,7 @@ function getEngMultiplier(ship: Ship, engPips: number): number {
  * @param ship Ship to get the multiplier for
  * @returns Boost multiplier
  */
-function getBoostMultiplier(ship: Ship): number {
+export function getBoostMultiplier(ship: Ship): number {
     return ship.getBaseProperty('boost') / ship.getBaseProperty('speed');
 }
 
@@ -68,7 +68,7 @@ function getBoostMultiplier(ship: Ship): number {
  * `pipsToEng / 0.5`, i.e. to get the multiplier for 2.5 pips set to ENG look up
  * index `2.5 / 0.5 == 5`.
  */
-function getSpeedMultipliers(
+export function getSpeedMultipliers(
     ship: Ship,
     mass: number,
     modified?: boolean,
