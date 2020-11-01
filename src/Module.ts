@@ -144,6 +144,11 @@ export interface IModifierObject {
     /** Modified property value */
     Value: number;
     OriginalValue?: number;
+    /**
+     * Change-rate of the value in comparison to base-property. In case the
+     * value is undefined, it has only not been calculated yet - the property
+     * might still be modified.
+     */
     Modifier?: number;
     UserSet?: boolean;
 }
@@ -332,7 +337,17 @@ export default class Module extends DiffEmitter {
             this.object.Engineering &&
             this.object.Engineering.Modifiers[property]
         ) {
-            return this.object.Engineering.Modifiers[property].Modifier;
+            const modifierObject = this.object.Engineering.Modifiers[property];
+            let { Modifier } = modifierObject;
+            // In case the Modifier has never been calculated, do it now
+            if (Modifier === undefined) {
+                const { Label, Value } = modifierObject;
+                Modifier = calculateModifier(this.object.Item, Label, Value);
+                // Don't commit this change because technically, the module
+                // doesn't change.
+                modifierObject.Modifier = Modifier;
+            }
+            return Modifier;
         } else {
             return 0;
         }
@@ -368,21 +383,12 @@ export default class Module extends DiffEmitter {
 
         Label = Label.toLowerCase();
         const propertyPath = `Engineering.Modifiers.${Label}`;
-        const Modifier = calculateModifier(
-            this.object.Item,
-            Label,
-            Value,
-        );
         if (this.object.Engineering.Modifiers[Label]) {
             this._prepareObjectChange(`${propertyPath}.Value`, Value);
-            this._prepareObjectChange(`${propertyPath}.Modifier`, Modifier);
             this._prepareObjectChange(`${propertyPath}.UserSet`, true);
             this._commitObjectChanges();
         } else {
-            this._writeObject(
-                propertyPath,
-                { Label, Modifier, UserSet: true, Value },
-            );
+            this._writeObject(propertyPath, { Label, UserSet: true, Value });
         }
     }
 
