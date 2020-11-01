@@ -332,13 +332,21 @@ export default class Module extends DiffEmitter {
             let { Modifier } = modifierObject;
             // In case the Modifier has never been calculated, do it now
             if (Modifier === undefined) {
-                const { Label, Value } = modifierObject;
-                Modifier = calculateModifier(this.object.Item, Label, Value);
+                Modifier = calculateModifier(
+                    this.object.Item, property, modifierObject.Value,
+                );
                 // Don't commit this change because technically, the module
                 // doesn't change.
                 modifierObject.Modifier = Modifier;
             }
             return Modifier;
+        // Modifiers for synthetic properties must always be re-calculated!
+        } else if (MODULE_STATS[property].getter) {
+            return calculateModifier(
+                this.object.Item,
+                property,
+                MODULE_STATS[property].getter(this, true),
+            );
         } else {
             return 0;
         }
