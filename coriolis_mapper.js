@@ -7,7 +7,7 @@ const {
     PROP_CORIOLIS_TO_FD, BLUEPRINT_EXCEPTION_TARGETS,
     EXPERIMENTAL_EXCEPTION_TARGETS,
 } = require('./scripts/coriolis-mappings');
-const MODULE_STATS = require('./lib/module-stats').default;
+const MODULE_STATS = require('./src/module-stats.json');
 
 /**
  * Returns an object key mapper that maps coriolis module prop names to FDev

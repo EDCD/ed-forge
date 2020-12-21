@@ -10,6 +10,8 @@ import { IPropertyMap } from './data/blueprints';
 import { IllegalStateError } from './errors';
 import Module, { IModifierObject } from './Module';
 import { getModuleProperty } from './data/items';
+import * as CONST_STATS from './module-stats.json';
+import { assign, mergeWith } from 'lodash';
 
 function getReciprocal(prop: string): ModulePropertyCalculator {
     return (module, modified) => {
@@ -72,185 +74,71 @@ export interface IModulePropertyDescriptor {
     integer?: boolean;
 }
 
-const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = {
-    absolutedamageportion: { method: 'overwrite' },
-    ammoclipsize: {
-        higherbetter: true,
-        integer: true,
-        method: 'multiplicative',
+/**
+ * Notes:
+ *  - energyperregen is a property for shields
+ *  - range is for sensors
+ *  - scannerrange is for utility scanners
+ *  - sensortargetscanangle is for sensors
+ */
+const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = mergeWith(
+    CONST_STATS,
+    {
+        ammototal: { getter: AMMO_TOTAL },
+        armourpenetration: { method: 'multiplicative' },
+        burstintervall: {
+            getter: getReciprocal('burstrateoffire'),
+        },
+        causticresistance: {
+            getter: CAUS_RES,
+            importer: importEff.bind(undefined, 'caustic'),
+        },
+        damageperenergy: { getter: DPE },
+        damagepersecond: { getter: DPS },
+        energypersecond: { getter: EPS },
+        enginemaximalmass: {
+            getter: useOptModifier.bind(undefined, 'enginemaximalmass', 'engineoptimalmass'),
+        },
+        enginemaxperformance: {
+            getter: useOptModifier.bind(undefined, 'enginemaxperformance', 'engineoptperformance'),
+        },
+        engineminimalmass: {
+            getter: useOptModifier.bind(undefined, 'engineminimalmass', 'engineoptimalmass'),
+        },
+        engineminperformance: {
+            getter: useOptModifier.bind(undefined, 'engineminperformance', 'engineoptperformance'),
+        },
+        explosiveresistance: {
+            getter: EXPL_RES,
+            importer: importEff.bind(undefined, 'explosive'),
+        },
+        heatpersecond: { getter: HPS },
+        kineticresistance: {
+            getter: KIN_RES,
+            importer: importEff.bind(undefined, 'kinetic'),
+        },
+        rateoffire: { getter: ROF, importer: importROF },
+        // Shield generator maximal mass is not modified with optimal mass, although
+        // engine maximal mass is.
+        shieldgenmaxstrength: {
+            getter: useOptModifier.bind(undefined, 'shieldgenmaxstrength', 'shieldgenstrength'),
+        },
+        shieldgenminimalmass: {
+            getter: useOptModifier.bind(undefined, 'shieldgenminimalmass', 'shieldgenoptimalmass'),
+        },
+        shieldgenminstrength: {
+            getter: useOptModifier.bind(undefined, 'shieldgenminstrength', 'shieldgenstrength'),
+        },
+        sustaineddamagepersecond: { getter: SDPS },
+        sustainedenergypersecond: { getter: SEPS },
+        sustainedheatpersecond: { getter: SHPS },
+        thermicresistance: {
+            getter: THERM_RES,
+            importer: importEff.bind(undefined, 'thermic'),
+        },
     },
-    ammomaximum: {
-        higherbetter: true,
-        integer: true,
-        method: 'multiplicative',
-    },
-    ammototal: { getter: AMMO_TOTAL, higherbetter: true, integer: true },
-    armourpenetration: { method: 'multiplicative', higherbetter: true },
-    bays: { higherbetter: true },
-    boottime: { method: 'multiplicative', higherbetter: false },
-    brokenregenrate: { method: 'multiplicative', higherbetter: true },
-    burstintervall: {
-        getter: getReciprocal('burstrateoffire'),
-        higherbetter: false,
-        method: 'multiplicative',
-    },
-    burstrateoffire: { method: 'overwrite', higherbetter: true },
-    burstsize: { method: 'overwrite', higherbetter: true, integer: true },
-    cargo: {},
-    causticeffectiveness: { method: 'multiplicative', higherbetter: false },
-    causticresistance: {
-        getter: CAUS_RES,
-        higherbetter: true,
-        importer: importEff.bind(undefined, 'caustic'),
-        percentage: true,
-    },
-    damage: { method: 'multiplicative', higherbetter: true },
-    damagefalloffrange: { method: 'multiplicative', higherbetter: true },
-    damageperenergy: { higherbetter: true, getter: DPE },
-    damagepersecond: { higherbetter: true, getter: DPS },
-    defencemodifierhealthaddition: {
-        higherbetter: true,
-        method: 'multiplicative',
-    },
-    defencemodifierhealthmultiplier: {
-        higherbetter: true,
-        method: 'boost',
-        percentage: true,
-    },
-    defencemodifiershieldaddition: {},
-    defencemodifiershieldmultiplier: {
-        higherbetter: true,
-        method: 'boost',
-        percentage: true,
-    },
-    distributordraw: { method: 'multiplicative', higherbetter: false },
-    dss_patchradius: {
-        higherbetter: true,
-        method: 'multiplicative',
-        percentage: true,
-    },
-    // for shields
-    energyperregen: { method: 'multiplicative', higherbetter: false },
-    energypersecond: { higherbetter: false, getter: EPS },
-    engineheatrate: { method: 'multiplicative', higherbetter: false },
-    enginemaximalmass: {
-        getter: useOptModifier.bind(undefined, 'enginemaximalmass', 'engineoptimalmass'),
-    },
-    enginemaxperformance: {
-        getter: useOptModifier.bind(undefined, 'enginemaxperformance', 'engineoptperformance'),
-        percentage: true,
-    },
-    engineminimalmass: {
-        getter: useOptModifier.bind(undefined, 'engineminimalmass', 'engineoptimalmass'),
-    },
-    engineminperformance: {
-        getter: useOptModifier.bind(undefined, 'engineminperformance', 'engineoptperformance'),
-        percentage: true,
-    },
-    engineoptimalmass: { method: 'multiplicative', higherbetter: true },
-    engineoptperformance: {
-        higherbetter: true,
-        method: 'multiplicative',
-        percentage: true,
-    },
-    enginescapacity: { method: 'multiplicative', higherbetter: true },
-    enginesrecharge: { method: 'multiplicative', higherbetter: true },
-    explosivedamageportion: { method: 'overwrite' },
-    explosiveeffectiveness: { method: 'multiplicative', higherbetter: false },
-    explosiveresistance: {
-        getter: EXPL_RES,
-        higherbetter: true,
-        importer: importEff.bind(undefined, 'explosive'),
-        percentage: true,
-    },
-    fireintervall: { method: 'multiplicative', higherbetter: false },
-    // TODO:
-    fsdheatrate: {},
-    fsdinterdictorfacinglimit: { method: 'multiplicative', higherbetter: true },
-    fsdinterdictorrange: { method: 'multiplicative', higherbetter: true },
-    fsdoptimalmass: { method: 'multiplicative', higherbetter: true },
-    fuel: {},
-    fuelmul: {},
-    fuelpower: {},
-    heatefficiency: { method: 'multiplicative', higherbetter: false },
-    heatpersecond: { higherbetter: false, getter: HPS },
-    integrity: { method: 'multiplicative', higherbetter: true },
-    jitter: { method: 'additive', higherbetter: false },
-    jumpboost: {},
-    kineticdamageportion: { method: 'overwrite' },
-    kineticeffectiveness: { method: 'multiplicative', higherbetter: false },
-    kineticresistance: {
-        getter: KIN_RES,
-        higherbetter: true,
-        importer: importEff.bind(undefined, 'kinetic'),
-        percentage: true,
-    },
-    mass: { method: 'multiplicative', higherbetter: false },
-    maxangle: { method: 'multiplicative', higherbetter: true },
-    maxfuel: {},
-    // For weapons
-    maximumrange: { method: 'multiplicative', higherbetter: true },
-    powercapacity: { method: 'multiplicative', higherbetter: true },
-    powerdraw: { method: 'multiplicative', higherbetter: false },
-    protection: {
-        higherbetter: true,
-        method: 'multiplicative',
-        percentage: true,
-    },
-    // For sensors
-    range: { method: 'multiplicative', higherbetter: true },
-    rateoffire: { higherbetter: true, getter: ROF, importer: importROF },
-    rebuildsperbay: { higherbetter: true },
-    regenrate: { method: 'multiplicative', higherbetter: true },
-    reloadtime: { method: 'multiplicative', higherbetter: false },
-    roundspershot: { integer: true },
-    // For utility scanners
-    scannerrange: { method: 'multiplicative', higherbetter: true },
-    scannertimetoscan: { method: 'multiplicative', higherbetter: false },
-    // For sensors
-    sensortargetscanangle: { method: 'multiplicative', higherbetter: true },
-    shieldbankduration: { method: 'multiplicative', higherbetter: true },
-    shieldbankheat: { method: 'multiplicative', higherbetter: false },
-    shieldbankreinforcement: { method: 'multiplicative', higherbetter: true },
-    shieldbankspinup: { method: 'multiplicative', higherbetter: false },
-    // Shield generator maximal mass is not modified with optimal mass, although
-    // engine maximal mass is.
-    shieldgenmaximalmass: {},
-    shieldgenmaxstrength: {
-        getter: useOptModifier.bind(undefined, 'shieldgenmaxstrength', 'shieldgenstrength'),
-        percentage: true,
-    },
-    shieldgenminimalmass: {
-        getter: useOptModifier.bind(undefined, 'shieldgenminimalmass', 'shieldgenoptimalmass'),
-    },
-    shieldgenminstrength: {
-        getter: useOptModifier.bind(undefined, 'shieldgenminstrength', 'shieldgenstrength'),
-        percentage: true,
-    },
-    shieldgenoptimalmass: { method: 'multiplicative', higherbetter: true },
-    shieldgenstrength: {
-        higherbetter: true,
-        method: 'multiplicative',
-        percentage: true,
-    },
-    shotspeed: { method: 'multiplicative', higherbetter: true },
-    sustaineddamagepersecond: { higherbetter: true, getter: SDPS },
-    sustainedenergypersecond: { higherbetter: true, getter: SEPS },
-    sustainedheatpersecond: { higherbetter: false, getter: SHPS },
-    systemscapacity: { method: 'multiplicative', higherbetter: true },
-    systemsrecharge: { method: 'multiplicative', higherbetter: true },
-    thermalload: { method: 'multiplicative', higherbetter: false },
-    thermicdamageportion: { method: 'overwrite' },
-    thermiceffectiveness: { method: 'multiplicative', higherbetter: false },
-    thermicresistance: {
-        getter: THERM_RES,
-        higherbetter: true,
-        importer: importEff.bind(undefined, 'thermic'),
-        percentage: true,
-    },
-    weaponscapacity: { method: 'multiplicative', higherbetter: true },
-    weaponsrecharge: { method: 'multiplicative', higherbetter: true },
-};
+    (fst, snd) => assign(fst, snd),
+);
 export default MODULE_STATS;
 
 export const PD_RECHARGE_MAP = {};

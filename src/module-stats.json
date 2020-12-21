@@ -1,0 +1,155 @@
+{
+    "absolutedamageportion": { "method": "overwrite" },
+    "ammoclipsize": {
+        "higherbetter": true,
+        "integer": true,
+        "method": "multiplicative"
+    },
+    "ammomaximum": {
+        "higherbetter": true,
+        "integer": true,
+        "method": "multiplicative"
+    },
+    "ammototal": { "higherbetter": true, "integer": true },
+    "armourpenetration": { "method": "multiplicative", "higherbetter": true },
+    "bays": { "higherbetter": true },
+    "boottime": { "method": "multiplicative", "higherbetter": false },
+    "brokenregenrate": { "method": "multiplicative", "higherbetter": true },
+    "burstintervall": {
+        "higherbetter": false,
+        "method": "multiplicative"
+    },
+    "burstrateoffire": { "method": "overwrite", "higherbetter": true },
+    "burstsize": { "method": "overwrite", "higherbetter": true, "integer": true },
+    "cargo": {},
+    "causticeffectiveness": { "method": "multiplicative", "higherbetter": false },
+    "causticresistance": {
+        "higherbetter": true,
+        "percentage": true
+    },
+    "damage": { "method": "multiplicative", "higherbetter": true },
+    "damagefalloffrange": { "method": "multiplicative", "higherbetter": true },
+    "damageperenergy": { "higherbetter": true },
+    "damagepersecond": { "higherbetter": true },
+    "defencemodifierhealthaddition": {
+        "higherbetter": true,
+        "method": "multiplicative"
+    },
+    "defencemodifierhealthmultiplier": {
+        "higherbetter": true,
+        "method": "boost",
+        "percentage": true
+    },
+    "defencemodifiershieldaddition": {},
+    "defencemodifiershieldmultiplier": {
+        "higherbetter": true,
+        "method": "boost",
+        "percentage": true
+    },
+    "distributordraw": { "method": "multiplicative", "higherbetter": false },
+    "dss_patchradius": {
+        "higherbetter": true,
+        "method": "multiplicative",
+        "percentage": true
+    },
+    "energyperregen": { "method": "multiplicative", "higherbetter": false },
+    "energypersecond": { "higherbetter": false },
+    "engineheatrate": { "method": "multiplicative", "higherbetter": false },
+    "enginemaximalmass": {
+    },
+    "enginemaxperformance": {
+        "percentage": true
+    },
+    "engineminimalmass": {
+    },
+    "engineminperformance": {
+        "percentage": true
+    },
+    "engineoptimalmass": { "method": "multiplicative", "higherbetter": true },
+    "engineoptperformance": {
+        "higherbetter": true,
+        "method": "multiplicative",
+        "percentage": true
+    },
+    "enginescapacity": { "method": "multiplicative", "higherbetter": true },
+    "enginesrecharge": { "method": "multiplicative", "higherbetter": true },
+    "explosivedamageportion": { "method": "overwrite" },
+    "explosiveeffectiveness": { "method": "multiplicative", "higherbetter": false },
+    "explosiveresistance": {
+        "higherbetter": true,
+        "percentage": true
+    },
+    "fireintervall": { "method": "multiplicative", "higherbetter": false },
+    "fsdheatrate": {},
+    "fsdinterdictorfacinglimit": { "method": "multiplicative", "higherbetter": true },
+    "fsdinterdictorrange": { "method": "multiplicative", "higherbetter": true },
+    "fsdoptimalmass": { "method": "multiplicative", "higherbetter": true },
+    "fuel": {},
+    "fuelmul": {},
+    "fuelpower": {},
+    "heatefficiency": { "method": "multiplicative", "higherbetter": false },
+    "heatpersecond": { "higherbetter": false },
+    "integrity": { "method": "multiplicative", "higherbetter": true },
+    "jitter": { "method": "additive", "higherbetter": false },
+    "jumpboost": {},
+    "kineticdamageportion": { "method": "overwrite" },
+    "kineticeffectiveness": { "method": "multiplicative", "higherbetter": false },
+    "kineticresistance": {
+        "higherbetter": true,
+        "percentage": true
+    },
+    "mass": { "method": "multiplicative", "higherbetter": false },
+    "maxangle": { "method": "multiplicative", "higherbetter": true },
+    "maxfuel": {},
+    "maximumrange": { "method": "multiplicative", "higherbetter": true },
+    "powercapacity": { "method": "multiplicative", "higherbetter": true },
+    "powerdraw": { "method": "multiplicative", "higherbetter": false },
+    "protection": {
+        "higherbetter": true,
+        "method": "multiplicative",
+        "percentage": true
+    },
+    "range": { "method": "multiplicative", "higherbetter": true },
+    "rateoffire": { "higherbetter": true },
+    "rebuildsperbay": { "higherbetter": true },
+    "regenrate": { "method": "multiplicative", "higherbetter": true },
+    "reloadtime": { "method": "multiplicative", "higherbetter": false },
+    "roundspershot": { "integer": true },
+    "scannerrange": { "method": "multiplicative", "higherbetter": true },
+    "scannertimetoscan": { "method": "multiplicative", "higherbetter": false },
+    "sensortargetscanangle": { "method": "multiplicative", "higherbetter": true },
+    "shieldbankduration": { "method": "multiplicative", "higherbetter": true },
+    "shieldbankheat": { "method": "multiplicative", "higherbetter": false },
+    "shieldbankreinforcement": { "method": "multiplicative", "higherbetter": true },
+    "shieldbankspinup": { "method": "multiplicative", "higherbetter": false },
+    "shieldgenmaximalmass": {},
+    "shieldgenmaxstrength": {
+        "percentage": true
+    },
+    "shieldgenminimalmass": {
+    },
+    "shieldgenminstrength": {
+        "percentage": true
+    },
+    "shieldgenoptimalmass": { "method": "multiplicative", "higherbetter": true },
+    "shieldgenstrength": {
+        "higherbetter": true,
+        "method": "multiplicative",
+        "percentage": true
+    },
+    "shotspeed": { "method": "multiplicative", "higherbetter": true },
+    "sustaineddamagepersecond": { "higherbetter": true },
+    "sustainedenergypersecond": { "higherbetter": true },
+    "sustainedheatpersecond": { "higherbetter": false },
+    "systemscapacity": { "method": "multiplicative", "higherbetter": true },
+    "systemsrecharge": { "method": "multiplicative", "higherbetter": true },
+    "thermalload": { "method": "multiplicative", "higherbetter": false },
+    "thermicdamageportion": { "method": "overwrite" },
+    "thermiceffectiveness": { "method": "multiplicative", "higherbetter": false },
+    "thermicresistance": {
+        "higherbetter": true,
+        "percentage": true
+    },
+    "weaponscapacity": { "method": "multiplicative", "higherbetter": true },
+    "weaponsrecharge": { "method": "multiplicative", "higherbetter": true }
+}
