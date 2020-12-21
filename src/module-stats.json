@@ -14,6 +14,9 @@
     "armourpenetration": { "method": "multiplicative", "higherbetter": true },
     "bays": { "higherbetter": true },
     "boottime": { "method": "multiplicative", "higherbetter": false },
+    "breachdamage": {},
+    "maxbreachchance": { "percentage": true },
+    "minbreachchance": { "percentage": true },
     "brokenregenrate": { "method": "multiplicative", "higherbetter": true },
     "burstintervall": {
         "higherbetter": false,

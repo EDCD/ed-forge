@@ -55,6 +55,9 @@ module.exports.PROP_CORIOLIS_TO_FD = {
         }
     ],
     'boot': 'boottime',
+    'breachdmg': 'breachdamage',
+    'breachmax': 'maxbreachchance',
+    'breachmin': 'minbreachchance',
     'brokenregen': 'brokenregenrate',
     'burst': 'burstsize',
     'burstrof': 'burstrateoffire',
