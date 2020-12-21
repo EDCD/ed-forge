@@ -80,6 +80,9 @@ export interface IModulePropertyDescriptor {
  *  - range is for sensors
  *  - scannerrange is for utility scanners
  *  - sensortargetscanangle is for sensors
+ *
+ * Some module attribute key names can be taken from the official Journal API
+ * documentation.
  */
 const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = mergeWith(
     CONST_STATS,
