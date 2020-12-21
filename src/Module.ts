@@ -294,7 +294,8 @@ export default class Module extends DiffEmitter {
                 }
                 return getModuleProperty(this.object.Item, property);
             }
-        }
+        } // else: function
+        return property(this, modified);
     }
 
     /**
