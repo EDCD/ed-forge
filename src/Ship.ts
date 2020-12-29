@@ -713,10 +713,12 @@ export default class Ship extends DiffEmitter implements IOpponent {
             let diff1;
             let diff2;
             if (left === 0.5) {
-                // Take from whichever is larger
-                if (other1.base > other2.base) {
+                // Take from whichever is smaller
+                if (other1.base < other2.base) {
                     diff1 = other1.base - 0.5;
+                    diff2 = other2.base;
                 } else {
+                    diff1 = other1.base;
                     diff2 = other2.base - 0.5;
                 }
                 sum = pips.base + 0.5;
