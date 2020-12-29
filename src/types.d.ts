@@ -66,6 +66,8 @@ export interface MetaModuleInformation {
     edID: number;
     /** Class of the item */
     class: number;
+    /** Outfitting group of the item; most of the time equal to type */
+    group: string;
     /** Rating of the item */
     rating: string;
     /** Group of the item */

@@ -479,6 +479,47 @@ module.exports.CAT_CORIOLIS_TO_FD = {
     'mahr': ['MetaAlloyHRP'],
 };
 
+module.exports.TYPE_TO_GROUP = {
+    'abrasionblaster': 'mining',
+    'advancedplasmaacc': 'plasmaacc',
+    'guardianpowerplant': 'powerplant',
+    'enhancedthrusters': 'thrusters',
+    'guardianpowerdistributor': 'powerdistributor',
+    'axdumbfirerack': 'experimental',
+    'axmulticannon': 'experimental',
+    'biweaveshieldgen': 'shieldgen',
+    'cytoscrambler': 'burstlaser',
+    'corrosionresistantcargorack': 'cargorack',
+    'advanceddockingcomputer': 'dockingcomputer',
+    'dumbfirerack': 'missilerack',
+    'enforcer': 'multicannon',
+    'enzymemissilerack': 'missilerack',
+    'fsddisruptor': 'missilerack',
+    'flaklauncher': 'experimental',
+    'flechettelauncher': 'experimental',
+    'guardiangausscannon': 'experimental',
+    'guardianhrp': 'hrp',
+    'guargianmrp': 'mrp',
+    'guardianplasmacharger': 'experimental',
+    'guardianshardcannon': 'experimental',
+    'guardiansrp': 'hrp',
+    'imperialhammer': 'railgun',
+    'mininglance': 'mining',
+    'mininglaser': 'mining',
+    'metaalloyhrp': 'hrp',
+    'packhound': 'missilerack',
+    'pacifier': 'fragcannon',
+    'prismaticshieldgen': 'shieldgen',
+    'disruptor': 'pulselaser',
+    'retributor': 'beamlaser',
+    'seismicchargelauncher': 'mining',
+    'subsurfacedisplacementmissile': 'mining',
+    'seekerrack': 'missilerack',
+    'shockcannon': 'experimental',
+    'shockmine': 'minelauncher',
+    'xenoscanner': 'experimental',
+};
+
 /**
  * There are some blueprints that are "duplicated" in coriolis because fdev
  * implemented different features for different classes of modules. We describe

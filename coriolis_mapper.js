@@ -5,7 +5,7 @@ const _ = require('lodash');
 const {
     SHIP_CORIOLIS_TO_FD, MODULES_REGEX, CAT_CORIOLIS_TO_FD,
     PROP_CORIOLIS_TO_FD, BLUEPRINT_EXCEPTION_TARGETS,
-    EXPERIMENTAL_EXCEPTION_TARGETS,
+    EXPERIMENTAL_EXCEPTION_TARGETS, TYPE_TO_GROUP
 } = require('./scripts/coriolis-mappings');
 const MODULE_STATS = require('./src/module-stats.json');
 
@@ -293,6 +293,7 @@ function consumeModule(module) {
         props: _.mapKeys(_.pickBy(module, modulePropsPicker), mapper),
         meta: _.defaults(_.pick(module, META_KEYS), {
             'class': 0,
+            'group': TYPE_TO_GROUP[type] || type,
             type,
         }),
     };
