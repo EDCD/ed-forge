@@ -68,7 +68,7 @@ export function getArmourMetrics(
 ): IArmourMetrics {
     const alloys = ship.getAlloys();
 
-    const baseArmour = ship.getBaseProperty('basearmour');
+    const baseArmour = ship.readProp('basearmour');
     const hullBoost = alloys.getClean(
         'defencemodifierhealthmultiplier',
         modified,
@@ -139,7 +139,7 @@ export function getArmourMetrics(
             damageMultiplier: diminishingArmourRes(explDamage * hrpExplDamage),
             resVal: 1 - diminishingArmourRes(explDamage * hrpExplDamage),
         },
-        hardness: ship.getBaseProperty('hardness'),
+        hardness: ship.readProp('hardness'),
         kinetic: {
             byAlloys: kinDamage,
             byHRPs: hrpKinDamage,

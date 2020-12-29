@@ -241,8 +241,9 @@ export default class Ship extends DiffEmitter implements IOpponent {
     }
 
     /**
-     * Read an arbitrary object property of this ship's corresponding
-     * properties.
+     * Returns one of the ship's constants, e.g. `hullmass`.
+     * @param property Name of the property
+     * @returns Value of the property
      * @param property Property name
      * @returns Property value
      */
@@ -553,15 +554,6 @@ export default class Ship extends DiffEmitter implements IOpponent {
         modified: boolean = true,
     ): T {
         return calculator(this, modified);
-    }
-
-    /**
-     * Returns one of the ship's constants, e.g. `hullmass`.
-     * @param property Name of the property
-     * @returns Value of the property
-     */
-    public getBaseProperty(property: string): number {
-        return getShipProperty(this.object.Ship, property);
     }
 
     /**

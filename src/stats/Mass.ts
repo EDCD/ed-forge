@@ -11,7 +11,7 @@ import { getCargo, getCargoCapacity } from './Cargo';
 import { getFuel, getFuelCapacity } from './Fuel';
 
 export function getUnladenMass(ship: Ship, modified: boolean): number {
-    return ship.getBaseProperty('hullmass')
+    return ship.readProp('hullmass')
         + moduleSum(ship.object.Modules, 'mass', modified);
 }
 

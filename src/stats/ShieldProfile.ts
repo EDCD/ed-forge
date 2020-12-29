@@ -185,7 +185,7 @@ function getBaseShieldStrength(
     modified: boolean,
 ) {
     return (
-        ship.getBaseProperty('baseshieldstrength') *
+        ship.readProp('baseshieldstrength') *
         scaleMul(
             shieldGenerator.getClean('shieldgenminstrength', modified),
             shieldGenerator.getClean('shieldgenstrength', modified),
@@ -193,7 +193,7 @@ function getBaseShieldStrength(
             shieldGenerator.getClean('shieldgenminimalmass', modified),
             shieldGenerator.getClean('shieldgenoptimalmass', modified),
             shieldGenerator.getClean('shieldgenmaximalmass', modified),
-            ship.getBaseProperty('hullmass'),
+            ship.readProp('hullmass'),
         )
     );
 }

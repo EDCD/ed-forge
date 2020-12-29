@@ -411,7 +411,7 @@ export default class Module extends DiffEmitter {
         // `armourEfficiency` for every module. To save performance, simple read
         // the base property for ships.
         if (opponent instanceof Ship) {
-            hardness = opponent.getBaseProperty('hardness');
+            hardness = opponent.readProp('hardness');
         } else {
             hardness = opponent.getArmour().hardness;
         }

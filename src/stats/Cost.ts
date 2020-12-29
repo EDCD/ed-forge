@@ -11,7 +11,7 @@ import { getFuelCapacity } from './Fuel';
 
 export function getCost(ship: Ship, modified: boolean): number {
     return (
-        ship.getBaseProperty('hullcost') +
+        ship.readProp('hullcost') +
         moduleSum(ship.getModules(), (m) => m.readMeta('cost'), modified)
     );
 }

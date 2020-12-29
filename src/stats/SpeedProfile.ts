@@ -45,7 +45,7 @@ export interface ISpeedMetrics {
  * @returns Speed multiplier
  */
 function getEngMultiplier(ship: Ship, engPips: number): number {
-    const pipEffect = ship.getBaseProperty('pipspeed');
+    const pipEffect = ship.readProp('pipspeed');
     return 1 - pipEffect * (4 - engPips);
 }
 
@@ -55,7 +55,7 @@ function getEngMultiplier(ship: Ship, engPips: number): number {
  * @returns Boost multiplier
  */
 export function getBoostMultiplier(ship: Ship): number {
-    return ship.getBaseProperty('boost') / ship.getBaseProperty('speed');
+    return ship.readProp('boost') / ship.readProp('speed');
 }
 
 /**
@@ -99,10 +99,10 @@ function getManeuverabilityMetrics(
     multiplier: number,
 ): IManeuverabilityMetrics {
     return {
-        pitch: ship.getBaseProperty('pitch') * multiplier,
-        roll: ship.getBaseProperty('roll') * multiplier,
-        speed: ship.getBaseProperty('speed') * multiplier,
-        yaw: ship.getBaseProperty('yaw') * multiplier,
+        pitch: ship.readProp('pitch') * multiplier,
+        roll: ship.readProp('roll') * multiplier,
+        speed: ship.readProp('speed') * multiplier,
+        yaw: ship.readProp('yaw') * multiplier,
     };
 }
 
@@ -124,7 +124,7 @@ export function getSpeedMetrics(
 
     let boost;
     const canBoost =
-        ship.getBaseProperty('boostenergy') <
+        ship.readProp('boostenergy') <
         ship.getPowerDistributor().get('enginescapacity', modified);
     if (canBoost) {
         boost = getManeuverabilityMetrics(
