@@ -409,7 +409,7 @@ module.exports.CAT_CORIOLIS_TO_FD = {
     'c': ['Cannon'],
     'cc': ['CollectorLimpet'],
     'ch': ['ChaffLauncher'],
-    'cr': ['CorrosionResistantCargoRack'],
+    'cr': ['CargoRack', 'CorrosionResistantCargoRack'],
     'rpl': ['RepairLimpet'],
     'cs': ['ManifestScanner'],
     'dc': ['DockingComputer', 'AdvancedDockingComputer'],
