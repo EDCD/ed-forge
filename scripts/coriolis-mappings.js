@@ -346,7 +346,6 @@ module.exports.MODULES_REGEX = {
         r: /^Hpt_Slugshot_([^_]+)_([^_]+)_Range$/i,
         groups: [2, 1],
     },
-    PlaneterayApproachSuite: /^Int_PlanetApproachSuite$/i,
     PlasmaAcc: {
         r: /^Hpt_PlasmaAccelerator_([^_]+)_([^_]+)$/i,
         groups: [2, 1],
@@ -445,7 +444,6 @@ module.exports.CAT_CORIOLIS_TO_FD = {
     'gpp': ['GuardianPowerplant'],
     'ggc': ['GuardianGaussCannon'],
     'pa': ['PlasmaAcc', 'AdvancedPlasmaAcc'],
-    'pas': ['PlaneterayApproachSuite'],
     'pc': ['ProspectorLimpet'],
     'pce': ['PassengerCabins'],
     'pci': ['PassengerCabins'],
