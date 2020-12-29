@@ -65,7 +65,7 @@ module.exports.PROP_CORIOLIS_TO_FD = {
     'clip': 'ammoclipsize',
     'distdraw': [
         {
-            'for' : /Hpt_/i,
+            'for': /Hpt_/i,
             'val': 'distributordraw',
         },
         {

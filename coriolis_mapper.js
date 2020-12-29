@@ -275,7 +275,7 @@ function consumeModule(module) {
     _.setWith(MODULE_REGISTRY, path, moduleKey, Object);
     let [ type ] = path;
 
-    // For some reasong, the range property of internals is stored in kilometers
+    // For some reason, the range property of internals is stored in kilometers
     // not meters in coriolis. Fix this here
     let range = module.range;
     if (range && module.symbol.toLowerCase().startsWith('int_')) {
