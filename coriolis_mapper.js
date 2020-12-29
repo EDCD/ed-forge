@@ -3,7 +3,7 @@ const { Modules, Ships, Modifications } = require('coriolis-data/dist');
 const fs = require('fs');
 const _ = require('lodash');
 const {
-    SHIP_CORIOLIS_TO_FD, MODULES_REGEX, ARMOUR_TO_SHIP, CAT_CORIOLIS_TO_FD,
+    SHIP_CORIOLIS_TO_FD, MODULES_REGEX, CAT_CORIOLIS_TO_FD,
     PROP_CORIOLIS_TO_FD, BLUEPRINT_EXCEPTION_TARGETS,
     EXPERIMENTAL_EXCEPTION_TARGETS,
 } = require('./scripts/coriolis-mappings');
