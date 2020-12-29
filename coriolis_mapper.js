@@ -180,7 +180,7 @@ function moduleRegexToSlots(regex) {
     let slots;
     if (regex.match(/_Armour_/i)) {
         slots = ['armour'];
-    } else if (regex.match(/Int_PowerPlant/i)) {
+    } else if (regex.match(/Int_(Guardian)?PowerPlant/i)) {
         slots = ['powerplant'];
     } else if (regex.match(/Int_Engine/i)) {
         slots = ['mainengines'];
@@ -188,7 +188,7 @@ function moduleRegexToSlots(regex) {
         slots = ['frameshiftdrive'];
     } else if (regex.match(/Int_LifeSupport/i)) {
         slots = ['lifesupport'];
-    } else if (regex.match(/Int_PowerDistributor/i)) {
+    } else if (regex.match(/Int_(Guardian)?PowerDistributor/i)) {
         slots = ['powerdistributor'];
     } else if (regex.match(/Int_Sensors/i)) {
         slots = ['radar'];
