@@ -334,7 +334,7 @@ export default class Module extends DiffEmitter {
             // In case the Modifier has never been calculated, do it now
             if (Modifier === undefined) {
                 Modifier = calculateModifier(
-                    this.object.Item, property, modifierObject.Value,
+                    property, this.get(property, false), modifierObject.Value,
                 );
                 // Don't commit this change because technically, the module
                 // doesn't change.
@@ -342,10 +342,12 @@ export default class Module extends DiffEmitter {
             }
             return Modifier;
         // Modifiers for synthetic properties must always be re-calculated!
+        // There is no mechanism that invalidates the Modifier property on
+        // changes of the underlying non-synthetic properties.
         } else if (MODULE_STATS[property].getter) {
             return calculateModifier(
-                this.object.Item,
                 property,
+                MODULE_STATS[property].getter(this, false),
                 MODULE_STATS[property].getter(this, true),
             );
         } else {

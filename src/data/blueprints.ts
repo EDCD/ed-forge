@@ -145,17 +145,16 @@ export function getBlueprintProps(
  * necessarily reflect the modifier used internally to calculate the value, e.g.
  * for properties that are changed using the boost method. It reflects the
  * change rate displayed in-game.
- * @param module Item id
  * @param name Property name
+ * @param originalProperty Base property value
  * @param modifiedProperty New property value
  * @returns Modifier
  */
 export function calculateModifier(
-    module: string,
     name: string,
+    originalProperty: number,
     modifiedProperty: number,
 ): number {
-    const baseValue = getModuleProperty(module, name);
     const propertyDescriptor = MODULE_STATS[name];
     if (!propertyDescriptor) {
         throw new UnknownRestrictedError(`Don't know property ${name}`);
@@ -163,12 +162,12 @@ export function calculateModifier(
 
     switch (propertyDescriptor.method) {
         case 'additive':
-            return modifiedProperty - baseValue;
+            return modifiedProperty - originalProperty;
         case 'overwrite':
             return modifiedProperty;
         default:
             // This includes method == 'multiplicative'
-            return modifiedProperty / baseValue - 1;
+            return modifiedProperty / originalProperty - 1;
     }
 }
 
