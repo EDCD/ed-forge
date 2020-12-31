@@ -61,6 +61,7 @@
     },
     "causticresistance": {
         "higherbetter": true,
+        "method": "additive",
         "percentage": true
     },
     "damage": {
@@ -155,6 +156,7 @@
     },
     "explosiveresistance": {
         "higherbetter": true,
+        "method": "additive",
         "percentage": true
     },
     "fireintervall": {
@@ -209,6 +211,7 @@
     },
     "kineticresistance": {
         "higherbetter": true,
+        "method": "additive",
         "percentage": true
     },
     "mass": {
@@ -348,6 +351,7 @@
     "thermiceffectiveness": { "method": "multiplicative", "higherbetter": false },
     "thermicresistance": {
         "higherbetter": true,
+        "method": "additive",
         "percentage": true
     },
     "weaponscapacity": {
