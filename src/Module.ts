@@ -31,7 +31,6 @@ import { assertValidSlot, getSlotSize, REG_CORE_SLOT, REG_HARDPOINT_SLOT } from 
 import {
     IllegalChangeError,
     IllegalStateError,
-    NotImplementedError,
     UnknownRestrictedError,
 } from './errors';
 import { mapValuesDeep, matchesAny } from './helper';
@@ -43,6 +42,30 @@ import { moduleVarIsSpecified, validateModuleJson } from './validation';
 import * as MODULE_REGISTRY from './data/module_registry.json';
 import { POWER_METRICS } from './ship-stats';
 import { ModuleRegistryEntry } from './types';
+
+const SI_PREFIXES = {
+    '-24': 'y',
+    '-21': 'z',
+    '-18': 'a',
+    '-15': 'f',
+    '-12': 'p',
+    '-9': 'n',
+    '-6': 'µ',
+    '-3': 'm',
+    '-2': 'c',
+    '-1': 'd',
+    '0': '',
+    '1': 'da',
+    '2': 'h',
+    '3': 'k',
+    '6': 'M',
+    '9': 'G',
+    '12': 'T',
+    '15': 'P',
+    '18': 'E',
+    '21': 'Z',
+    '24': 'Y',
+};
 
 /**
  * Clones a given module.
@@ -77,6 +100,21 @@ export interface IPowered {
      * does not consume any power and as such is always turned "on".
      */
     retracted: boolean;
+}
+
+export interface IPropertyFormatting {
+    /**
+     * The value of the formatted property. Might be scaled to a certain
+     * SI-Prefix, e.g. km instead of m.
+     */
+    value: number;
+    /** Unit of the property including SI-Prefix. */
+    unit: string;
+    /**
+     * Undefined if value is has not been modified. Otherwise reflects whether
+     * the modification has beneficial effects.
+     */
+    beneficial: boolean;
 }
 
 /**
@@ -356,19 +394,41 @@ export default class Module extends DiffEmitter {
     }
 
     /**
-     * @param property
-     * @param modified
-     * @param unit
-     * @param value
-     * @returns
+     * Returns the value of a module property scaled to a some SI-Prefix and
+     * meta-information regarding the value.
+     * @param property Property to fetch.
+     * @param [modified=true] Set to false to retrieve default value.
+     * @param [siScaling=0] SI scaling. Must have an official SI prefix.
+     * @returns Formatting info
      */
     public getFormatted(
         property: string,
         modified: boolean = true,
-        unit: string,
-        value: number,
-    ): string {
-        throw new NotImplementedError();
+        siScaling: number = 0,
+    ): IPropertyFormatting {
+        const stats = MODULE_STATS[property];
+        if (!stats) {
+            throw new UnknownRestrictedError(`Don't know property ${property}`);
+        }
+
+        const prefix = SI_PREFIXES[siScaling];
+        // Can't check for truthiness, because '' might be returned
+        if (prefix === undefined) {
+            throw new UnknownRestrictedError(`Don't know SI prefix ${siScaling}`);
+        }
+
+        const scaleFactor = Math.pow(10, siScaling);
+        const value = this.get(property, modified) * scaleFactor;
+
+        const { higherbetter, unit, percentage } = stats;
+        const delta = (value - this.get(property, false) * scaleFactor)
+            // Flip delta if lower values are beneficial
+            * (higherbetter ? 1 : -1);
+        return {
+            beneficial: delta === 0 ? undefined : delta > 0,
+            unit: `${prefix}${unit || (percentage && '%') || ''}`,
+            value,
+        };
     }
 
     /**

@@ -72,6 +72,10 @@ export interface IModulePropertyDescriptor {
      * rounded.
      */
     integer?: boolean;
+    /**
+     * The unit this property is in, e.g. meters (m). Is always abbreviated.
+     */
+    unit?: string;
 }
 
 /**
