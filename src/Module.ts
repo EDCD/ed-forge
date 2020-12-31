@@ -447,6 +447,7 @@ export default class Module extends DiffEmitter {
         const propertyPath = `Engineering.Modifiers.${Label}`;
         if (this.object.Engineering.Modifiers[Label]) {
             this._prepareObjectChange(`${propertyPath}.Value`, Value);
+            this._prepareObjectChange(`${propertyPath}.Modifier`, undefined);
             this._prepareObjectChange(`${propertyPath}.UserSet`, true);
             this._commitObjectChanges();
         } else {
