@@ -2,6 +2,9 @@
     "absolutedamageportion": {
         "method": "overwrite"
     },
+    "afmrepaircapacity": {
+        "higherbetter": true
+    },
     "ammoclipsize": {
         "higherbetter": true,
         "integer": true,
@@ -54,6 +57,9 @@
         "higherbetter": true,
         "integer": true
     },
+    "cabincapacity": {
+        "higherbetter": true
+    },
     "cargo": {},
     "causticeffectiveness": {
         "method": "multiplicative",
@@ -94,15 +100,47 @@
         "method": "boost",
         "percentage": true
     },
+    "disruptionbarrieractivepower": {
+        "higherbetter": false,
+        "unit": "MW"
+    },
+    "disruptionbarrierchargeduration": {
+        "higherbetter": false,
+        "unit": "s"
+    },
+    "disruptionbarriercooldown": {
+        "higherbetter": false,
+        "unit": "s"
+    },
     "distributordraw": {
         "method": "multiplicative",
         "higherbetter": false,
         "unit": "MW"
     },
+    "dronehackingtime": {
+        "higherbetter": false,
+        "unit": "s"
+    },
+    "dronelifetime": {
+        "higherbetter": true,
+        "unit": "s"
+    },
     "dss_patchradius": {
         "higherbetter": true,
         "method": "multiplicative",
         "percentage": true
+    },
+    "ecmactivepowerconsumption": {
+        "higherbetter": false,
+        "unit": "MW"
+    },
+    "ecmcooldown": {
+        "higherbetter": false,
+        "unit": "s"
+    },
+    "ecmtimetocharge": {
+        "higherbetter": false,
+        "unit": "s"
     },
     "energyperregen": {
         "method": "multiplicative",
@@ -184,6 +222,10 @@
     },
     "fuelmul": {},
     "fuelpower": {},
+    "fuelscooprate": {
+        "higherbetter": true,
+        "unit": "kg/s"
+    },
     "heatefficiency": {
         "method": "multiplicative",
         "higherbetter": false
@@ -218,6 +260,9 @@
         "method": "multiplicative",
         "higherbetter": false,
         "unit": "t"
+    },
+    "maxactivedrones": {
+        "higherbetter": true
     },
     "maxangle": {
         "method": "multiplicative",
@@ -257,6 +302,9 @@
         "unit": "/s"
     },
     "rebuildsperbay": {
+        "higherbetter": true
+    },
+    "refinerybins": {
         "higherbetter": true
     },
     "regenrate": {
@@ -345,6 +393,9 @@
         "method": "multiplicative",
         "higherbetter": true,
         "unit": "MJ"
+    },
+    "thermaldrain": {
+        "higherbetter": true
     },
     "thermalload": { "method": "multiplicative", "higherbetter": false },
     "thermicdamageportion": { "method": "overwrite" },

@@ -43,6 +43,16 @@ module.exports.SHIP_CORIOLIS_TO_FD = {
 };
 
 module.exports.PROP_CORIOLIS_TO_FD = {
+    'activepower': [
+        {
+            'for': /Hpt_ElectronicCounterMeasure_Tiny/i,
+            'val': 'ecmactivepowerconsumption',
+        },
+        {
+            'for': /Hpt_AntiUnknownShutdown_Tiny/i,
+            'val': 'disruptionbarrieractivepower',
+        },
+    ],
     'ammo': 'ammomaximum',
     'angle': [
         {
@@ -54,6 +64,7 @@ module.exports.PROP_CORIOLIS_TO_FD = {
             'val': 'maxangle',
         }
     ],
+    'bins': 'refinerybins',
     'boot': 'boottime',
     'breachdmg': 'breachdamage',
     'breachmax': 'maxbreachchance',
@@ -62,7 +73,27 @@ module.exports.PROP_CORIOLIS_TO_FD = {
     'burst': 'burstsize',
     'burstrof': 'burstrateoffire',
     'causres': 'causticresistance',
+    'chargeup': [
+        {
+            'for': /Hpt_ElectronicCounterMeasure_Tiny/i,
+            'val': 'ecmtimetocharge',
+        },
+        {
+            'for': /Hpt_AntiUnknownShutdown_Tiny/i,
+            'val': 'disruptionbarrierchargeduration',
+        },
+    ],
     'clip': 'ammoclipsize',
+    'cooldown': [
+        {
+            'for': /Hpt_ElectronicCounterMeasure_Tiny/i,
+            'val': 'ecmcooldown',
+        },
+        {
+            'for': /Hpt_AntiUnknownShutdown_Tiny/i,
+            'val': 'disruptionbarriercooldown',
+        },
+    ],
     'distdraw': [
         {
             'for': /Hpt_/i,
@@ -75,6 +106,7 @@ module.exports.PROP_CORIOLIS_TO_FD = {
     ],
     'dpe': 'damageperenergy',
     'dps': 'damagepersecond',
+    'drain': 'thermaldrain',
     'duration': 'shieldbankduration',
     'eff': 'heatefficiency',
     'engcap': 'enginescapacity',
@@ -84,10 +116,12 @@ module.exports.PROP_CORIOLIS_TO_FD = {
     'facinglimit': 'fsdinterdictorfacinglimit',
     'falloff': 'damagefalloffrange',
     'fireint': 'fireintervall',
+    'hacktime': 'dronehackingtime',
     'hps': 'heatpersecond',
     'hullreinforcement': 'defencemodifierhealthaddition',
     'hullboost': 'defencemodifierhealthmultiplier',
     'kinres': 'kineticresistance',
+    'maximum': 'maxactivedrones',
     'maxmass': [
         {
             'for': /^Int_Engine/i,
@@ -152,6 +186,7 @@ module.exports.PROP_CORIOLIS_TO_FD = {
             'val': 'shieldgenstrength',
         },
     ],
+    'passengers': 'cabincapacity',
     'pgen': 'powercapacity',
     'piercing': 'armourpenetration',
     'power': 'powerdraw',
@@ -169,11 +204,18 @@ module.exports.PROP_CORIOLIS_TO_FD = {
             'for': /^(Hpt_)|(Int_DroneControl_)/i,
             'val': 'maximumrange',
         },
+        {
+            'for': /Hpt_ElectronicCounterMeasure_Tiny/i,
+            'val': 'ecmrange'
+        }
     ],
     'ranget': 'fsdinterdictorrange',
+    'rate': 'fuelscooprate',
     'regen': 'regenrate',
     'reload': 'reloadtime',
+    'repair': 'afmrepaircapacity',
     'rof': 'rateoffire',
+    'scanrange': 'scannerrange',
     'scantime': 'scannertimetoscan',
     'shieldaddition': 'defencemodifiershieldaddition',
     'shieldreinforcement': 'shieldbankreinforcement',
@@ -193,6 +235,7 @@ module.exports.PROP_CORIOLIS_TO_FD = {
         },
     ],
     'thermres': 'thermicresistance',
+    'time': 'dronelifetime',
     'wepcap': 'weaponscapacity',
     'weprate': 'weaponsrecharge',
 };
