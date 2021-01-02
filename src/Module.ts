@@ -115,6 +115,10 @@ export interface IPropertyFormatting {
      * the modification has beneficial effects.
      */
     beneficial: boolean;
+    /**
+     * True if value can only be an integer.
+     */
+    integer: boolean;
 }
 
 /**
@@ -420,12 +424,13 @@ export default class Module extends DiffEmitter {
         const scaleFactor = Math.pow(10, siScaling);
         const value = this.get(property, modified) * scaleFactor;
 
-        const { higherbetter, unit, percentage } = stats;
+        const { higherbetter, unit, percentage, integer } = stats;
         const delta = (value - this.get(property, false) * scaleFactor)
             // Flip delta if lower values are beneficial
             * (higherbetter ? 1 : -1);
         return {
             beneficial: delta === 0 ? undefined : delta > 0,
+            integer,
             unit: `${prefix}${unit || (percentage && '%') || ''}`,
             value,
         };
