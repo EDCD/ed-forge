@@ -118,7 +118,7 @@ export interface IPropertyFormatting {
     /**
      * True if value can only be an integer.
      */
-    integer: boolean;
+    integer?: boolean;
 }
 
 /**
