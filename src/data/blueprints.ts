@@ -160,12 +160,11 @@ export function calculateModifier(
         throw new UnknownRestrictedError(`Don't know property ${name}`);
     }
 
-    const pctDivisor = propertyDescriptor.percentage ? 100 : 1;
     switch (propertyDescriptor.method) {
         case 'additive':
-            return (modifiedProperty - originalProperty) / pctDivisor;
+            return modifiedProperty - originalProperty;
         case 'overwrite':
-            return modifiedProperty / pctDivisor;
+            return modifiedProperty;
         default:
             // This includes method == 'multiplicative'
             return modifiedProperty / originalProperty - 1;
