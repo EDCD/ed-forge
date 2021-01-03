@@ -162,7 +162,7 @@ export function calculateModifier(
 
     switch (propertyDescriptor.method) {
         case 'additive':
-            return modifiedProperty - originalProperty;
+            return modifiedProperty - (originalProperty || 0);
         case 'overwrite':
             return modifiedProperty;
         default:
