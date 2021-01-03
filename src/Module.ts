@@ -437,6 +437,26 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     *
+     * @param property Property to fetch the modifier for.
+     */
+    public getModifierFormatted(property): IPropertyFormatting {
+        const value = this.getModifier(property);
+        const { method, higherbetter, percentage } = MODULE_STATS[property];
+        let unit = '%';
+        if (method === 'overwrite' || method === 'additive') {
+            unit = percentage ? '%' : undefined;
+        }
+        let beneficial;
+        if (value !== 0) {
+            beneficial = higherbetter && value > 0;
+        }
+        return {
+            beneficial, integer: false, unit, value,
+        };
+    }
+
+    /**
      * Sets the value of a property.
      * @param Label Property name
      * @param Value Property value
