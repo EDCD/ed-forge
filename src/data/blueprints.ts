@@ -167,7 +167,7 @@ export function calculateModifier(
             return modifiedProperty;
         default:
             // This includes method == 'multiplicative'
-            return modifiedProperty / originalProperty - 1;
+            return (modifiedProperty / originalProperty - 1) * 100;
     }
 }
 
