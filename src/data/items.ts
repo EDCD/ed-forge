@@ -12,8 +12,8 @@ import { matchesAny } from '../helper';
 import { ModuleInformation, ModuleRegistryEntry } from '../types';
 import { getSlotSize } from './slots';
 
-import * as MODULE_REGISTRY from './module_registry.json';
-import * as MODULES from './modules.json';
+import MODULE_REGISTRY from './module_registry.json';
+import MODULES from './modules.json';
 import { getShipInfo } from './ships';
 
 /**

@@ -7,8 +7,8 @@
  */
 import Ajv from 'ajv';
 import { ImportExportError } from '../errors';
-import * as MODULE_SCHEMA from './ModuleObject.schema.json';
-import * as SHIP_SCHEMA from './ShipObject.schema.json';
+import MODULE_SCHEMA from './ModuleObject.schema.json';
+import SHIP_SCHEMA from './ShipObject.schema.json';
 
 const VALIDATOR = new Ajv({ schemas: [MODULE_SCHEMA, SHIP_SCHEMA] });
 

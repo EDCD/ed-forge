@@ -16,8 +16,8 @@ import {
 } from '../types';
 import { getModuleInfo, getModuleProperty, getModuleTypeInfo } from './items';
 
-import * as BLUEPRINTS from './blueprints.json';
-import * as EXPERIMENTALS from './experimentals.json';
+import BLUEPRINTS from './blueprints.json';
+import EXPERIMENTALS from './experimentals.json';
 
 const FALLOFF_KEY = 'damagefalloffrange';
 const BLUEPRINT_EXTRAS = {

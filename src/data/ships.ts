@@ -8,7 +8,7 @@
 import { UnknownRestrictedError } from '../errors';
 import { ShipInfo } from '../types';
 
-import * as SHIPS from './ships.json';
+import SHIPS from './ships.json';
 
 /**
  * Checks whether a given ship id is valid and returns the sanitized ship ID.

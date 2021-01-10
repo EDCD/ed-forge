@@ -10,7 +10,7 @@ import { IPropertyMap } from './data/blueprints';
 import { IllegalStateError } from './errors';
 import Module, { IModifierObject } from './Module';
 import { getModuleProperty } from './data/items';
-import * as CONST_STATS from './module-stats.json';
+import CONST_STATS from './module-stats.json';
 import { assign, mergeWith } from 'lodash';
 
 function getReciprocal(prop: string): ModulePropertyCalculator {

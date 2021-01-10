@@ -21,11 +21,6 @@ type BlueprintObject = {
     appliesTo: [string];
 };
 
-declare module 'src/data/blueprints.json' {
-    const value: { [blueprint: string]: BlueprintObject };
-    export default value;
-}
-
 /**
  * Experimental type: has features and list of modules the special
  */
@@ -33,11 +28,6 @@ type ExperimentalObject = {
     features: FeatureObject;
     appliesTo: [string];
 };
-
-declare module 'src/data/experimentals.json' {
-    const value: { [experimental: string]: ExperimentalObject };
-    export default value;
-}
 
 type ModuleRegistryEntry = {
     regex: string;
@@ -50,11 +40,6 @@ type ModuleRegistryEntry = {
         };
     };
 };
-
-declare module 'src/data/module_registry.json' {
-    const value: { [type: string]: ModuleRegistryEntry };
-    export default value;
-}
 
 /**
  * Meta data about an item.
@@ -86,11 +71,6 @@ export interface ModuleInformation {
     props: { [property: string]: number };
     /** Item meta information */
     meta: MetaModuleInformation;
-}
-
-declare module 'src/data/modules.json' {
-    const value: { [ship: string]: ModuleInformation };
-    export default value;
 }
 
 /**
@@ -127,14 +107,4 @@ interface ShipInfo {
     props: { [key: string]: number };
     /** Meta data about a ship */
     meta: ShipMetaInfo;
-}
-
-declare module 'src/data/ships.json' {
-    const value: { [ship: string]: ShipInfo };
-    export default value;
-}
-
-declare module 'src/validation/*.schema.json' {
-    const value: any;
-    export default value;
 }

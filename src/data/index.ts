@@ -14,8 +14,8 @@ import { assertValidBlueprint, assertValidExperimental } from './blueprints';
 import { assertValidModule, getModuleInfo } from './items';
 import { assertValidShip, getShipInfo } from './ships';
 
-import * as MODULE_REGISTRY from './module_registry.json';
-import * as SHIPS from './ships.json';
+import MODULE_REGISTRY from './module_registry.json';
+import SHIPS from './ships.json';
 
 /**
  * Fetches a module ID from the cache. If the module does not have `clazz` or
@@ -149,7 +149,7 @@ class Factory {
         // Cast SHIPS to any because only this allows us to access the default
         // key. If we were to call Object.keys with just SHIPS the key
         // "default" would be included.
-        return Object.keys((SHIPS as any).default);
+        return Object.keys(SHIPS);
     }
 }
 

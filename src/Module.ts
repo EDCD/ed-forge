@@ -39,7 +39,7 @@ import MODULE_STATS, { ModulePropertyCalculator } from './module-stats';
 import Ship from './Ship';
 import { moduleVarIsSpecified, validateModuleJson } from './validation';
 
-import * as MODULE_REGISTRY from './data/module_registry.json';
+import MODULE_REGISTRY from './data/module_registry.json';
 import { POWER_METRICS } from './ship-stats';
 import { ModuleRegistryEntry } from './types';
 
