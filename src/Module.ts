@@ -673,10 +673,9 @@ export default class Module extends DiffEmitter {
         } else {
             // If this is not an armour slot, try each available module category
             const size = this.getSize();
-            // MODULE_REGISTRY is a module and thus has the key 'default'; this
-            // key must be ignored in this context
-            return values((MODULE_REGISTRY as any).default).reduce(
-                (reduced: string[], entry: ModuleRegistryEntry) => {
+            return values(MODULE_REGISTRY as any as {
+                [name: string]: ModuleRegistryEntry,
+            }).reduce((reduced: string[], entry: ModuleRegistryEntry) => {
                     // Only consider categories that match this slot but ignore
                     // the armour slot
                     if (
@@ -703,9 +702,7 @@ export default class Module extends DiffEmitter {
                             values(entry.items[k]),
                         ),
                     );
-                },
-                [],
-            );
+                }, []);
         }
     }
 
