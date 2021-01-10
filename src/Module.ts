@@ -427,11 +427,9 @@ export default class Module extends DiffEmitter {
         const value = this.get(property, modified) * scaleFactor;
 
         const { higherbetter, unit, percentage, integer } = stats;
-        const delta = (value - this.get(property, false) * scaleFactor)
-            // Flip delta if lower values are beneficial
-            * (higherbetter ? 1 : -1);
+        const delta = value - this.get(property, false) * scaleFactor;
         return {
-            beneficial: delta === 0 ? undefined : delta > 0,
+            beneficial: delta === 0 ? undefined : higherbetter === delta > 0,
             integer,
             unit: `${prefix}${unit || (percentage && '%') || ''}`,
             value,
@@ -451,7 +449,7 @@ export default class Module extends DiffEmitter {
         }
         let beneficial;
         if (value !== 0) {
-            beneficial = higherbetter && value > 0;
+            beneficial = higherbetter == value > 0;
         }
         return {
             beneficial, integer: false, unit, value,
