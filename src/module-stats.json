@@ -239,7 +239,8 @@
     },
     "jitter": {
         "method": "additive",
-        "higherbetter": false
+        "higherbetter": false,
+        "unit": "°"
     },
     "jumpboost": {
         "unit": "ly"
