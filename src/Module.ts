@@ -1153,6 +1153,14 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     *
+     * @param cb
+     */
+    public try(cb: () => any): any {
+        return this.tryWhileMuted(DIFF_EVENT, cb);
+    }
+
+    /**
      * Write a value to [[object]] and emit the changes as `'diff'` event.
      * @param path Path for the object to write to
      * @param value Value to write

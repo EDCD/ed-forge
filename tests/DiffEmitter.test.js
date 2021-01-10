@@ -61,3 +61,13 @@ test('can clear', () => {
     expect(o).not.toEqual(org);
     expect(o.a).toBe(0);
 });
+
+test('can mute', () => {
+    let org = cloneDeep(o);
+    e.tryWhileMuted(TYPE, () => {
+        applyChanges([[ 'a', 0 ]]);
+        expect(o.a).toBe(0);
+    });
+    expect(o).toEqual(org);
+    expect(cb.mock.calls.length).toBe(0);
+})

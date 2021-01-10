@@ -46,6 +46,20 @@ export interface IDiffEvent {
     old: any;
 }
 
+export interface IDiffTracker {
+    /** Pending changes while events have been muted */
+    prepared: IDiffEvent[];
+    /** History of committed changes */
+    history: IDiffEvent[][];
+    /**
+     * Tracks number of changes in history that have not been emitted. While not
+     * NaN, changes will not be emitted.
+     */
+    muted: number;
+    /** Object to track changes for. */
+    source: object;
+}
+
 /**
  * This class can emit diff events for objects. A diff event is a list of
  * [[IDiffEvent]] objects that reflect a change to a certain point in the past.
@@ -53,20 +67,17 @@ export interface IDiffEvent {
  * are no overlaps/no duplicate information.
  */
 export default class DiffEmitter extends EventEmitter {
-    private types: {
-        [event: string]: {
-            prepared: IDiffEvent[];
-            history: IDiffEvent[][];
-            source: object;
-        };
-    } = {};
+    private types: { [event: string]: IDiffTracker } = {};
 
     /**
      * Reverts the object `by` number of steps into history.
      * @param [by=1] Number of steps to revert
      */
     public revert(type: string, by = 1) {
-        const { history, source } = this.types[type];
+        const { history, muted, source } = this.types[type];
+        if (by > muted) {
+            throw new IllegalStateError('Can\'t revert more steps than muted');
+        } // now: muted <= by || isNaN(muted)
         const changes = takeRight(history, by);
         // Reduce history to necessary changes only; reduce from right to give
         // priority to later changes in history
@@ -79,7 +90,19 @@ export default class DiffEmitter extends EventEmitter {
             set(source, path, old);
             return { path, actual };
         });
-        this.emit(type, ...newDiffs);
+        if (isNaN(muted)) {
+            this.emit(type, ...newDiffs);
+        }
+        // muted will be >= 0 because by <= muted
+        this.types[type].muted -= by;
+    }
+
+    public tryWhileMuted(type: string, cb: () => any): any {
+        this.types[type].muted = 0;
+        const ret = cb();
+        this.revert(type, this.types[type].muted);
+        this.types[type].muted = NaN;
+        return ret;
     }
 
     /**
@@ -101,7 +124,7 @@ export default class DiffEmitter extends EventEmitter {
             throw new IllegalStateError(`Already tracking type ${type}`);
         }
 
-        this.types[type] = { source, prepared: [], history: [] };
+        this.types[type] = { source, prepared: [], history: [], muted: NaN };
     }
 
     /**
@@ -124,12 +147,16 @@ export default class DiffEmitter extends EventEmitter {
      * @param type Event name
      */
     protected _commit(type: string) {
-        const { prepared, history } = this.types[type];
+        const { prepared, history, muted } = this.types[type];
         if (prepared.length === 0) {
             return;
         }
         history.push(prepared);
         this.types[type].prepared = [];
-        this.emit(type, ...prepared);
+        if (isNaN(muted)) {
+            this.emit(type, ...prepared);
+        } else {
+            this.types[type].muted++;
+        }
     }
 }
