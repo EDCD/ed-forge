@@ -6,7 +6,9 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import { clamp, clone, cloneDeep, forEach, map, mapValues, set, values } from 'lodash';
+import {
+    clamp, clone, cloneDeep, forEach, keys, map, mapValues, set, values,
+} from 'lodash';
 
 import { compress, decompress } from './compression';
 import Factory from './data';
@@ -454,6 +456,20 @@ export default class Module extends DiffEmitter {
         return {
             beneficial, integer: false, unit, value,
         };
+    }
+
+    /**
+     * Fetch an array of properties modified excluding synthetic ones.
+     * @returns Array of modifier properties; empty if no modification has been
+     * applied.
+     */
+    public getModifiedProperties(): string[] {
+        const { Engineering } = this.object;
+        if (!Engineering) {
+            return [];
+        } else {
+            return keys(this.object.Engineering.Modifiers);
+        }
     }
 
     /**
