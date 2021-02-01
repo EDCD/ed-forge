@@ -19,6 +19,7 @@ import { getCargo, getCargoCapacity } from './stats/Cargo';
 import { getCost, getRefuelCost } from './stats/Cost';
 import { getFuel, getFuelCapacity } from './stats/Fuel';
 import { getLadenMass, getMaximumMass, getUnladenMass } from './stats/Mass';
+import { getPassengerCapacity } from './stats/PassengerCapacity';
 
 export type ShipPropertyCalculator = (ship: Ship, modified?: boolean) => number;
 
@@ -30,6 +31,8 @@ export const UNLADEN_MASS: ShipPropertyCalculator = getUnladenMass;
 
 export const CARGO: ShipPropertyCalculator = getCargo;
 export const CARGO_CAPACITY: ShipPropertyCalculator = getCargoCapacity;
+
+export const PASSENGER_CAPACITY: ShipPropertyCalculator = getPassengerCapacity;
 
 export const COST: ShipPropertyCalculator = getCost;
 export const REFUEL_COST: ShipPropertyCalculator = getRefuelCost;
