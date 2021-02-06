@@ -359,13 +359,15 @@
         "unit": "t"
     },
     "shieldgenmaxstrength": {
-        "percentage": true
+        "percentage": true,
+        "higherbetter": true
     },
     "shieldgenminimalmass": {
         "unit": "t"
     },
     "shieldgenminstrength": {
-        "percentage": true
+        "percentage": true,
+        "higherbetter": true
     },
     "shieldgenoptimalmass": {
         "method": "multiplicative",
