@@ -303,6 +303,6 @@ function useOptModifier(
     if (!modified) {
         return base;
     } else {
-        return base * (1 + (module.getModifier(optProp) || 0));
+        return base * (module.get(optProp, true) / module.get(optProp, false));
     }
 }
