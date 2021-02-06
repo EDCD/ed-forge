@@ -847,6 +847,14 @@ export default class Module extends DiffEmitter {
     }
 
     /**
+     * Set the armour of the ship by type.
+     * @param type Type of the armour (grade1-3, mirrored, reactive)
+     */
+    public setAlloys(type: string) {
+        this.setItem('armour', this.ship.getShipType(), type);
+    }
+
+    /**
      * Checks whether this module is on a matching slot.
      * @param slot Slot to check; if string exact match is required, if RegExp
      * only a simple match is required. If an array, one the given slots must
