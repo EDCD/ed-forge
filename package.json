@@ -49,7 +49,7 @@
   "dependencies": {
     "ajv": "^6.5.4",
     "auto-bind": "^1.2.1",
-    "coriolis-data": "github:edcd/coriolis-data",
+    "coriolis-data": "github:edcd/coriolis-data#special-keys",
     "i18next": "^13.0.0",
     "jsdoc": "^3.5.5",
     "lodash": "^4.17.11",
