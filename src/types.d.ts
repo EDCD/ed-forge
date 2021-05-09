@@ -53,11 +53,12 @@ export interface MetaModuleInformation {
     edID: number;
     /** Class of the item */
     class: number;
-    /** Outfitting group of the item; most of the time equal to type */
+    /** Outfitting group of the item; more general than type (e.g. shieldgen) */
     group: string;
     /** Rating of the item */
     rating: string;
-    /** Group of the item */
+    /** Type of the item (e.g. biweaveshieldgen). Module registry is sorted by
+     * types. */
     type: string;
     /** Mount of the item (if hardpint) */
     mount?: string;
