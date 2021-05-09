@@ -1,4 +1,5 @@
 import { Factory, Ship } from "../../lib";
+import { TYPES } from "../../lib/data/slots";
 
 let ship;
 
@@ -13,7 +14,8 @@ describe('can\'t set certain modules twice', () => {
     function testSetTwice(typeAndSize, slotsGetter) {
         let [type, size] = typeAndSize;
         test(type, () => {
-            let [ firstSlot, secondSlot ] = slotsGetter.call(ship, undefined, true);
+            let [ firstSlot, secondSlot ] = slotsGetter.call(ship, undefined, true)
+                .filter(m => !m.isOnSlot(TYPES.MILITARY) && m.getSize() >= Number(size));
             firstSlot.setItem(type, size, '1');
             expect(() => {
                 secondSlot.setItem(type, size, '1');

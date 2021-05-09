@@ -8,6 +8,7 @@ const {
     EXPERIMENTAL_EXCEPTION_TARGETS, TYPE_TO_GROUP
 } = require('./scripts/coriolis-mappings');
 const MODULE_STATS = require('./src/module-stats.json');
+const SLOT_CATS = require('./src/data/slots.json');
 
 /**
  * Returns an object key mapper that maps coriolis module prop names to FDev
@@ -177,41 +178,41 @@ TYPES_TO_SPECIALS.seekerrack = TYPES_TO_CORIOLIS_SPECIALS.seekerrack.map(
 );
 
 function moduleRegexToSlots(regex) {
-    let slots;
+    let slotVec;
     if (regex.match(/_Armour_/i)) {
-        slots = ['armour'];
+        slotVec = SLOT_CATS.ARMOUR;
     } else if (regex.match(/Int_(Guardian)?PowerPlant/i)) {
-        slots = ['powerplant'];
+        slotVec = SLOT_CATS.POWERPLANT;
     } else if (regex.match(/Int_Engine/i)) {
-        slots = ['mainengines'];
+        slotVec = SLOT_CATS.ENGINES;
     } else if (regex.match(/Int_HyperDrive/i)) {
-        slots = ['frameshiftdrive'];
+        slotVec = SLOT_CATS.FSD;
     } else if (regex.match(/Int_LifeSupport/i)) {
-        slots = ['lifesupport'];
+        slotVec = SLOT_CATS.LIFE_SUPPORT;
     } else if (regex.match(/Int_(Guardian)?PowerDistributor/i)) {
-        slots = ['powerdistributor'];
+        slotVec = SLOT_CATS.POWER_DISTRIBUTOR;
     } else if (regex.match(/Int_Sensors/i)) {
-        slots = ['radar'];
+        slotVec = SLOT_CATS.SENSORS;
     } else if (regex.match(/Int_FuelTank/i)) {
-        slots = ['fueltank', 'slot(\\d{2})_size(\\d)'];
+        slotVec = SLOT_CATS.FUEL_TANK | SLOT_CATS.INTERNAL;
     } else if (regex.match(/Hpt_/i)) {
         if (regex.match(/size0/i) || regex.match(/tiny/i)) {
-            slots = ['tinyhardpoint(\\d)'];
+            slotVec = SLOT_CATS.UTILITY;
         } else {
-            slots = ['(small|medium|large|huge)hardpoint'];
+            slotVec = SLOT_CATS.HARDPOINT;
         }
     } else if (regex.match(/Int_/i)) {
-        slots = ['slot(\\d{2})_size(\\d)'];
+        slotVec = SLOT_CATS.INTERNAL;
         if (
             regex.match(/HullReinforcement/i) ||
             regex.match(/ModuleReinforcement/i) ||
             regex.match(/ShieldReinforcement/i) ||
             regex.match(/ShieldCellBank/i)
         ) {
-            slots.push('military(\\d{2})');
+            slotVec |= SLOT_CATS.MILITARY;
         }
     }
-    return slots;
+    return slotVec;
 }
 
 // Initialize the empty cache to hold an empty object for each item type

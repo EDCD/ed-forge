@@ -80,32 +80,6 @@ class Factory {
     }
 
     /**
-     * Creates a new loadout-event-style module.
-     * @param type Type of the module; either as a group as for
-     * [[Factory.getModuleId]] or as a valid item id.
-     * @param clazz Class of the module
-     * @param rating Rating of the module
-     * @return Module
-     */
-    public static newModule(
-        type: string,
-        clazz: string = '',
-        rating: string = '',
-    ): Module {
-        type = type.toLowerCase();
-        clazz = clazz.toLowerCase();
-        rating = rating.toLowerCase();
-        const item = readModuleCache(type, clazz, rating);
-        if (item) {
-            type = item;
-        }
-
-        // We don't clone the prototype because this is done in Module
-        type = assertValidModule(item);
-        return new Module(getModuleInfo(type).proto);
-    }
-
-    /**
      * Creates a new loadout-event-style ship object.
      * @param type Ship type
      * @returns Ship object

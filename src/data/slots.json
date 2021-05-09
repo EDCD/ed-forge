@@ -1,0 +1,14 @@
+{
+    "ARMOUR": 1,
+    "POWERPLANT": 2,
+    "ENGINES": 4,
+    "FSD": 8,
+    "LIFE_SUPPORT": 16,
+    "POWER_DISTRIBUTOR": 32,
+    "SENSORS": 64,
+    "FUEL_TANK": 128,
+    "INTERNAL": 256,
+    "MILITARY": 512,
+    "HARDPOINT": 1024,
+    "UTILITY": 2048
+}

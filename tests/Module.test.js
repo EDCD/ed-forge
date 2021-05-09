@@ -1,26 +1,12 @@
 
 import { Ship } from '..';
-import {
-    REG_CORE_SLOT,
-    REG_INTERNAL_SLOT,
-    REG_MILITARY_SLOT,
-    REG_HARDPOINT_SLOT,
-    REG_UTILITY_SLOT,
-} from '../lib/data/slots';
+import { assertValidSlot } from '../lib/data/slots';
 import { matchesAny } from '../lib/helper';
 
 function prec(grade, number) {
     let base = Math.pow(10, grade);
     return Math.round(number * base) / base;
 }
-
-const SLOT_REGS = [
-    REG_CORE_SLOT,
-    REG_INTERNAL_SLOT,
-    REG_MILITARY_SLOT,
-    REG_HARDPOINT_SLOT,
-    REG_UTILITY_SLOT,
-];
 
 for (let { name, build } of TEST_SUITES) {
     describe(`Blueprint recreation for ${name}`, () => {
@@ -29,7 +15,10 @@ for (let { name, build } of TEST_SUITES) {
         for (let { Slot, Item, Engineering } of build.Modules) {
             let module = ship.getModule(Slot);
 
-            if (!matchesAny(Slot, ...SLOT_REGS)) {
+            try {
+                assertValidSlot(Slot);
+            } catch {
+                // This will happen for livery modules, etc.
                 continue;
             }
 

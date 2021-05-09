@@ -8,7 +8,7 @@
 import { reduce, update } from 'lodash';
 
 import { Ship } from '..';
-import { REG_HARDPOINT_SLOT } from '../data/slots';
+import { TYPES } from '../data/slots';
 import { add } from '../helper';
 
 /**
@@ -79,7 +79,7 @@ export function getPowerMetrics(ship: Ship, modified: boolean): IPowerMetrics {
             const priorityIndex = module.getPowerPriority();
             const updater = (val: number) => (val || 0) + draws;
             groupsDraw = update(groupsDraw, priorityIndex, updater);
-            if (!module.object.Slot.match(REG_HARDPOINT_SLOT)) {
+            if (!module.isOnSlot(TYPES.HARDPOINT)) {
                 groupsDrawNoHP = update(groupsDrawNoHP, priorityIndex, updater);
             }
         }

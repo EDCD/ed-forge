@@ -29,9 +29,11 @@ type ExperimentalObject = {
     appliesTo: [string];
 };
 
+type BitVec = number;
+
 type ModuleRegistryEntry = {
     regex: string;
-    slots: string[];
+    slots: BitVec;
     applicable: string[];
     applicable_specials: string[];
     items: {

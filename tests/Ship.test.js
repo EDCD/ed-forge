@@ -1,8 +1,13 @@
 
 import { Ship } from '..';
-import { assertValidSlot, REG_CORE_SLOT, REG_INTERNAL_SLOT, REG_MILITARY_SLOT, REG_HARDPOINT_SLOT, REG_UTILITY_SLOT } from '../lib/data/slots';
+import { assertValidSlot } from '../lib/data/slots';
 import { matchesAny, mapValuesDeep } from '../lib/helper';
 import { clone, pickBy, values } from 'lodash';
+
+const REG_CORE_SLOT = /(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)/i;
+const REG_INTERNAL_SLOT = /Slot(\d{2})_Size(\d)/i;
+const REG_HARDPOINT_SLOT = /(Small|Medium|Large|Huge)Hardpoint/i;
+const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
 
 import * as SHIPS from '../lib/data/ships.json';
 
@@ -60,25 +65,25 @@ for (let { name, build } of TEST_SUITES) {
 
         test('when querying core modules, only core modules are returned', () => {
             for (let core of ship.getCoreModules()) {
-                expect(core.object.Slot).toMatch(REG_CORE_SLOT);
+                expect(core.getSlot()).toMatch(REG_CORE_SLOT);
             }
         });
 
         test('when querying internal modules, only internal modules are returned', () => {
             for (let core of ship.getCoreModules()) {
-                expect(matchesAny(core.object.Slot, REG_INTERNAL_SLOT, REG_CORE_SLOT)).toBeTruthy();
+                expect(matchesAny(core.getSlot(), REG_INTERNAL_SLOT, REG_CORE_SLOT)).toBeTruthy();
             }
         });
 
         test('when querying hardpoints, only hardpoints are returned', () => {
             for (let hardpoint of ship.getHardpoints()) {
-                expect(hardpoint.object.Slot).toMatch(REG_HARDPOINT_SLOT);
+                expect(hardpoint.getSlot()).toMatch(REG_HARDPOINT_SLOT);
             }
         });
 
         test('when querying utilities, only utilities are returned', () => {
             for (let hardpoint of ship.getUtilities()) {
-                expect(hardpoint.object.Slot).toMatch(REG_UTILITY_SLOT);
+                expect(hardpoint.getSlot()).toMatch(REG_UTILITY_SLOT);
             }
         });
 
@@ -205,7 +210,7 @@ describe('Adding SLF hangars', () => {
         if (shipDescriptor.meta.fighterHangars) {
             test(`Can equip a SLF on ${shipDescriptor.proto.Ship}`, () => {
                 let ship = new Ship(shipDescriptor.proto);
-                let slot = ship.getModule(/Size5/i);
+                let slot = (ship.getModules(/Size5/i, undefined, true))[0];
                 expect(() => {
                     slot.setItem(HANGAR);
                 }).not.toThrow();
@@ -213,7 +218,7 @@ describe('Adding SLF hangars', () => {
             });
         } else {
             let ship = new Ship(shipDescriptor.proto);
-            let slot = ship.getModule(/Size5/i);
+            let slot = (ship.getModules(/Size5/i, undefined, true))[0];
             if (!slot) {
                 continue;
             }
@@ -233,7 +238,7 @@ describe('Adding luxury cabins', () => {
         if (shipDescriptor.meta.luxuryCabins) {
             test(`Can equip luxury cabins on ${shipDescriptor.proto.Ship}`, () => {
                 let ship = new Ship(shipDescriptor.proto);
-                let slot = ship.getModule(/Size5/i);
+                let slot = (ship.getModules(/Size5/i, undefined, true))[0];
                 expect(() => {
                     slot.setItem(LUXURY);
                 }).not.toThrow();
@@ -241,7 +246,7 @@ describe('Adding luxury cabins', () => {
             });
         } else {
             let ship = new Ship(shipDescriptor.proto);
-            let slot = ship.getModule(/Size5/i);
+            let slot = (ship.getModules(/Size5/i, undefined, true))[0];
             if (!slot) {
                 continue;
             }

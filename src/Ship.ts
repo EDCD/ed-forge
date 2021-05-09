@@ -10,7 +10,6 @@ import {
     chain,
     clone,
     cloneDeep,
-    CollectionChain,
     map,
     mapValues,
     pick,
@@ -25,22 +24,15 @@ import {
     getShipMetaProperty,
     getShipProperty,
 } from './data/ships';
-import {
-    assertValidSlot,
-    REG_HARDPOINT_SLOT,
-    REG_INTERNAL_SLOT,
-    REG_MILITARY_SLOT,
-    REG_UTILITY_SLOT,
-} from './data/slots';
+import { assertValidSlot, TYPES } from './data/slots';
 import {
     IllegalChangeError,
     IllegalStateError,
     ImportExportError,
     NotImplementedError,
 } from './errors';
-import { matchesAny } from './helper';
 import DiffEmitter, { IDiffEvent } from './helper/DiffEmitter';
-import Module, { IModuleObject, Slot } from './Module';
+import Module, { IModuleObject } from './Module';
 import { IOpponent } from './Opponent';
 import {
     ARMOUR_METRICS,
@@ -54,6 +46,7 @@ import {
 import { IArmourMetrics } from './stats/ArmourProfile';
 import { IDamageProfile } from './stats/DamageProfile';
 import { IShieldMetrics } from './stats/ShieldProfile';
+import { BitVec } from './types';
 import { shipVarIsSpecified, validateShipJson } from './validation';
 import { checkInvariants } from './validation/invariants';
 
@@ -182,7 +175,7 @@ export default class Ship extends DiffEmitter implements IOpponent {
                 return;
             }
             m.Slot = slot;
-            this.object.Modules[slot] = new Module(m, this);
+            this.object.Modules[slot] = new Module(this, m);
         });
 
         // Check missing modules - journal builds don't include those
@@ -190,7 +183,7 @@ export default class Ship extends DiffEmitter implements IOpponent {
         values(getShipInfo(shipType).proto.Modules).forEach((m) => {
             const slot = m.Slot.toLowerCase();
             if (!this.object.Modules[slot]) {
-                this.object.Modules[slot] = new Module(m, this);
+                this.object.Modules[slot] = new Module(this, m);
                 this.object.Modules[slot].reset();
             }
         });
@@ -271,80 +264,45 @@ export default class Ship extends DiffEmitter implements IOpponent {
     }
 
     /**
-     * Get the module that sits on a matching slot. If `slot` is a string only
-     * a module with the same slot name is matching. If `slot` is a RegExp the
-     * first module that matches the RegExp is returned. Order is not
-     * guaranteed.
+     * Get the module for the respective slot.
      * @param slot The slot of the module.
-     * @param type
-     * @returns Returns the first matching module or undefined if no matching
-     * one can be found.
+     * @returns Returns the module or undefined if the slot is not available on
+     * the ship.
      */
-    public getModule(slot?: Slot, type?: string | RegExp): Module | undefined {
-        if (!slot && !type) {
-            return undefined;
-        }
-
-        let c: CollectionChain<Module>;
-        if (typeof slot === 'string') {
-            slot = slot.toLowerCase();
-            c = chain([this.object.Modules[slot]]);
-        } else {
-            c = chain(values(this.object.Modules));
-            if (slot) {
-                c = c.filter((m) => m.isOnSlot(slot));
-            }
-        }
-
-        if (type) {
-            c = c.filter((m) => m.itemIsOfType(type));
-        }
-
-        return c.head().value();
+    public getModule(slot: string): Module | undefined {
+        return this.object.Modules[slot.toLowerCase()];
     }
 
     /**
-     * Gets a list of matching modules. Cf. [[Ship.getModule]] for what a
-     * "matching module" is. Order of returned modules is not guaranteed.
-     * Duplicates are filtered.
-     * @param {(Slot|Slot[])} slots Slots of the modules to get.
+     * Gets a list of matching modules. If `slot` is a string, the slot's name
+     * is checked for equality. If `slot` is a RegExp, the slot's name is
+     * matched against it. If `slot` is a BitVec, check whether the slot's type
+     * matches the BitVec (cf. [[TYPES]]). Order of returned modules is not
+     * guaranteed. Duplicates are filtered.
+     * @param slot Slots of the modules to get.
      * @param type String or regex applied to module items to filter modules.
      * @param includeEmpty True to include empty slots.
      * @param [sort=false] True to sort modules by slot.
      * @return {Module[]} All matching modules. Possibly empty.
      */
     public getModules(
-        slots?: Slot | Slot[],
+        slot?: string | BitVec | RegExp,
         type?: string | RegExp,
         includeEmpty: boolean = false,
         sort: boolean = false,
     ): Module[] {
-        if (typeof slots === 'string') {
-            slots = slots.toLowerCase();
-            const m = this.getModule(slots, type);
-            if (includeEmpty || m.object.Item) {
-                return [m];
-            }
-            return [];
-        }
-
         let ms = chain(this.object.Modules).values();
         if (!includeEmpty) {
             ms = ms.filter((m) => !m.isEmpty());
         }
-        if (slots) {
-            ms = ms.filter(
-                (module) => matchesAny(
-                    module.object.Slot,
-                    ...(Array.isArray(slots) ? slots : [slots]),
-                ),
-            );
+        if (slot) {
+            ms = ms.filter((m) => m.isOnSlot(slot));
         }
         if (type) {
             ms = ms.filter((m) => m.itemIsOfType(type));
         }
         if (sort) {
-            ms = ms.sortBy((m) => m.object.Slot);
+            ms = ms.sortBy((m) => m.object.Slot.toString());
         }
 
         return ms.value();
@@ -437,7 +395,7 @@ export default class Ship extends DiffEmitter implements IOpponent {
      * @returns Shield generator or undefined if not present
      */
     public getShieldGenerator(): Module | undefined {
-        return this.getModule(undefined, /int_shieldgenerator/);
+        return this.getModules(undefined, /int_shieldgenerator/)[0];
     }
 
     /**
@@ -492,15 +450,7 @@ export default class Ship extends DiffEmitter implements IOpponent {
         type?: string | RegExp,
         includeEmpty: boolean = false,
     ): Module[] {
-        const ms = this.getModules(REG_INTERNAL_SLOT, type, includeEmpty, true);
-        const militaryMs = this.getModules(
-            REG_MILITARY_SLOT,
-            type,
-            includeEmpty,
-            true,
-        );
-        // @ts-ignore
-        return ms.concat(militaryMs);
+        return this.getModules(TYPES.ANY_INTERNAL, type, includeEmpty, true);
     }
 
     /**
@@ -515,7 +465,7 @@ export default class Ship extends DiffEmitter implements IOpponent {
         type?: string | RegExp,
         includeEmpty: boolean = false,
     ): Module[] {
-        return this.getModules(REG_HARDPOINT_SLOT, type, includeEmpty, true);
+        return this.getModules(TYPES.HARDPOINT, type, includeEmpty, true);
     }
 
     /**
@@ -529,7 +479,7 @@ export default class Ship extends DiffEmitter implements IOpponent {
         type?: string | RegExp,
         includeEmpty: boolean = false,
     ): Module[] {
-        return this.getModules(REG_UTILITY_SLOT, type, includeEmpty, true);
+        return this.getModules(TYPES.UTILITY, type, includeEmpty, true);
     }
 
     /**

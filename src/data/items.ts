@@ -8,9 +8,8 @@
 import { values } from 'lodash';
 
 import { IllegalStateError, UnknownRestrictedError } from '../errors';
-import { matchesAny } from '../helper';
 import { ModuleInformation, ModuleRegistryEntry } from '../types';
-import { getSlotSize } from './slots';
+import { Slot } from './slots';
 
 import MODULE_REGISTRY from './module_registry.json';
 import MODULES from './modules.json';
@@ -73,35 +72,38 @@ export function getRating(item: string): string {
  * @returns True when the item can be outfitted false otherwise
  */
 export function itemFitsSlot(
-    item: string,
     ship: string,
-    slot: string,
+    slot: Slot,
+    item: string,
 ): boolean {
     const moduleInfo = getModuleInfo(item);
     const registryEntry: ModuleRegistryEntry =
         MODULE_REGISTRY[moduleInfo.meta.type];
     item = item.toLowerCase();
     ship = ship.toLowerCase();
-    slot = slot.toLowerCase();
 
     const type = moduleInfo.meta.type;
-    const slots: RegExp[] = registryEntry.slots.map((r) => RegExp(r, 'i'));
     // Does the item fit on this type of slot?
-    if (!matchesAny(slot, ...slots)) {
+    if (!slot.is(registryEntry.slots)) {
         return false;
     }
 
-    let specialCondition = true;
     if (type === 'armour') {
-        specialCondition = values(registryEntry.items[ship]).includes(item);
-    } else if (type === 'fighterbay') {
-        specialCondition = getShipInfo(ship).meta.fighterHangars;
+        return values(registryEntry.items[ship]).includes(item);
+    }
+
+    if (type === 'fighterbay') {
+        if (!getShipInfo(ship).meta.fighterHangars) return false;
     } else if (type === 'passengercabins' && item.match(/class4/i)) {
-        specialCondition = getShipInfo(ship).meta.luxuryCabins;
+        if (!getShipInfo(ship).meta.luxuryCabins) return false;
     }
 
     // Does the item fit on this slot?
-    return getClass(item) <= getSlotSize(ship, slot) && specialCondition;
+    if (type === 'lifesupport' || type === 'sensors') {
+        return slot.getSize() === getClass(item);
+    } else {
+        return slot.getSize() >= getClass(item);
+    }
 }
 
 /**

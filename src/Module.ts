@@ -7,7 +7,7 @@
  */
 import autoBind from 'auto-bind';
 import {
-    clamp, clone, cloneDeep, forEach, keys, map, mapValues, set, values,
+    clamp, clone, flatMap, keys, mapValues, set, values,
 } from 'lodash';
 
 import { compress, decompress } from './compression';
@@ -29,13 +29,13 @@ import {
     getRating,
     itemFitsSlot,
 } from './data/items';
-import { assertValidSlot, getSlotSize, REG_CORE_SLOT, REG_HARDPOINT_SLOT } from './data/slots';
+import { Slot, TYPES } from './data/slots';
 import {
     IllegalChangeError,
     IllegalStateError,
     UnknownRestrictedError,
 } from './errors';
-import { mapValuesDeep, matchesAny } from './helper';
+import { mapValuesDeep } from './helper';
 import DiffEmitter from './helper/DiffEmitter';
 import MODULE_STATS, { ModulePropertyCalculator } from './module-stats';
 import Ship from './Ship';
@@ -43,7 +43,7 @@ import { moduleVarIsSpecified, validateModuleJson } from './validation';
 
 import MODULE_REGISTRY from './data/module_registry.json';
 import { POWER_METRICS } from './ship-stats';
-import { ModuleRegistryEntry } from './types';
+import { BitVec, ModuleRegistryEntry } from './types';
 
 const SI_PREFIXES = {
     '-24': 'y',
@@ -74,7 +74,7 @@ const SI_PREFIXES = {
  * @param module Module to clone
  * @returns Cloned module object
  */
-function cloneModuleToJSON(
+function moduleToJSON(
     module: string | Module | IModuleObject,
 ): IModuleObject {
     if (module instanceof Module) {
@@ -83,8 +83,6 @@ function cloneModuleToJSON(
         if (typeof module === 'string') {
             module = decompress<IModuleObject>(module);
         }
-        module = cloneDeep(module);
-
         validateModuleJson(module);
     }
 
@@ -131,23 +129,22 @@ interface IIModuleObjectBase {
     Item: string;
     /** Power priority group (zero indexed) */
     Priority: number;
-    /** Slot this module is on (possibly empty string) */
-    Slot: string;
     /** True when this module is switched on */
     On: boolean;
 }
 
 export interface IModuleObject extends IIModuleObjectBase {
+    /** Slot this module is on (possibly empty string) */
+    Slot: string;
     /** Blueprint applied to this module */
     Engineering?: IBlueprintObject;
 }
 
 export interface IModuleObjectHandler extends IIModuleObjectBase {
+    Slot: Slot;
     /** Blueprint applied to this module */
     Engineering?: IBlueprintObjectHandler;
 }
-
-export type Slot = string | RegExp;
 
 /**
  * Engineer blueprint.
@@ -199,13 +196,8 @@ const DIFF_EVENT = 'diff';
  * A module that belongs to a Ship.
  */
 export default class Module extends DiffEmitter {
-    public object: IModuleObjectHandler = {
-        Item: '',
-        On: true,
-        Priority: 0,
-        Slot: '',
-    };
-    public ship: Ship = null;
+    public object: IModuleObjectHandler;
+    public ship: Ship;
 
     /**
      * Create a module by reading a module JSON given in a loadout-event-style
@@ -213,50 +205,46 @@ export default class Module extends DiffEmitter {
      * @param buildFrom Module to load
      * @param ship Ship to assign this module to
      */
-    constructor(buildFrom: string | Module | IModuleObject, ship?: Ship) {
+    constructor(ship: Ship, buildFrom: string | Module | IModuleObject) {
         super();
         autoBind(this);
 
-        if (buildFrom) {
-            const object = mapValuesDeep(cloneModuleToJSON(buildFrom), (v) =>
-                typeof v === 'string' ? v.toLowerCase() : v,
-            ) as IModuleObject & IModuleObjectHandler;
-            const handler = object as IModuleObjectHandler;
-            // Remember modifiers that need to be imported with a function
-            const imported = [];
-            const synthetics: IPropertyMap = {};
-            if (object.Engineering) {
-                const modifiers = object.Engineering.Modifiers;
-                handler.Engineering.Modifiers = {};
-                modifiers.forEach((modifier) => {
-                    const label = modifier.Label.toLowerCase();
-                    // Only store stats that don't have a getter
-                    const stats = MODULE_STATS[label];
-                    if (stats) {
-                        if (stats.getter) {
-                            synthetics[label] = modifier;
-                        }
+        this.ship = ship;
 
-                        const importWith = stats.importer;
-                        if (importWith) {
-                            imported.push([importWith, modifier]);
-                        } else if (!stats.getter) {
-                            handler.Engineering.Modifiers[label] = modifier;
-                        }
+        const object = mapValuesDeep(moduleToJSON(buildFrom), (v) =>
+            typeof v === 'string' ? v.toLowerCase() : v,
+        ) as IModuleObject;
+
+        // NOTE: This is the same as the const initialized above - we assign
+        // this here to cope with ts compilation.
+        this.object = object as any as IModuleObjectHandler;
+
+        this.object.Slot = new Slot(this.ship.getShipType(), object.Slot);
+        if (object.Engineering) {
+            const importLater = [];
+            const synthetics: IPropertyMap = {};
+            for (const modifier of object.Engineering.Modifiers) {
+                const label = modifier.Label.toLowerCase();
+                const stats = MODULE_STATS[label];
+                if (stats) {
+                    if (stats.getter) {
+                        synthetics[label] = modifier;
                     }
-                });
+
+                    if (stats.importer) {
+                        importLater.push([stats.importer, modifier]);
+                    } else if (!stats.getter) {
+                        this.object.Engineering.Modifiers[label] = modifier;
+                    }
+                }
             }
-            this.object = handler;
-            forEach(imported, (info) => {
-                const [importWith, modifier] = info;
+
+            for (const [importWith, modifier] of importLater) {
                 importWith(this, modifier, synthetics);
-            });
+            }
         }
 
         this._trackFor(this.object, DIFF_EVENT);
-        if (ship) {
-            this.ship = ship;
-        }
     }
 
     /**
@@ -502,7 +490,7 @@ export default class Module extends DiffEmitter {
      * weapon
      */
     public getArmourEffectiveness(modified?: boolean): number {
-        if (!this.ship || !this.ship.getOpponent()) {
+        if (!this.ship.getOpponent()) {
             return 1;
         }
 
@@ -528,7 +516,7 @@ export default class Module extends DiffEmitter {
      * weapon
      */
     public getRangeEffectiveness(modified?: boolean) {
-        if (!this.ship || isNaN(this.ship.getEngagementRange())) {
+        if (isNaN(this.ship.getEngagementRange())) {
             return 1;
         }
 
@@ -648,21 +636,12 @@ export default class Module extends DiffEmitter {
     }
 
     /**
-     * Returns an array of all applicable items to this module. If neither a
-     * ship nor a slot is assigned to this module, an exception is raised.
+     * Returns an array of all applicable items to this module. Can only be
+     * resolved once both a ship and a slot have been assigned.
      * @returns Array of applicable items
      */
     public getApplicableItems(): string[] {
-        if (!this.ship || !this.object.Slot) {
-            throw new IllegalStateError(
-                'Can only get applicable items once a ship has been assigned to the module',
-            );
-        }
-
-        // Prepare module registry items indices ordered by size
-        const hardpointKeys = ['', 'small', 'medium', 'large', 'huge'];
-        const internalKeys = ['', '1', '2', '3', '4', '5', '6', '7', '8'];
-        if (this.object.Slot === 'armour') {
+        if (this.isOnSlot(TYPES.ARMOUR)) {
             // If this is an armour slot, we only return all armour available
             // to the module's ship
             return values(
@@ -670,37 +649,23 @@ export default class Module extends DiffEmitter {
             );
         } else {
             // If this is not an armour slot, try each available module category
-            const size = this.getSize();
-            return values(MODULE_REGISTRY as any as {
+            return flatMap(MODULE_REGISTRY as any as {
                 [name: string]: ModuleRegistryEntry,
-            }).reduce((reduced: string[], entry: ModuleRegistryEntry) => {
-                    // Only consider categories that match this slot but ignore
-                    // the armour slot
-                    if (
-                        entry.slots[0] === 'armour' ||
-                        !matchesAny(
+            }, (entry: ModuleRegistryEntry) => {
+                if (!this.isOnSlot(entry.slots)) {
+                    // This type of module does not fit at all
+                    return [];
+                } else {
+                    return flatMap(
+                        values(entry.items),
+                        (ratings) => values(ratings).filter(itemFitsSlot.bind(
+                            undefined,
+                            this.ship.getShipType(),
                             this.object.Slot,
-                            ...entry.slots.map((r) => RegExp(r, 'i')),
-                        )
-                    ) {
-                        return reduced;
-                    }
-
-                    let selectors: string[];
-                    if (
-                        entry.slots[0] === '(small|medium|large|huge)hardpoint'
-                    ) {
-                        selectors = hardpointKeys;
-                    } else {
-                        selectors = internalKeys;
-                    }
-
-                    return reduced.concat(
-                        ...map(selectors.slice(0, size + 1), (k) =>
-                            values(entry.items[k]),
-                        ),
+                        )),
                     );
-                }, []);
+                }
+            });
         }
     }
 
@@ -744,7 +709,7 @@ export default class Module extends DiffEmitter {
      * core internal slot, the item won't get changed.
      */
     public reset() {
-        if (!this.object.Slot.match(REG_CORE_SLOT)) {
+        if (!this.isOnSlot(TYPES.CORE)) {
             this._prepareObjectChange('Item', '');
         }
         this._prepareObjectChange('Priority', 0);
@@ -760,6 +725,7 @@ export default class Module extends DiffEmitter {
     public toJSON(): IModuleObject {
         const r = (clone(this.object) as (IModuleObject &
             IModuleObjectHandler)) as IModuleObject;
+        r.Slot = this.object.Slot.toString();
         if (this.object.Engineering) {
             r.Engineering = (clone(
                 this.object.Engineering,
@@ -830,12 +796,12 @@ export default class Module extends DiffEmitter {
         } catch (e) {}
 
         item = assertValidModule(item);
-        const fits = !itemFitsSlot(
-            item,
-            this.ship.object.Ship,
+        const fits = itemFitsSlot(
+            this.ship.getShipType(),
             this.object.Slot,
+            item,
         );
-        if (this.ship && this.object.Slot && fits) {
+        if (!fits) {
             throw new IllegalStateError(
                 `Item ${item} does not fit ${this.object.Slot}`,
             );
@@ -862,24 +828,8 @@ export default class Module extends DiffEmitter {
      * @returns True if the module is on the given slot or the RegExp matches,
      *  false if none of this holds; null if the slot is on no module at all.
      */
-    public isOnSlot(slot: Slot | Slot[]): boolean | null {
-        if (!this.object.Slot) {
-            return null;
-        }
-
-        if (typeof slot === 'string') {
-            return this.object.Slot === slot.toLowerCase();
-        } else if (slot instanceof RegExp) {
-            return Boolean(this.object.Slot.match(slot));
-        } else {
-            // Array
-            for (const s of slot) {
-                if (this.isOnSlot(s)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+    public isOnSlot(slot: BitVec | string | RegExp): boolean | null {
+        return this.object.Slot.is(slot);
     }
 
     /**
@@ -887,37 +837,7 @@ export default class Module extends DiffEmitter {
      * @returns Slot name
      */
     public getSlot(): string {
-        return this.object.Slot;
-    }
-
-    /**
-     * Sets the slot of this module. Slots can only be set once (includes
-     * constructor) to prevent bad states. A slot can only be assigned when a
-     * ship already has been assigned.
-     * @param slot Slot to assign.
-     */
-    public setSlot(slot: string) {
-        if (!this.ship) {
-            throw new IllegalStateError(
-                `Can't assign slot to ${slot} for unknown ship`,
-            );
-        }
-
-        if (this.object.Slot) {
-            throw new IllegalStateError(`Can't reassign slot to ${slot}`);
-        }
-
-        slot = assertValidSlot(slot);
-        if (
-            this.object.Item &&
-            itemFitsSlot(this.object.Item, this.ship.object.Ship, slot)
-        ) {
-            throw new IllegalStateError(
-                `Can't assign slot current item ${this.object.Item} does not fit on ${slot}`,
-            );
-        }
-
-        this._writeObject('Slot', slot);
+        return this.object.Slot.toString();
     }
 
     /**
@@ -934,11 +854,7 @@ export default class Module extends DiffEmitter {
      * be turned on or off, e.g. is a hull reinforcement package.
      */
     public isPowered(): IPowered {
-        if (!this.ship) {
-            throw new IllegalStateError('Can only check whether a module is enabled if it is assigned to a ship.');
-        }
-
-        const isHardPoint = this.object.Slot.match(REG_HARDPOINT_SLOT);
+        const isHardPoint = this.isOnSlot(TYPES.HARDPOINT);
         const powered = {
             deployed: true,
             retracted: isHardPoint ? undefined : true,
@@ -1010,21 +926,8 @@ export default class Module extends DiffEmitter {
     /**
      * Returns the ship this module is assigned to or `null` if unassigned.
      */
-    public getShip(): Ship | null {
+    public getShip(): Ship {
         return this.ship;
-    }
-
-    /**
-     * Sets the ship of this module. A ship can only be assigned once to prevent
-     * bad states.
-     * @param ship
-     */
-    public setShip(ship: Ship) {
-        if (this.ship !== null) {
-            throw new IllegalStateError('Cannot reassign ship in Module');
-        }
-
-        this.ship = ship;
     }
 
     /**
@@ -1033,14 +936,6 @@ export default class Module extends DiffEmitter {
      */
     public isEmpty(): boolean {
         return this.object.Item === '';
-    }
-
-    /**
-     * Checks whether this module is assigned to a slot.
-     * @returns True when assigned, false otherwise.
-     */
-    public isAssigned(): boolean {
-        return this.ship && this.object.Slot !== '';
     }
 
     /**
@@ -1134,13 +1029,10 @@ export default class Module extends DiffEmitter {
      * Returns the size of the slot of this module. Size of utility slots and
      * bulkheads is always zero. Size of hardpoint slots is in range 1 to 4 for
      * small to huge.
-     * @returns Size or `null` if no slot has been assigned
+     * @returns Size
      */
-    public getSize(): number | null {
-        if (!this.ship || !this.object.Slot) {
-            return null;
-        }
-        return getSlotSize(this.ship.object.Ship, this.object.Slot);
+    public getSize(): number {
+        return this.object.Slot.getSize();
     }
 
     /**
