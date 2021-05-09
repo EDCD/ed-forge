@@ -76,7 +76,13 @@ for (let { name, build } of TEST_SUITES) {
 
                 for (let { Label, Value, OriginalValue } of Modifiers) {
                     test(`${Label} modified`, () => {
-                        expect(prec(2, module.get(Label, true))).toBe(prec(2, Value));
+                        // Ammo modifications can be off by one when rounded
+                        if (Label == 'AmmoMaximum' || Label == 'AmmoClipSize') {
+                            const ammo = module.get(Label, true);
+                            expect([ammo - 1, ammo, ammo + 1]).toContain(Value);
+                        } else {
+                            expect(prec(2, module.get(Label, true))).toBe(prec(2, Value));
+                        }
                     });
                     test(`${Label} raw`, () => {
                         expect(prec(3, module.get(Label, false))).toBe(prec(3, OriginalValue));
