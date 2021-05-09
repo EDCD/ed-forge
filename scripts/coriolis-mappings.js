@@ -440,6 +440,10 @@ module.exports.MODULES_REGEX = {
         groups: [-1, 1],
     },
     XenoScanner: /^Hpt_XenoScanner_Basic_Tiny$/i,
+    CargoHatch: {
+        r: /^ModularCargoBayDoor(\w*)$/i,
+        groups: [-1, 1],
+    },
 };
 
 module.exports.CAT_CORIOLIS_TO_FD = {
@@ -452,6 +456,7 @@ module.exports.CAT_CORIOLIS_TO_FD = {
     'cc': ['CollectorLimpet'],
     'ch': ['ChaffLauncher'],
     'cr': ['CargoRack', 'CorrosionResistantCargoRack'],
+    'crgh': ['CargoHatch'],
     'rpl': ['RepairLimpet'],
     'cs': ['ManifestScanner'],
     'dc': ['DockingComputer', 'AdvancedDockingComputer'],
@@ -580,3 +585,24 @@ module.exports.BLUEPRINT_EXCEPTION_TARGETS = {
 module.exports.EXPERIMENTAL_EXCEPTION_TARGETS = {
     'special_plasma_slug_cooled': '^hpt_railgun',
 };
+
+module.exports.CARGO_HATCHES = [
+    {
+        'mass': 0,
+        'power': 0.6,
+        'integrity': 20,
+        'class': 1,
+        'rating': 'H',
+        'grp': 'crgh',
+        'symbol': 'ModularCargoBayDoor',
+    },
+    {
+        'mass': 0,
+        'power': 0.6,
+        'integrity': 20,
+        'class': 1,
+        'rating': 'H',
+        'grp': 'crgh',
+        'symbol': 'ModularCargoBayDoorFDL',
+    },
+];

@@ -5,7 +5,7 @@ const _ = require('lodash');
 const {
     SHIP_CORIOLIS_TO_FD, MODULES_REGEX, CAT_CORIOLIS_TO_FD,
     PROP_CORIOLIS_TO_FD, BLUEPRINT_EXCEPTION_TARGETS,
-    EXPERIMENTAL_EXCEPTION_TARGETS, TYPE_TO_GROUP
+    EXPERIMENTAL_EXCEPTION_TARGETS, TYPE_TO_GROUP, CARGO_HATCHES
 } = require('./scripts/coriolis-mappings');
 const MODULE_STATS = require('./src/module-stats.json');
 const SLOT_CATS = require('./src/data/slots.json');
@@ -211,6 +211,8 @@ function moduleRegexToSlots(regex) {
         ) {
             slotVec |= SLOT_CATS.MILITARY;
         }
+    } else if (regex.match(/ModularCargoBayDoor/i)) {
+        slotVec = SLOT_CATS.CARGO_HATCH;
     }
     return slotVec;
 }
@@ -366,6 +368,8 @@ _.chain([ Modules.internal, Modules.standard, Modules.hardpoints ])
     .forEach(consumeModule)
     .commit();
 
+CARGO_HATCHES.forEach(consumeModule);
+
 writeDataJSON('modules.json', MODULES);
 writeDataJSON('module_registry.json', MODULE_REGISTRY);
 
@@ -483,6 +487,13 @@ function consumeShip(entry) {
             module.Slot = slot;
             j.proto.Modules.push(module);
         });
+
+    // Create cargo hatch
+    const cargoHatch = _.assign(
+        (Ship.toLowerCase() === 'ferdelance' ? MODULES.modularcargobaydoorfdl : MODULES.modularcargobaydoor).proto,
+        { Slot: 'CargoHatch' },
+    );
+    j.proto.Modules.push(cargoHatch);
 
     SHIPS[Ship.toLowerCase()] = j;
 }

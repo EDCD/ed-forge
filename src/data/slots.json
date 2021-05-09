@@ -10,5 +10,6 @@
     "INTERNAL": 256,
     "MILITARY": 512,
     "HARDPOINT": 1024,
-    "UTILITY": 2048
+    "UTILITY": 2048,
+    "CARGO_HATCH": 4096
 }

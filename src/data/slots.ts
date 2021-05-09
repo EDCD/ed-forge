@@ -10,8 +10,8 @@ import { UnknownRestrictedError } from '../errors';
 import { BitVec } from '../types';
 import { getShipInfo } from './ships';
 import {
-    ARMOUR, ENGINES, FSD, FUEL_TANK, HARDPOINT, INTERNAL, LIFE_SUPPORT,
-    MILITARY, POWERPLANT, POWER_DISTRIBUTOR, SENSORS, UTILITY,
+    ARMOUR, CARGO_HATCH, ENGINES, FSD, FUEL_TANK, HARDPOINT, INTERNAL,
+    LIFE_SUPPORT, MILITARY, POWERPLANT, POWER_DISTRIBUTOR, SENSORS, UTILITY,
 } from './slots.json';
 
 const CORE = ARMOUR | POWERPLANT | ENGINES | FSD | LIFE_SUPPORT
@@ -19,7 +19,7 @@ const CORE = ARMOUR | POWERPLANT | ENGINES | FSD | LIFE_SUPPORT
 const ANY_INTERNAL = INTERNAL | MILITARY;
 
 export const TYPES = {
-    ANY_INTERNAL, ARMOUR, CORE, ENGINES, FSD, FUEL_TANK, HARDPOINT,
+    ANY_INTERNAL, ARMOUR, CARGO_HATCH, CORE, ENGINES, FSD, FUEL_TANK, HARDPOINT,
     INTERNAL, LIFE_SUPPORT, MILITARY, POWERPLANT, POWER_DISTRIBUTOR, SENSORS,
     UTILITY,
 };
@@ -69,6 +69,8 @@ function getSlotType(slot: string): BitVec {
         return HARDPOINT;
     } else if (slot.match(/TinyHardpoint(\d)/i)) {
         return UTILITY;
+    } else if (slot.match(/CargoHatch/i)) {
+        return CARGO_HATCH;
     } else {
         return undefined;
     }
@@ -133,6 +135,10 @@ function getHardpointSlotSize(slot: string): number {
  * @returns Slot size
  */
 function getSlotSize(ship: string, slot: string): number {
+    if (slot.match(/CargoHatch/i)) {
+        return 1;
+    }
+
     let slotSize = getCoreSlotSize(ship, slot);
     if (slotSize !== undefined) {
         return slotSize;
