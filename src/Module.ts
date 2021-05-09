@@ -150,9 +150,6 @@ export interface IModuleObjectHandler extends IIModuleObjectBase {
  * Engineer blueprint.
  */
 interface IIBlueprintObjectBase {
-    Engineer?: string;
-    EngineerID?: number;
-    BlueprintID?: number;
     /** Name of the blueprint */
     BlueprintName: string;
     /** Grade of the blueprint from 1 to 5 */
@@ -428,7 +425,7 @@ export default class Module extends DiffEmitter {
      *
      * @param property Property to fetch the modifier for.
      */
-    public getModifierFormatted(property): IPropertyFormatting {
+    public getModifierFormatted(property: string): IPropertyFormatting {
         const value = this.getModifier(property);
         const { method, higherbetter, percentage } = MODULE_STATS[property];
         let unit = '%';
@@ -437,7 +434,7 @@ export default class Module extends DiffEmitter {
         }
         let beneficial;
         if (value !== 0) {
-            beneficial = higherbetter == value > 0;
+            beneficial = higherbetter === value > 0;
         }
         return {
             beneficial, integer: false, unit, value,
