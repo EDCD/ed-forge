@@ -60,7 +60,7 @@ export interface MetaModuleInformation {
     /** Type of the item (e.g. biweaveshieldgen). Module registry is sorted by
      * types. */
     type: string;
-    /** Mount of the item (if hardpint) */
+    /** Mount of the item (if hardpoint) */
     mount?: string;
 }
 
@@ -94,7 +94,7 @@ export interface ShipMetaInfo {
     coreSizes: { [key: string]: number };
     /** Map from military slots to respective sizes */
     militarySizes: { [key: string]: number };
-    /** Present and true if the ship supports luxus passenger cabins */
+    /** Present and true if the ship supports luxury passenger cabins */
     luxuryCabins?: boolean;
     /** Present and true if the ship supports SLF hangars */
     fighterHangars?: boolean;
