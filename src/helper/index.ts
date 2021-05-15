@@ -8,6 +8,7 @@
 import { map, mapValues, values } from 'lodash';
 
 import Module from '../Module';
+import { ModulePropertyCalculator } from '../module-stats';
 
 /**
  * Check whether a string matches any of the given regular expressions or equals
@@ -90,13 +91,13 @@ export function diminishingDamageMultiplier(startAt, multiplier) {
  */
 function _moduleReduce<T>(
     modules: Module[] | { [key: string]: Module },
-    get: string | ((m: Module) => number),
+    get: string | ModulePropertyCalculator,
     modified: boolean,
     filters: ((m: Module) => boolean)[],
     fn: (acc: T, v: number) => T,
     initial: T | undefined,
 ): T {
-    let getter: (m: Module) => number;
+    let getter: ModulePropertyCalculator;
     if (typeof get === 'string') {
         getter = (m) => m.getClean(get, modified);
     } else {
@@ -110,7 +111,7 @@ function _moduleReduce<T>(
             values(modules),
             // get the properties
         )
-        .map(getter)
+        .map((m) => getter(m, modified))
         .filter((v) => !isNaN(v));
     // reduce the properties
     return props.reduce(fn, initial);
@@ -128,7 +129,7 @@ function _moduleReduce<T>(
  */
 export function moduleReduce<T>(
     modules: Module[] | { [key: string]: Module },
-    get: string | ((m: Module) => number),
+    get: string | ModulePropertyCalculator,
     modified: boolean,
     fn: (acc: T, v: number) => T,
     initial: T | undefined,
@@ -146,7 +147,7 @@ export function moduleReduce<T>(
  */
 export function moduleSum(
     modules: Module[] | { [key: string]: Module },
-    get: string | ((m: Module) => number),
+    get: string | ModulePropertyCalculator,
     modified: boolean,
 ): number {
     return moduleReduce(modules, get, modified, add, 0);
@@ -165,7 +166,7 @@ export function moduleSum(
  */
 export function moduleReduceEnabled<T>(
     modules: Module[] | { [key: string]: Module },
-    get: string | ((m: Module) => number),
+    get: string | ModulePropertyCalculator,
     modified: boolean,
     fn: (acc: T, v: number) => T,
     initial: T | undefined,
@@ -190,7 +191,7 @@ export function moduleReduceEnabled<T>(
  */
 export function moduleSumEnabled(
     modules: Module[] | { [key: string]: Module },
-    get: string | ((m: Module) => number),
+    get: string | ModulePropertyCalculator,
     modified: boolean,
 ): number {
     return moduleReduceEnabled(modules, get, modified, add, 0);
@@ -208,7 +209,7 @@ export function moduleSumEnabled(
  */
 function _moduleMean(
     modules: Module[] | { [key: string]: Module },
-    get: string | ((m: Module) => number),
+    get: string | ModulePropertyCalculator,
     modified: boolean,
     filters: ((m: Module) => boolean)[],
 ): number {
@@ -242,7 +243,7 @@ function _moduleMean(
  */
 export function moduleMean(
     modules: Module[] | { [key: string]: Module },
-    get: string | ((m: Module) => number),
+    get: string | ModulePropertyCalculator,
     modified: boolean,
 ): number {
     return _moduleMean(modules, get, modified, []);
@@ -260,7 +261,7 @@ export function moduleMean(
  */
 export function moduleMeanEnabled(
     modules: Module[] | { [key: string]: Module },
-    get: string | ((m: Module) => number),
+    get: string | ModulePropertyCalculator,
     modified: boolean,
 ): number {
     return _moduleMean(modules, get, modified, [(m) => m.isEnabled()]);
