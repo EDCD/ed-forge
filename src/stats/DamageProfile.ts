@@ -31,14 +31,15 @@ export interface IDamageMetrics {
     };
 }
 
-export function weighedPortion(
-    type: string,
-    totalDps: number,
+export function weighedMean(
+    propMean: string,
+    propSum: string,
+    total: number,
     module: Module,
     modified: boolean,
 ): number {
-    return module.get(type, modified) * module.get('damagepersecond', modified)
-        / totalDps;
+    return module.get(propMean, modified) * module.get(propSum, modified)
+        / total;
 }
 
 /**
@@ -80,22 +81,22 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
         types: {
             abs: moduleSumEnabled(
                 hardpoints,
-                weighedPortion.bind(undefined, 'absolutedamageportion', dps),
+                weighedMean.bind(undefined, 'absolutedamageportion', 'damagepersecond', dps),
                 modified,
             ),
             expl: moduleSumEnabled(
                 hardpoints,
-                weighedPortion.bind(undefined, 'explosivedamageportion', dps),
+                weighedMean.bind(undefined, 'explosivedamageportion', 'damagepersecond', dps),
                 modified,
             ),
             kin: moduleSumEnabled(
                 hardpoints,
-                weighedPortion.bind(undefined, 'kineticdamageportion', dps),
+                weighedMean.bind(undefined, 'kineticdamageportion', 'damagepersecond', dps),
                 modified,
             ),
             therm: moduleSumEnabled(
                 hardpoints,
-                weighedPortion.bind(undefined, 'thermicdamageportion', dps),
+                weighedMean.bind(undefined, 'thermicdamageportion', 'damagepersecond', dps),
                 modified,
             ),
         },
@@ -121,22 +122,22 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
         types: {
             abs: moduleSumEnabled(
                 hardpoints,
-                weighedPortion.bind(undefined, 'absolutedamageportion', sdps),
+                weighedMean.bind(undefined, 'absolutedamageportion', 'sustaineddamagepersecond', sdps),
                 modified,
             ),
             expl: moduleSumEnabled(
                 hardpoints,
-                weighedPortion.bind(undefined, 'explosivedamageportion', sdps),
+                weighedMean.bind(undefined, 'explosivedamageportion', 'sustaineddamagepersecond', sdps),
                 modified,
             ),
             kin: moduleSumEnabled(
                 hardpoints,
-                weighedPortion.bind(undefined, 'kineticdamageportion', sdps),
+                weighedMean.bind(undefined, 'kineticdamageportion', 'sustaineddamagepersecond', sdps),
                 modified,
             ),
             therm: moduleSumEnabled(
                 hardpoints,
-                weighedPortion.bind(undefined, 'thermicdamageportion', sdps),
+                weighedMean.bind(undefined, 'thermicdamageportion', 'sustaineddamagepersecond', sdps),
                 modified,
             ),
         },
@@ -158,42 +159,68 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
             return consumption > wepRecharge;
         });
 
-        const drainedDps = moduleSumEnabled(
+        let drainedDps = moduleSumEnabled(
             firingModules,
             'damagepersecond',
             modified,
         );
+        let hps = moduleSumEnabled(
+            firingModules,
+            'heatpersecond',
+            modified,
+        );
+
+        // Maybe, the next weapon can fire partially.
+        const delta = consumption - wepRecharge;
+        const partialTypes = {
+            abs: 0,
+            expl: 0,
+            kin: 0,
+            therm: 0,
+        };
+        if (delta < 0) {
+            const partiallyFiring = hardpoints[firingModules.length];
+            const eps = partiallyFiring.get('energypersecond', modified);
+            const damageFactor = (eps + delta) / eps;
+            const partialDps = damageFactor *
+                partiallyFiring.get('damagepersecond', modified);
+            drainedDps += partialDps;
+            hps += damageFactor *
+                partiallyFiring.get('heatpersecond', modified);
+            partialTypes.abs = partiallyFiring.get('absolutedamageportion', modified) *
+                partialDps / drainedDps;
+            partialTypes.expl = partiallyFiring.get('explosivedamageportion', modified) *
+                partialDps / drainedDps;
+            partialTypes.kin = partiallyFiring.get('kineticdamageportion', modified) *
+                partialDps / drainedDps;
+            partialTypes.therm = partiallyFiring.get('thermicdamageportion', modified) *
+                partialDps / drainedDps;
+        }
+
+
         drained = {
             dps: drainedDps,
-            eps: moduleSumEnabled(
-                firingModules,
-                'energypersecond',
-                modified,
-            ),
-            hps: moduleSumEnabled(
-                firingModules,
-                'heatpersecond',
-                modified,
-            ),
+            eps: wepRecharge,
+            hps,
             types: {
-                abs: moduleSumEnabled(
+                abs: partialTypes.abs + moduleSumEnabled(
                     firingModules,
-                    weighedPortion.bind(undefined, 'absolutedamageportion', drainedDps),
+                    weighedMean.bind(undefined, 'absolutedamageportion', 'damagepersecond', drainedDps),
                     modified,
                 ),
-                expl: moduleSumEnabled(
+                expl: partialTypes.expl + moduleSumEnabled(
                     firingModules,
-                    weighedPortion.bind(undefined, 'explosivedamageportion', drainedDps),
+                    weighedMean.bind(undefined, 'explosivedamageportion', 'damagepersecond', drainedDps),
                     modified,
                 ),
-                kin: moduleSumEnabled(
+                kin: partialTypes.kin + moduleSumEnabled(
                     firingModules,
-                    weighedPortion.bind(undefined, 'kineticdamageportion', drainedDps),
+                    weighedMean.bind(undefined, 'kineticdamageportion', 'damagepersecond', drainedDps),
                     modified,
                 ),
-                therm: moduleSumEnabled(
+                therm: partialTypes.therm + moduleSumEnabled(
                     firingModules,
-                    weighedPortion.bind(undefined, 'thermicdamageportion', drainedDps),
+                    weighedMean.bind(undefined, 'thermicdamageportion', 'damagepersecond', drainedDps),
                     modified,
                 ),
             },
