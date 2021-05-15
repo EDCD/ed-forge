@@ -6,6 +6,7 @@
  * Ignore
  */
 import { range } from 'lodash';
+import { Module } from '..';
 
 import { moduleMeanEnabled, moduleSumEnabled } from '../helper';
 import { PD_RECHARGE_MAP } from '../module-stats';
@@ -18,6 +19,27 @@ export interface IDamageMetrics {
     eps: number;
     /** Heat per second */
     hps: number;
+    /** Damage types as multiplicators; will sum up to one */
+    types: {
+        /** Absolute damage portion */
+        abs: number;
+        /** Explosive damage portion */
+        expl: number;
+        /** Kinetic damage portion */
+        kin: number;
+        /** Thermal damage portion */
+        therm: number;
+    };
+}
+
+export function weighedPortion(
+    type: string,
+    totalDps: number,
+    module: Module,
+    modified: boolean,
+): number {
+    return module.get(type, modified) * module.get('damagepersecond', modified)
+        / totalDps;
 }
 
 /**
@@ -36,25 +58,20 @@ export interface IDamageProfile extends IDamageMetrics {
      * e.g., index `3` is for 1.5 pips.
      */
     timeToDrain: number[];
-    /** Damage types as multiplicators; will sum up to one */
-    types: {
-        /** Absolute damage portion */
-        abs: number;
-        /** Explosive damage portion */
-        expl: number;
-        /** Kinetic damage portion */
-        kin: number;
-        /** Thermal damage portion */
-        therm: number;
-    };
 }
 
 export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile {
-    const hardpoints = ship.getHardpoints();
     const pd = ship.getPowerDistributor();
     const wepCap = pd.get('weaponscapacity', modified);
     const wepRecharge = pd.get('weaponsrecharge', modified);
+
+    const hardpoints = ship.getHardpoints();
     const dps = moduleSumEnabled(hardpoints, 'damagepersecond', modified);
+    const sustainedDps = moduleSumEnabled(
+        hardpoints,
+        'sustaineddamagepersecond',
+        modified,
+    );
     const sustainedEps = moduleSumEnabled(
         hardpoints,
         'sustainedenergypersecond',
@@ -77,17 +94,35 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
             modified,
         ),
         sustained: {
-            dps: moduleSumEnabled(
-                hardpoints,
-                'sustaineddamagepersecond',
-                modified,
-            ),
+            dps: sustainedDps,
             eps: sustainedEps,
             hps: moduleSumEnabled(
                 hardpoints,
                 'sustainedheatpersecond',
                 modified,
             ),
+            types: {
+                abs: moduleMeanEnabled(
+                    hardpoints,
+                    weighedPortion.bind(undefined, 'absolutedamageportion', sustainedDps),
+                    modified,
+                ),
+                expl: moduleMeanEnabled(
+                    hardpoints,
+                    weighedPortion.bind(undefined, 'explosivedamageportion', sustainedDps),
+                    modified,
+                ),
+                kin: moduleMeanEnabled(
+                    hardpoints,
+                    weighedPortion.bind(undefined, 'kineticdamageportion', sustainedDps),
+                    modified,
+                ),
+                therm: moduleMeanEnabled(
+                    hardpoints,
+                    weighedPortion.bind(undefined, 'thermicdamageportion', sustainedDps),
+                    modified,
+                ),
+            },
         },
         timeToDrain: range(0, 4.5, 0.5).map((wepPips) => {
             const effectiveRecharge = wepRecharge * PD_RECHARGE_MAP[wepPips];
@@ -103,22 +138,22 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
         types: {
             abs: moduleMeanEnabled(
                 hardpoints,
-                'absolutedamageportion',
+                weighedPortion.bind(undefined, 'absolutedamageportion', dps),
                 modified,
             ),
             expl: moduleMeanEnabled(
                 hardpoints,
-                'explosivedamageportion',
+                weighedPortion.bind(undefined, 'explosivedamageportion', dps),
                 modified,
             ),
             kin: moduleMeanEnabled(
                 hardpoints,
-                'kineticdamageportion',
+                weighedPortion.bind(undefined, 'kineticdamageportion', dps),
                 modified,
             ),
             therm: moduleMeanEnabled(
                 hardpoints,
-                'thermicdamageportion',
+                weighedPortion.bind(undefined, 'thermicdamageportion', dps),
                 modified,
             ),
         },
