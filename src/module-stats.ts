@@ -7,7 +7,6 @@
  */
 import { Ship } from '.';
 import { IPropertyMap } from './data/blueprints';
-import { IllegalStateError } from './errors';
 import Module, { IModifierObject } from './Module';
 import { getModuleProperty } from './data/items';
 import CONST_STATS from './module-stats.json';
@@ -163,9 +162,6 @@ export type ModulePropertyCalculator = (
 ) => number;
 
 export function EFFECTIVE_SYS_RATE(module: Module, modified: boolean): number {
-    if (!module.ship) {
-        throw new IllegalStateError();
-    }
     return (
         module.get('systemsrecharge', modified) *
         getPdRechargeMultiplier(module.ship)
@@ -173,9 +169,6 @@ export function EFFECTIVE_SYS_RATE(module: Module, modified: boolean): number {
 }
 
 export function EFFECTIVE_ENG_RATE(module: Module, modified: boolean): number {
-    if (!module.ship) {
-        throw new IllegalStateError();
-    }
     return (
         module.get('enginesrecharge', modified) *
         getPdRechargeMultiplier(module.ship)
@@ -183,9 +176,6 @@ export function EFFECTIVE_ENG_RATE(module: Module, modified: boolean): number {
 }
 
 export function EFFECTIVE_WEP_RATE(module: Module, modified: boolean): number {
-    if (!module.ship) {
-        throw new IllegalStateError();
-    }
     return (
         module.get('weaponsrecharge', modified) *
         getPdRechargeMultiplier(module.ship)
