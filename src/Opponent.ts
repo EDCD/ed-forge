@@ -92,6 +92,17 @@ export default class AbstractOpponent implements IOpponent {
     private damage: IDamageProfile = {
         dpe: 0,
         dps: 0,
+        drained: {
+            dps: 0,
+            eps: 1,
+            hps: 1,
+            types: {
+                abs: 1,
+                expl: 0,
+                kin: 0,
+                therm: 0,
+            },
+        },
         eps: 1,
         hardnessMultiplier: 1,
         hps: 1,

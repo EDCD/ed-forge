@@ -5,7 +5,7 @@
 /**
  * Ignore
  */
-import { range } from 'lodash';
+import { assign, cloneDeep, range, sortBy, takeWhile } from 'lodash';
 import { Module } from '..';
 
 import { moduleMeanEnabled, moduleSumEnabled } from '../helper';
@@ -53,6 +53,11 @@ export interface IDamageProfile extends IDamageMetrics {
     /** Damage metrics taking into account reload times */
     sustained: IDamageMetrics;
     /**
+     * Damage metrics taking when WEP capacitor is empty, not taking into
+     * account reload times.
+     */
+    drained: IDamageMetrics;
+    /**
      * Time in seconds it takes to drain weapon capacitor under constant fire,
      * considering reloads. Each index corresponds to a half-pip put in WEP,
      * e.g., index `3` is for 1.5 pips.
@@ -65,76 +70,15 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
     const wepCap = pd.get('weaponscapacity', modified);
     const wepRecharge = pd.get('weaponsrecharge', modified);
 
-    const hardpoints = ship.getHardpoints();
+    const hardpoints = sortBy(
+        ship.getHardpoints(),
+        (m) => m.get('distributordraw', modified),
+    );
     const dps = moduleSumEnabled(hardpoints, 'damagepersecond', modified);
-    const sustainedDps = moduleSumEnabled(
-        hardpoints,
-        'sustaineddamagepersecond',
-        modified,
-    );
-    const sustainedEps = moduleSumEnabled(
-        hardpoints,
-        'sustainedenergypersecond',
-        modified,
-    );
-
-    return {
-        dpe: moduleSumEnabled(hardpoints, 'damageperenergy', modified),
+    const damage: IDamageMetrics = {
         dps,
         eps: moduleSumEnabled(hardpoints, 'energypersecond', modified),
-        hardnessMultiplier: moduleSumEnabled(
-            hardpoints,
-            (m) => m.get('damagepersecond') / dps * m.getArmourEffectiveness(),
-            modified,
-        ),
         hps: moduleSumEnabled(hardpoints, 'heatpersecond', modified),
-        rangeMultiplier: moduleSumEnabled(
-            hardpoints,
-            (m) => m.get('damagepersecond') / dps * m.getRangeEffectiveness(),
-            modified,
-        ),
-        sustained: {
-            dps: sustainedDps,
-            eps: sustainedEps,
-            hps: moduleSumEnabled(
-                hardpoints,
-                'sustainedheatpersecond',
-                modified,
-            ),
-            types: {
-                abs: moduleMeanEnabled(
-                    hardpoints,
-                    weighedPortion.bind(undefined, 'absolutedamageportion', sustainedDps),
-                    modified,
-                ),
-                expl: moduleMeanEnabled(
-                    hardpoints,
-                    weighedPortion.bind(undefined, 'explosivedamageportion', sustainedDps),
-                    modified,
-                ),
-                kin: moduleMeanEnabled(
-                    hardpoints,
-                    weighedPortion.bind(undefined, 'kineticdamageportion', sustainedDps),
-                    modified,
-                ),
-                therm: moduleMeanEnabled(
-                    hardpoints,
-                    weighedPortion.bind(undefined, 'thermicdamageportion', sustainedDps),
-                    modified,
-                ),
-            },
-        },
-        timeToDrain: range(0, 4.5, 0.5).map((wepPips) => {
-            const effectiveRecharge = wepRecharge * PD_RECHARGE_MAP[wepPips];
-            if (effectiveRecharge < sustainedEps) {
-                const timeToDrainCap = wepCap / sustainedEps;
-                // This formula is the limit of the geometric series
-                // https://en.wikipedia.org/wiki/Geometric_series
-                return timeToDrainCap / (1 - (effectiveRecharge / sustainedEps));
-            } else {
-                return Infinity;
-            }
-        }),
         types: {
             abs: moduleMeanEnabled(
                 hardpoints,
@@ -158,6 +102,128 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
             ),
         },
     };
+
+    const sdps = moduleSumEnabled(
+        hardpoints,
+        'sustaineddamagepersecond',
+        modified,
+    );
+    const sustained: IDamageMetrics = {
+        dps: sdps,
+        eps: moduleSumEnabled(
+            hardpoints,
+            'sustainedenergypersecond',
+            modified,
+        ),
+        hps: moduleSumEnabled(
+            hardpoints,
+            'sustainedheatpersecond',
+            modified,
+        ),
+        types: {
+            abs: moduleMeanEnabled(
+                hardpoints,
+                weighedPortion.bind(undefined, 'absolutedamageportion', sdps),
+                modified,
+            ),
+            expl: moduleMeanEnabled(
+                hardpoints,
+                weighedPortion.bind(undefined, 'explosivedamageportion', sdps),
+                modified,
+            ),
+            kin: moduleMeanEnabled(
+                hardpoints,
+                weighedPortion.bind(undefined, 'kineticdamageportion', sdps),
+                modified,
+            ),
+            therm: moduleMeanEnabled(
+                hardpoints,
+                weighedPortion.bind(undefined, 'thermicdamageportion', sdps),
+                modified,
+            ),
+        },
+    };
+
+    const timeToDrain = range(0, 4.5, 0.5).map((wepPips) => {
+        const effectiveRecharge = wepRecharge * PD_RECHARGE_MAP[wepPips];
+        if (effectiveRecharge < sustained.eps) {
+            const timeToDrainCap = wepCap / sustained.eps;
+            // This formula is the limit of the geometric series
+            // https://en.wikipedia.org/wiki/Geometric_series
+            return timeToDrainCap / (1 - (effectiveRecharge / sustained.eps));
+        } else {
+            return Infinity;
+        }
+    });
+
+    let drained: IDamageMetrics;
+    if (timeToDrain[8] === Infinity) {
+        drained = cloneDeep(damage);
+    } else {
+        let consumption = 0;
+        const firingModules = takeWhile(hardpoints, (m) => {
+            consumption += m.get('distributordraw', modified);
+            return consumption > wepRecharge;
+        });
+
+        const drainedDps = moduleSumEnabled(
+            firingModules,
+            'damagepersecond',
+            modified,
+        );
+        drained = {
+            dps: drainedDps,
+            eps: moduleSumEnabled(
+                firingModules,
+                'energypersecond',
+                modified,
+            ),
+            hps: moduleSumEnabled(
+                firingModules,
+                'heatpersecond',
+                modified,
+            ),
+            types: {
+                abs: moduleMeanEnabled(
+                    firingModules,
+                    weighedPortion.bind(undefined, 'absolutedamageportion', drainedDps),
+                    modified,
+                ),
+                expl: moduleMeanEnabled(
+                    firingModules,
+                    weighedPortion.bind(undefined, 'explosivedamageportion', drainedDps),
+                    modified,
+                ),
+                kin: moduleMeanEnabled(
+                    firingModules,
+                    weighedPortion.bind(undefined, 'kineticdamageportion', drainedDps),
+                    modified,
+                ),
+                therm: moduleMeanEnabled(
+                    firingModules,
+                    weighedPortion.bind(undefined, 'thermicdamageportion', drainedDps),
+                    modified,
+                ),
+            },
+        };
+    }
+
+    return assign(damage, {
+        dpe: moduleSumEnabled(hardpoints, 'damageperenergy', modified),
+        drained,
+        hardnessMultiplier: moduleSumEnabled(
+            hardpoints,
+            (m) => m.get('damagepersecond') / dps * m.getArmourEffectiveness(),
+            modified,
+        ),
+        rangeMultiplier: moduleSumEnabled(
+            hardpoints,
+            (m) => m.get('damagepersecond') / dps * m.getRangeEffectiveness(),
+            modified,
+        ),
+        sustained,
+        timeToDrain,
+    });
 }
 
 export function getDps(ship: Ship, modified: boolean): number {
