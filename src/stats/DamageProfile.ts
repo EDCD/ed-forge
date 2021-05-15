@@ -5,11 +5,10 @@
 /**
  * Ignore
  */
-import { assign, cloneDeep, range, sortBy, takeWhile } from 'lodash';
+import { assign, cloneDeep, sortBy, takeWhile } from 'lodash';
 import { Module } from '..';
 
 import { moduleMeanEnabled, moduleSumEnabled } from '../helper';
-import { PD_RECHARGE_MAP } from '../module-stats';
 import Ship from '../Ship';
 
 export interface IDamageMetrics {
@@ -59,16 +58,15 @@ export interface IDamageProfile extends IDamageMetrics {
     drained: IDamageMetrics;
     /**
      * Time in seconds it takes to drain weapon capacitor under constant fire,
-     * considering reloads. Each index corresponds to a half-pip put in WEP,
-     * e.g., index `3` is for 1.5 pips.
+     * considering reloads..
      */
-    timeToDrain: number[];
+    timeToDrain: number;
 }
 
 export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile {
     const pd = ship.getPowerDistributor();
     const wepCap = pd.get('weaponscapacity', modified);
-    const wepRecharge = pd.get('weaponsrecharge', modified);
+    const wepRecharge = pd.get('effectiveweaponsrecharge', modified);
 
     const hardpoints = sortBy(
         ship.getHardpoints(),
@@ -144,20 +142,14 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
         },
     };
 
-    const timeToDrain = range(0, 4.5, 0.5).map((wepPips) => {
-        const effectiveRecharge = wepRecharge * PD_RECHARGE_MAP[wepPips];
-        if (effectiveRecharge < sustained.eps) {
-            const timeToDrainCap = wepCap / sustained.eps;
-            // This formula is the limit of the geometric series
-            // https://en.wikipedia.org/wiki/Geometric_series
-            return timeToDrainCap / (1 - (effectiveRecharge / sustained.eps));
-        } else {
-            return Infinity;
-        }
-    });
+    const timeToDrain = wepRecharge >= sustained.eps
+        ? Infinity
+        // This formula is the limit of the geometric series
+        // https://en.wikipedia.org/wiki/Geometric_series
+        : (wepCap / sustained.eps) / (1 - (wepRecharge / sustained.eps));
 
     let drained: IDamageMetrics;
-    if (timeToDrain[8] === Infinity) {
+    if (timeToDrain === Infinity) {
         drained = cloneDeep(damage);
     } else {
         let consumption = 0;

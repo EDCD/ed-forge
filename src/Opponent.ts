@@ -118,7 +118,7 @@ export default class AbstractOpponent implements IOpponent {
                 therm: 0,
             },
         },
-        timeToDrain: [],
+        timeToDrain: Infinity,
         types: {
             abs: 1,
             expl: 0,
