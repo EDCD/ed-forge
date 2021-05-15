@@ -8,7 +8,6 @@
 import { range } from 'lodash';
 
 import { moduleMeanEnabled, moduleSumEnabled } from '../helper';
-import Module from '../Module';
 import { PD_RECHARGE_MAP } from '../module-stats';
 import Ship from '../Ship';
 
@@ -19,7 +18,6 @@ export interface IDamageMetrics {
     eps: number;
     /** Heat per second */
     hps: number;
-    timeToDrain: number[];
 }
 
 /**
@@ -32,6 +30,12 @@ export interface IDamageProfile extends IDamageMetrics {
     dpe: number;
     /** Damage metrics taking into account reload times */
     sustained: IDamageMetrics;
+    /**
+     * Time in seconds it takes to drain weapon capacitor under constant fire,
+     * considering reloads. Each index corresponds to a half-pip put in WEP,
+     * e.g., index `3` is for 1.5 pips.
+     */
+    timeToDrain: number[];
     /** Damage types as multiplicators; will sum up to one */
     types: {
         /** Absolute damage portion */
@@ -45,11 +49,18 @@ export interface IDamageProfile extends IDamageMetrics {
     };
 }
 
-function calculateDamageProfile(
-    hardpoints: Module[],
-    modified: boolean,
-): IDamageProfile {
+export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile {
+    const hardpoints = ship.getHardpoints();
+    const pd = ship.getPowerDistributor();
+    const wepCap = pd.get('weaponscapacity', modified);
+    const wepRecharge = pd.get('weaponsrecharge', modified);
     const dps = moduleSumEnabled(hardpoints, 'damagepersecond', modified);
+    const sustainedEps = moduleSumEnabled(
+        hardpoints,
+        'sustainedenergypersecond',
+        modified,
+    );
+
     return {
         dpe: moduleSumEnabled(hardpoints, 'damageperenergy', modified),
         dps,
@@ -71,19 +82,24 @@ function calculateDamageProfile(
                 'sustaineddamagepersecond',
                 modified,
             ),
-            eps: moduleSumEnabled(
-                hardpoints,
-                'sustainedenergypersecond',
-                modified,
-            ),
+            eps: sustainedEps,
             hps: moduleSumEnabled(
                 hardpoints,
                 'sustainedheatpersecond',
                 modified,
             ),
-            timeToDrain: [],
         },
-        timeToDrain: [],
+        timeToDrain: range(0, 4.5, 0.5).map((wepPips) => {
+            const effectiveRecharge = wepRecharge * PD_RECHARGE_MAP[wepPips];
+            if (effectiveRecharge < sustainedEps) {
+                const timeToDrainCap = wepCap / sustainedEps;
+                // This formula is the limit of the geometric series
+                // https://en.wikipedia.org/wiki/Geometric_series
+                return timeToDrainCap / (1 - (effectiveRecharge / sustainedEps));
+            } else {
+                return Infinity;
+            }
+        }),
         types: {
             abs: moduleMeanEnabled(
                 hardpoints,
@@ -107,40 +123,6 @@ function calculateDamageProfile(
             ),
         },
     };
-}
-
-function setTimesToDrain<T extends IDamageMetrics>(
-    damageMetrics: T,
-    ship: Ship,
-    modified?: boolean,
-): T {
-    const pd = ship.getPowerDistributor();
-    const { eps } = damageMetrics;
-    const wepCap = pd.get('weaponscapacity', modified);
-    const wepRecharge = pd.get('weaponsrecharge', modified);
-    damageMetrics.timeToDrain = range(0, 4.5, 0.5).map((wepPips) => {
-        const effectiveRecharge = wepRecharge * PD_RECHARGE_MAP[wepPips];
-        if (effectiveRecharge < eps) {
-            const timeToDrainCap = wepCap / eps;
-            // This formula is the limit of the geometric series
-            // https://en.wikipedia.org/wiki/Geometric_series
-            return timeToDrainCap / (1 - (effectiveRecharge / eps));
-        } else {
-            return Infinity;
-        }
-    });
-    return damageMetrics;
-}
-
-export function getDamageProfile(
-    ship: Ship,
-    modified: boolean,
-): IDamageProfile {
-    const hardpoints = ship.getHardpoints();
-    let profile = calculateDamageProfile(hardpoints, modified);
-    profile = setTimesToDrain(profile, ship, modified);
-    setTimesToDrain(profile.sustained, ship, modified);
-    return profile;
 }
 
 export function getDps(ship: Ship, modified: boolean): number {

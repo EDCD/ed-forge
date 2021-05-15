@@ -100,7 +100,6 @@ export default class AbstractOpponent implements IOpponent {
             dps: 0,
             eps: 1,
             hps: 1,
-            timeToDrain: [],
         },
         timeToDrain: [],
         types: {
