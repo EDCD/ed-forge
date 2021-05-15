@@ -91,7 +91,6 @@ const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = mergeWit
     CONST_STATS,
     {
         ammototal: { getter: AMMO_TOTAL },
-        armourpenetration: { method: 'multiplicative' },
         burstintervall: {
             getter: getReciprocal('burstrateoffire'),
         },
@@ -124,8 +123,8 @@ const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = mergeWit
             importer: importEff.bind(undefined, 'kinetic'),
         },
         rateoffire: { getter: ROF, importer: importROF },
-        // Shield generator maximal mass is not modified with optimal mass, although
-        // engine maximal mass is.
+        // Shield generator maximal mass is not modified with optimal mass,
+        // although engine maximal mass is.
         shieldgenmaxstrength: {
             getter: useOptModifier.bind(undefined, 'shieldgenmaxstrength', 'shieldgenstrength'),
         },
