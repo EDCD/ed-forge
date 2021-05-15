@@ -100,6 +100,21 @@ const MODULE_STATS: { [property: string]: IModulePropertyDescriptor } = mergeWit
         },
         damageperenergy: { getter: DPE },
         damagepersecond: { getter: DPS },
+        effectiveenginesrecharge: {
+            getter: EFFECTIVE_ENG_RATE,
+            higherbetter: true,
+            unit: 'MW',
+        },
+        effectivesystemsrecharge: {
+            getter: EFFECTIVE_SYS_RATE,
+            higherbetter: true,
+            unit: 'MW',
+        },
+        effectiveweaponsrecharge: {
+            getter: EFFECTIVE_WEP_RATE,
+            higherbetter: true,
+            unit: 'MW',
+        },
         energypersecond: { getter: EPS },
         enginemaximalmass: {
             getter: useOptModifier.bind(undefined, 'enginemaximalmass', 'engineoptimalmass'),
