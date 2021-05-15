@@ -78,22 +78,22 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
         eps: moduleSumEnabled(hardpoints, 'energypersecond', modified),
         hps: moduleSumEnabled(hardpoints, 'heatpersecond', modified),
         types: {
-            abs: moduleMeanEnabled(
+            abs: moduleSumEnabled(
                 hardpoints,
                 weighedPortion.bind(undefined, 'absolutedamageportion', dps),
                 modified,
             ),
-            expl: moduleMeanEnabled(
+            expl: moduleSumEnabled(
                 hardpoints,
                 weighedPortion.bind(undefined, 'explosivedamageportion', dps),
                 modified,
             ),
-            kin: moduleMeanEnabled(
+            kin: moduleSumEnabled(
                 hardpoints,
                 weighedPortion.bind(undefined, 'kineticdamageportion', dps),
                 modified,
             ),
-            therm: moduleMeanEnabled(
+            therm: moduleSumEnabled(
                 hardpoints,
                 weighedPortion.bind(undefined, 'thermicdamageportion', dps),
                 modified,
@@ -119,22 +119,22 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
             modified,
         ),
         types: {
-            abs: moduleMeanEnabled(
+            abs: moduleSumEnabled(
                 hardpoints,
                 weighedPortion.bind(undefined, 'absolutedamageportion', sdps),
                 modified,
             ),
-            expl: moduleMeanEnabled(
+            expl: moduleSumEnabled(
                 hardpoints,
                 weighedPortion.bind(undefined, 'explosivedamageportion', sdps),
                 modified,
             ),
-            kin: moduleMeanEnabled(
+            kin: moduleSumEnabled(
                 hardpoints,
                 weighedPortion.bind(undefined, 'kineticdamageportion', sdps),
                 modified,
             ),
-            therm: moduleMeanEnabled(
+            therm: moduleSumEnabled(
                 hardpoints,
                 weighedPortion.bind(undefined, 'thermicdamageportion', sdps),
                 modified,
@@ -176,22 +176,22 @@ export function getDamageProfile(ship: Ship, modified: boolean): IDamageProfile 
                 modified,
             ),
             types: {
-                abs: moduleMeanEnabled(
+                abs: moduleSumEnabled(
                     firingModules,
                     weighedPortion.bind(undefined, 'absolutedamageportion', drainedDps),
                     modified,
                 ),
-                expl: moduleMeanEnabled(
+                expl: moduleSumEnabled(
                     firingModules,
                     weighedPortion.bind(undefined, 'explosivedamageportion', drainedDps),
                     modified,
                 ),
-                kin: moduleMeanEnabled(
+                kin: moduleSumEnabled(
                     firingModules,
                     weighedPortion.bind(undefined, 'kineticdamageportion', drainedDps),
                     modified,
                 ),
-                therm: moduleMeanEnabled(
+                therm: moduleSumEnabled(
                     firingModules,
                     weighedPortion.bind(undefined, 'thermicdamageportion', drainedDps),
                     modified,
