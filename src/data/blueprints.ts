@@ -276,3 +276,11 @@ export function canApplyExperimental(
 ): boolean {
     return getModuleTypeInfo(item).applicable_specials.includes(experimental);
 }
+
+export function getUuid(blueprint: string, grade: number): string {
+    grade = Math.round(grade);
+    if (grade < 1 || 5 < grade) {
+        throw new UnknownRestrictedError('Grade must be in range 1-5');
+    }
+    return BLUEPRINTS[assertValidBlueprint(blueprint)].uuids[grade];
+}

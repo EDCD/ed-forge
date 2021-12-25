@@ -523,6 +523,7 @@ function consumeBlueprint(head) {
     key = key.toLowerCase();
     let name = blueprintObject['fdname'].toLowerCase();
     let features = {};
+    let uuids = {};
     let appliesTo = BLUEPRINTS_TO_MODULES[key];
     if (!appliesTo) {
         return; // This can happen for blueprints that by now have been removed,
@@ -531,6 +532,7 @@ function consumeBlueprint(head) {
     let mapper = modulePropsMapper(appliesTo[0]); // assume for is uniform
     let grades = _.keys(blueprintObject['grades']);
     for (let grade of grades) {
+        let { uuid } = blueprintObject['grades'][grade];
         let gradeFeatures = _.chain(blueprintObject['grades'][grade]['features'])
             .mapKeys(mapper)
             .mapValues(([min, max]) => { return { min, max } })
@@ -552,6 +554,7 @@ function consumeBlueprint(head) {
         }
 
         features[grade] = gradeFeatures;
+        uuids[grade] = uuid;
     }
 
     // ed-forge handles long range weapons differently
@@ -566,7 +569,9 @@ function consumeBlueprint(head) {
         // coriolis; we handle those differently
         exceptions.push({ key, name, features, appliesTo });
     } else {
-        BLUEPRINTS[name] = { features, appliesTo };
+        // ED Engineer uuid; we assume that exceptions share their uuid with the
+        // "base" blueprint. Hence, we only include them in this branch.
+        BLUEPRINTS[name] = { features, appliesTo, uuids };
     }
 }
 
