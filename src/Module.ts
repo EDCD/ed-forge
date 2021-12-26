@@ -220,7 +220,9 @@ export default class Module extends DiffEmitter {
         if (object.Engineering) {
             const importLater = [];
             const synthetics: IPropertyMap = {};
-            for (const modifier of object.Engineering.Modifiers) {
+            const modifiers = object.Engineering.Modifiers;
+            this.object.Engineering.Modifiers = {};
+            for (const modifier of modifiers) {
                 const label = modifier.Label.toLowerCase();
                 const stats = MODULE_STATS[label];
                 if (stats) {
