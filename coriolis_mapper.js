@@ -688,11 +688,13 @@ function consumeExperimental(head) {
     }
 
     features = _.mapValues(features, val => { return { 'min': val, 'max': val } } );
-    const { fdname } = Modifications.specials[key];
+    const { fdname, uuid } = Modifications.specials[key];
     if (key !== fdname) {
         experimentalExceptions.push({ key, fdname, features, appliesTo })
     } else {
-        EXPERIMENTALS[name] = { features, appliesTo };
+        // ED Engineer uuid; we assume that exceptions share their uuid with the
+        // "base" blueprint. Hence, we only include them in this branch.
+        EXPERIMENTALS[name] = { features, appliesTo, uuid };
     }
 }
 
