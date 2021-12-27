@@ -230,8 +230,12 @@ module.exports.PROP_CORIOLIS_TO_FD = {
             'val': 'thermalload'
         },
         {
-            'for': /^Int_/i,
+            'for': /^Int_ShieldCellBank/i,
             'val': 'shieldbankheat'
+        },
+        {
+            'for': /^Int_Engine/i,
+            'val': 'engineheatrate',
         },
     ],
     'thermres': 'thermicresistance',
