@@ -66,11 +66,11 @@ class Factory {
      */
     public static getModuleId(
         group: string,
-        clazz: string = '',
+        clazz: string | number = '',
         rating: string = '',
     ): string {
         group = group.toLowerCase();
-        clazz = clazz.toLowerCase();
+        clazz = typeof clazz === 'number' ? String(clazz) : clazz.toLowerCase();
         rating = rating.toLowerCase();
         const item = readModuleCache(group, clazz, rating);
         if (!item) {

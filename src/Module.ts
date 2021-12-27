@@ -788,7 +788,7 @@ export default class Module extends DiffEmitter {
      * @param clazz
      * @param rating
      */
-    public setItem(item: string, clazz: string = '', rating: string = '') {
+    public setItem(item: string, clazz: string | number = '', rating: string = '') {
         try {
             item = Factory.getModuleId(item, clazz, rating);
             // Don't handle errors as item might not have been a type to begin
