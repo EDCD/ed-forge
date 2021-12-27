@@ -1,14 +1,20 @@
 
-import { Ship } from '..';
-import { assertValidSlot } from '../lib/data/slots';
-import { matchesAny } from '../lib/helper';
+import { Ship } from '../src';
+import { assertValidSlot } from '../src/data/slots';
+import { TestSuites } from './types';
 
-function prec(grade, number) {
+/**
+ * Round a number to `grade` decimal points.
+ * @param grade How many decimal points to round to?
+ * @param number Number to round
+ * @returns Rounded number
+ */
+function prec(grade: number, number: number): number {
     let base = Math.pow(10, grade);
     return Math.round(number * base) / base;
 }
 
-for (let { name, build } of TEST_SUITES) {
+for (let { name, build } of (global as any).TEST_SUITES as TestSuites) {
     describe(`Blueprint recreation for ${name}`, () => {
         let ship = new Ship(build);
 

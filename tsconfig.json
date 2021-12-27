@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "ES2015",
         "module": "commonjs",
         "lib": ["es2017", "dom"],
         "declaration": true,
@@ -12,6 +12,5 @@
         "esModuleInterop": true,
         "inlineSourceMap": true
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules", "lib"]
 }

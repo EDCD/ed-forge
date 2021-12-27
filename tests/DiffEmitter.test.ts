@@ -1,5 +1,5 @@
 
-import DiffEmitter from '../lib/helper/DiffEmitter';
+import DiffEmitter from '../src/helper/DiffEmitter';
 import { set, cloneDeep } from 'lodash';
 
 const TYPE = 'event';
@@ -15,7 +15,7 @@ beforeEach(() => {
     e.addListener(TYPE, cb);
 });
 
-function applyChanges(changes) {
+function applyChanges(changes: [string, any][]) {
     for (let change of changes) {
         e._prepare(TYPE, change[0]);
         set(o, ...change);

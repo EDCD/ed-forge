@@ -1,7 +1,8 @@
 {
   "name": "ed-forge",
   "version": "1.4.0",
-  "main": "lib/index.js",
+  "main": "lib/src/index.js",
+  "typings": "lib/src/index.d.ts",
   "repository": "git@github.com:felixlinker/ed-forge.git",
   "author": "felixlinker <linkerfelix@gmail.com>",
   "license": "MIT",
@@ -15,7 +16,8 @@
     }
   },
   "jest": {
-    "testEnvironment": "./tests/environment.js",
+    "testEnvironment": "./tests/environment.ts",
+    "testPathIgnorePatterns": ["/lib/", "/node_modules/"],
     "testEnvironmentOptions": {
       "suites": [
         {
@@ -35,7 +37,8 @@
           "build": "./tests/fixtures/krait.json"
         }
       ]
-    }
+    },
+    "preset": "ts-jest"
   },
   "scripts": {
     "build": "node coriolis_mapper.js && npm run build_light",
@@ -61,12 +64,14 @@
     "@babel/preset-env": "^7.1.0",
     "@types/auto-bind": "^1.2.0",
     "@types/babel__core": "^7.0.4",
+    "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.118",
     "@types/node": "^10.12.18",
     "@types/pako": "^1.0.0",
     "jest": "^27.4.5",
     "np": "^7.6.0",
     "npm-watch": "^0.11.0",
+    "ts-jest": "^27.1.2",
     "tslint": "^5.20.0",
     "typedoc": "^0.22.10",
     "typedoc-plugin-external-module-name": "^2.0.0",

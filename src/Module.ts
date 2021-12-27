@@ -178,6 +178,8 @@ export interface IModifierObject {
     Label: string;
     /** Modified property value */
     Value: number;
+    /** Original property of the module */
+    OriginalValue?: number;
     /**
      * Change-rate of the value in comparison to base-property. In case the
      * value is undefined, it has only not been calculated yet - the property

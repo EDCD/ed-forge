@@ -1,21 +1,21 @@
-import { Factory, Ship } from "../../lib";
-import { TYPES } from "../../lib/data/slots";
+import { Factory, Ship } from "../../src";
+import { TYPES } from "../../src/data/slots";
+import { BitVec } from "../../src/types";
 
-let ship;
+let ship: Ship;
 
 describe('can\'t set certain modules twice', () => {
     beforeEach(() => {
         // Set up a clean ship and get rid of its internals because these might
         // throw when other modules get added
         ship = Factory.newShip('anaconda');
-        ship.getInternals().map(internal => internal.reset());
+        ship.getInternals().forEach(internal => internal.reset());
     });
 
-    function testSetTwice(typeAndSize, slotsGetter) {
+    function testSetTwice(typeAndSize: [string, string], slotType: BitVec) {
         let [type, size] = typeAndSize;
         test(type, () => {
-            let [ firstSlot, secondSlot ] = slotsGetter.call(ship, undefined, true)
-                .filter(m => !m.isOnSlot(TYPES.MILITARY) && m.getSize() >= Number(size));
+            let [ firstSlot, secondSlot ] = ship.getModules(slotType, undefined, true);
             firstSlot.setItem(type, size, '1');
             expect(() => {
                 secondSlot.setItem(type, size, '1');
@@ -23,14 +23,14 @@ describe('can\'t set certain modules twice', () => {
         });
     }
 
-    [
+    ([
         ['ShieldGen', '4'], ['FuelScoop', '4'], ['SurfaceScanner', ''],
         ['FSDInterdictor', '4'], ['Refinery', '4'], ['DockingComputer', ''],
         ['SuperCruiseAssist', ''], ['FSDBooster', '4'], ['FighterBay', '5']
-    ].map(typeAndSize => testSetTwice(typeAndSize, Ship.prototype.getInternals));
+    ] as [string, string][]).map(typeAndSize => testSetTwice(typeAndSize, TYPES.INTERNAL));
 
-    [
+    ([
         ['KillWarrantScanner', ''], ['WakeScanner', ''], ['XenoScanner', ''],
         ['PulseWaveAnalyzer', ''], ['ManifestScanner', '']
-    ].map(typeAndSize => testSetTwice(typeAndSize, Ship.prototype.getUtilities));
+    ] as [string, string][]).map(typeAndSize => testSetTwice(typeAndSize, TYPES.UTILITY));
 });

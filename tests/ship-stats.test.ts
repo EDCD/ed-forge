@@ -1,11 +1,12 @@
-import { Ship, ShipProps } from '..';
+import { Ship, ShipProps } from '../src';
+import { TestSuites } from './types';
 
-function checkMonotonic(aggr, v) {
+function checkMonotonic(aggr: [number, boolean], v: number): [number, boolean] {
     const [lastV, monotonic] = aggr;
     return [v, monotonic && lastV <= v];
 }
 
-for (let { name, build } of TEST_SUITES) {
+for (let { name, build } of (global as any).TEST_SUITES as TestSuites) {
     describe(`Ship stats for ${name}`, () => {
 
         let ship;

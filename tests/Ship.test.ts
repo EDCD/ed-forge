@@ -1,7 +1,7 @@
 
-import { Ship } from '..';
-import { assertValidSlot } from '../lib/data/slots';
-import { matchesAny, mapValuesDeep } from '../lib/helper';
+import { Ship } from '../src';
+import { assertValidSlot } from '../src/data/slots';
+import { matchesAny, mapValuesDeep } from '../src/helper';
 import { clone, pickBy, values } from 'lodash';
 
 const REG_CORE_SLOT = /(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)/i;
@@ -9,19 +9,21 @@ const REG_INTERNAL_SLOT = /Slot(\d{2})_Size(\d)/i;
 const REG_HARDPOINT_SLOT = /(Small|Medium|Large|Huge)Hardpoint/i;
 const REG_UTILITY_SLOT = /TinyHardpoint(\d)/i;
 
-import * as SHIPS from '../lib/data/ships.json';
+import SHIPS from '../src/data/ships.json';
+import { ShipInfo } from '../src/types';
+import { TestSuites } from './types';
 
-function randomString(length = -1) {
+function randomString(length = -1): string {
     let str = String(Math.round(Number.MAX_SAFE_INTEGER * Math.random()));
     let strLen = length >= 0 ? Math.floor(Math.random() * length) : str.length;
     return str.substring(0, strLen);
 }
 
-function prec3(number) {
+function prec3(number: number): number {
     return Math.round(number * 1000) / 1000;
 }
 
-for (let { name, build } of TEST_SUITES) {
+for (let { name, build } of (global as any).TEST_SUITES as TestSuites) {
     describe(`Ship recreation for ${name}`, () => {
         let ship;
         beforeEach(() => {
@@ -206,7 +208,7 @@ for (let { name, build } of TEST_SUITES) {
 
 const HANGAR = 'int_fighterbay_size5_class1';
 describe('Adding SLF hangars', () => {
-    for (let shipDescriptor of values(SHIPS.default)) {
+    for (let shipDescriptor of values(SHIPS) as ShipInfo[]) {
         if (shipDescriptor.meta.fighterHangars) {
             test(`Can equip a SLF on ${shipDescriptor.proto.Ship}`, () => {
                 let ship = new Ship(shipDescriptor.proto);
@@ -234,7 +236,7 @@ describe('Adding SLF hangars', () => {
 
 const LUXURY = 'int_passengercabin_size5_class4';
 describe('Adding luxury cabins', () => {
-    for (let shipDescriptor of values(SHIPS.default)) {
+    for (let shipDescriptor of values(SHIPS) as ShipInfo[]) {
         if (shipDescriptor.meta.luxuryCabins) {
             test(`Can equip luxury cabins on ${shipDescriptor.proto.Ship}`, () => {
                 let ship = new Ship(shipDescriptor.proto);
