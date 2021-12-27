@@ -970,7 +970,7 @@ export default class Module extends DiffEmitter {
     public getClassRating(): string | null {
         const clazz = this.getClass();
         const rating = this.getRating();
-        if (!clazz || !rating) {
+        if (clazz === undefined || rating === undefined) {
             return null;
         }
         return String(clazz) + rating;
