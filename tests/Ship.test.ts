@@ -37,7 +37,7 @@ for (let { name, build } of (global as any).TEST_SUITES as TestSuites) {
         describe('modules are imported with correct items', () => {
             for (let module of build.Modules) {
                 let slot = module.Slot;
-                try { assertValidSlot(slot) } catch {
+                try { assertValidSlot(build.Ship, slot) } catch {
                     continue;
                 }
                 test(`Slot ${slot} has the right item`, () => {

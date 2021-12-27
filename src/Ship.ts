@@ -169,7 +169,7 @@ export default class Ship extends DiffEmitter implements IOpponent {
         modules.forEach((m) => {
             const slot = m.Slot.toLowerCase();
             try {
-                assertValidSlot(slot);
+                assertValidSlot(this.object.Ship, slot);
             } catch {
                 this.liveryModules.push(clone(m));
                 return;

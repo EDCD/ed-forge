@@ -1026,14 +1026,18 @@ export default class Module extends DiffEmitter {
         }
     }
 
+    public getSize(): string {
+        return this.object.Slot.getSize();
+    }
+
     /**
      * Returns the size of the slot of this module. Size of utility slots and
      * bulkheads is always zero. Size of hardpoint slots is in range 1 to 4 for
      * small to huge.
      * @returns Size
      */
-    public getSize(): number {
-        return this.object.Slot.getSize();
+    public getSizeNum(): number {
+        return this.object.Slot.getSizeNum();
     }
 
     /**

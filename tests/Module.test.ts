@@ -22,7 +22,7 @@ for (let { name, build } of (global as any).TEST_SUITES as TestSuites) {
             let module = ship.getModule(Slot);
 
             try {
-                assertValidSlot(Slot);
+                assertValidSlot(ship.object.Ship, Slot);
             } catch {
                 // This will happen for livery modules, etc.
                 continue;

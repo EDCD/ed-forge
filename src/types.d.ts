@@ -91,9 +91,9 @@ export interface ShipMetaInfo {
     /** Crew seats including helm */
     crew: number;
     /** Map from core slots to respective size */
-    coreSizes: { [key: string]: number };
+    coreSizes: { [key: string]: string };
     /** Map from military slots to respective sizes */
-    militarySizes: { [key: string]: number };
+    militarySizes: { [key: string]: string };
     /** Present and true if the ship supports luxury passenger cabins */
     luxuryCabins?: boolean;
     /** Present and true if the ship supports SLF hangars */

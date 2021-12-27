@@ -6,9 +6,9 @@
  * Ignore
  */
 import autoBind from 'auto-bind';
-import { UnknownRestrictedError } from '../errors';
+import { IllegalStateError, UnknownRestrictedError } from '../errors';
 import { BitVec } from '../types';
-import { getShipInfo } from './ships';
+import { assertValidShip, getShipInfo } from './ships';
 import {
     ARMOUR, CARGO_HATCH, ENGINES, FSD, FUEL_TANK, HARDPOINT, INTERNAL,
     LIFE_SUPPORT, MILITARY, POWERPLANT, POWER_DISTRIBUTOR, SENSORS, UTILITY,
@@ -24,12 +24,84 @@ export const TYPES = {
     UTILITY,
 };
 
-function assertValidSlotType(slot: string): BitVec {
-    const type = getSlotType(slot);
-    if (type === undefined) {
-        throw new UnknownRestrictedError(`Don't know slot ${slot}`);
+export enum SIZES {
+    SIZE0 = '0',
+    SIZE1 = '1',
+    SIZE2 = '2',
+    SIZE3 = '3',
+    SIZE4 = '4',
+    SIZE5 = '5',
+    SIZE6 = '6',
+    SIZE7 = '7',
+    SIZE8 = '8',
+    SMALL = 'small',
+    MEDIUM = 'medium',
+    LARGE = 'large',
+    HUGE = 'huge',
+}
+
+const HPT_SIZES = {
+    [SIZES.SMALL]: 1,
+    [SIZES.MEDIUM]: 2,
+    [SIZES.LARGE]: 3,
+    [SIZES.HUGE]: 4,
+};
+
+const REG_INTERNAL_SLOT = /Slot\d{2}_Size(\d)/i;
+
+/**
+ *
+ * @param slot Slot to check
+ * @returns Type of slot if valid and possible size string
+ */
+function assertValidSlotType(ship: string, slot: string): { type: BitVec, size?: SIZES } {
+    ship = assertValidShip(ship);
+    let type;
+    if (slot.match(/Armour/i)) {
+        type = ARMOUR;
+    } else if (slot.match(/PowerPlant/i)) {
+        type = POWERPLANT;
+    } else if (slot.match(/MainEngines/i)) {
+        type = ENGINES;
+    } else if (slot.match(/FrameShiftDrive/i)) {
+        type = FSD;
+    } else if (slot.match(/LifeSupport/i)) {
+        type = LIFE_SUPPORT;
+    } else if (slot.match(/PowerDistributor/i)) {
+        type = POWER_DISTRIBUTOR;
+    } else if (slot.match(/Radar/i)) {
+        type = SENSORS ;
+    } else if (slot.match(/FuelTank/i)) {
+        type = FUEL_TANK;
     }
-    return type;
+
+    if (type) {
+        return { type, size: getShipInfo(ship).meta.coreSizes[slot] as SIZES };
+    }
+
+    let m = slot.match(REG_INTERNAL_SLOT);
+    if (m) {
+        return { type: INTERNAL, size: m[1] as SIZES };
+    }
+
+    if (slot.match(/Military(\d{2})/i)) {
+        return { type: MILITARY, size: getShipInfo(ship).meta.militarySizes[slot] as SIZES };
+    }
+
+    m = slot.match(/(Small|Medium|Large|Huge)Hardpoint/i);
+    if (m) {
+        return { type: HARDPOINT, size: m[1].toLowerCase() as SIZES };
+    }
+
+    if (slot.match(/TinyHardpoint(\d)/i)) {
+        return { type: UTILITY, size: SIZES.SIZE0 };
+    }
+    if (slot.match(/CargoHatch/i)) {
+        return { type: CARGO_HATCH, size: SIZES.SIZE1 };
+    }
+
+    // If we're still here, type is invalid
+    throw new UnknownRestrictedError(`Don't know slot ${slot}`);
 }
 
 /**
@@ -37,95 +109,9 @@ function assertValidSlotType(slot: string): BitVec {
  * @param slot Slot ID
  * @returns Lowercase slot ID
  */
-export function assertValidSlot(slot: string): string {
-    assertValidSlotType(slot);
+export function assertValidSlot(ship: string, slot: string): string {
+    assertValidSlotType(ship, slot);
     return slot.toLowerCase();
-}
-
-const REG_INTERNAL_SLOT = /Slot(\d{2})_Size(\d)/i;
-
-function getSlotType(slot: string): BitVec {
-    if (slot.match(/Armour/i)) {
-        return ARMOUR;
-    } else if (slot.match(/PowerPlant/i)) {
-        return POWERPLANT;
-    } else if (slot.match(/MainEngines/i)) {
-        return ENGINES;
-    } else if (slot.match(/FrameShiftDrive/i)) {
-        return FSD;
-    } else if (slot.match(/LifeSupport/i)) {
-        return LIFE_SUPPORT;
-    } else if (slot.match(/PowerDistributor/i)) {
-        return POWER_DISTRIBUTOR;
-    } else if (slot.match(/Radar/i)) {
-        return SENSORS;
-    } else if (slot.match(/FuelTank/i)) {
-        return FUEL_TANK;
-    } else if (slot.match(REG_INTERNAL_SLOT)) {
-        return INTERNAL;
-    } else if (slot.match(/Military(\d{2})/i)) {
-        return MILITARY;
-    } else if (slot.match(/(Small|Medium|Large|Huge)Hardpoint/i)) {
-        return HARDPOINT;
-    } else if (slot.match(/TinyHardpoint(\d)/i)) {
-        return UTILITY;
-    } else if (slot.match(/CargoHatch/i)) {
-        return CARGO_HATCH;
-    } else {
-        return undefined;
-    }
-}
-
-/**
- * Returns the size of a core slot of a given ship.
- * @param ship Ship ID
- * @param slot Slot ID
- * @returns Core slot size
- */
-function getCoreSlotSize(ship: string, slot: string): number {
-    return getShipInfo(ship).meta.coreSizes[slot];
-}
-
-/**
- * Returns the size of a given military slot.
- * @param ship Ship ID
- * @param slot Slot ID
- * @returns Military slot size
- */
-function getMilitarySlotSize(ship: string, slot: string): number {
-    return getShipInfo(ship).meta.militarySizes[slot];
-}
-
-/**
- * Returns the size of an internal slot.
- * @param slot Slot ID
- * @returns Internal slot size
- */
-function getInternalSlotSize(slot: string): number {
-    const m = slot.match(REG_INTERNAL_SLOT);
-    if (m) {
-        return Number(m[2]);
-    }
-}
-
-/**
- * Returns the size of a hardpoint slot from 1 to 4 where 1 is the size of a
- * small and 4 is the size of a huge hardpoint.
- * @param slot Slot ID
- * @returns Hardpoint slot size
- */
-function getHardpointSlotSize(slot: string): number {
-    if (slot.match(/Tiny/i)) {
-        return 0;
-    } else if (slot.match(/Small/i)) {
-        return 1;
-    } else if (slot.match(/Medium/i)) {
-        return 2;
-    } else if (slot.match(/Large/i)) {
-        return 3;
-    } else if (slot.match(/Huge/i)) {
-        return 4;
-    }
 }
 
 /**
@@ -134,43 +120,36 @@ function getHardpointSlotSize(slot: string): number {
  * @param slot Slot ID
  * @returns Slot size
  */
-function getSlotSize(ship: string, slot: string): number {
-    if (slot.match(/CargoHatch/i)) {
-        return 1;
+function sizeStrToNum(size: SIZES): number {
+    const sizeNumber = Number(size);
+    if (isNaN(sizeNumber)) {
+        return HPT_SIZES[size];
+    } else {
+        return sizeNumber;
     }
-
-    let slotSize = getCoreSlotSize(ship, slot);
-    if (slotSize !== undefined) {
-        return slotSize;
-    }
-
-    slotSize = getHardpointSlotSize(slot);
-    if (slotSize !== undefined) {
-        return slotSize;
-    }
-
-    slotSize = getMilitarySlotSize(ship, slot);
-    if (slotSize !== undefined) {
-        return slotSize;
-    }
-
-    return getInternalSlotSize(slot);
 }
 
 export class Slot {
     private type: BitVec;
-    private size: number;
+    private size: string;
+    private sizeNum: number;
     private slot: string;
 
     constructor(ship: string, slot: string) {
         autoBind(this);
         this.slot = slot.toLowerCase();
-        this.type = assertValidSlotType(slot);
-        this.size = getSlotSize(ship, slot);
+        const { type, size } = assertValidSlotType(ship, slot);
+        this.type = type;
+        this.size = size;
+        this.sizeNum = sizeStrToNum(size);
     }
 
-    public getSize(): number {
+    public getSize(): string {
         return this.size;
+    }
+
+    public getSizeNum(): number {
+        return this.sizeNum;
     }
 
     public is(check: BitVec | string | RegExp): boolean {

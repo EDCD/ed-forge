@@ -100,9 +100,9 @@ export function itemFitsSlot(
 
     // Does the item fit on this slot?
     if (type === 'lifesupport' || type === 'sensors') {
-        return slot.getSize() === getClass(item);
+        return slot.getSizeNum() === getClass(item);
     } else {
-        return slot.getSize() >= getClass(item);
+        return slot.getSizeNum() >= getClass(item);
     }
 }
 

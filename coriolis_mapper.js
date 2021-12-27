@@ -414,7 +414,7 @@ function consumeShip(entry) {
     _.assign(j.meta, _.pick(ship.properties, META_KEYS));
 
     // Save the size of the core slots as meta data
-    j.meta.coreSizes = { armour: 0, };
+    j.meta.coreSizes = { armour: '0', };
     j.meta.militarySizes = {};
 
     // Give lightweight armour to ship
@@ -431,7 +431,7 @@ function consumeShip(entry) {
     // Add core slots with default modules
     CORE_SLOTS.forEach((slot, i) => {
         slot = slot.toLowerCase();
-        j.meta.coreSizes[slot] = ship.slots.standard[i];
+        j.meta.coreSizes[slot] = String(ship.slots.standard[i]);
 
         let defaultType = ship.defaults.standard[i]; // is of form /\d\w/
         let size = defaultType[0];
@@ -451,7 +451,7 @@ function consumeShip(entry) {
         if (typeof internal === 'object' && internal.name === 'Military') {
             militaryCounter++;
             key = `Military${leadingZero(militaryCounter)}`;
-            j.meta.militarySizes[key.toLowerCase()] = internal.class;
+            j.meta.militarySizes[key.toLowerCase()] = String(internal.class);
         } else {
             let slotNumber = i + 1;         // slot numbers are 1 indexed
             slotNumber -= slotIndexOffset;  // ... unless you're the type 9
