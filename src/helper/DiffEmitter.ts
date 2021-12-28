@@ -97,7 +97,7 @@ export default class DiffEmitter extends EventEmitter {
         this.types[type].muted -= by;
     }
 
-    public tryWhileMuted(type: string, cb: () => any): any {
+    public tryWhileMuted<T>(type: string, cb: () => T): T {
         this.types[type].muted = 0;
         const ret = cb();
         this.revert(type, this.types[type].muted);

@@ -1059,7 +1059,7 @@ export default class Module extends DiffEmitter {
      *
      * @param cb
      */
-    public try(cb: () => any): any {
+    public try<T>(cb: () => T): T {
         return this.tryWhileMuted(DIFF_EVENT, cb);
     }
 
