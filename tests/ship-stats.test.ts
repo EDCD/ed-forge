@@ -15,16 +15,19 @@ for (let { name, build } of (global as any).TEST_SUITES as TestSuites) {
         });
 
         test('can calculate mass', () => {
-            const { UNLADEN_MASS, LADEN_MASS, MAXIMUM_MASS } = ShipProps;
+            const { MINIMUM_MASS, UNLADEN_MASS, LADEN_MASS, CURRENT_MASS } = ShipProps;
+            expect(ship.get(MINIMUM_MASS)).not.toBeNaN();
             expect(ship.get(UNLADEN_MASS)).not.toBeNaN();
             expect(ship.get(LADEN_MASS)).not.toBeNaN();
-            expect(ship.get(MAXIMUM_MASS)).not.toBeNaN();
+            expect(ship.get(CURRENT_MASS)).not.toBeNaN();
         });
 
         test('can calculate fuel/cargo capacity', () => {
-            const { CARGO_CAPACITY, FUEL_CAPACITY } = ShipProps;
+            const { CARGO_CAPACITY, FUEL_CAPACITY, FUEL, FUEL_MAX } = ShipProps;
             expect(ship.get(CARGO_CAPACITY)).not.toBeNaN();
             expect(ship.get(FUEL_CAPACITY)).not.toBeNaN();
+            expect(ship.get(FUEL)).not.toBeNaN();
+            expect(ship.get(FUEL_MAX)).not.toBeNaN();
         });
 
         test('can calculate cost', () => {

@@ -17,16 +17,17 @@ import * as Speed from './stats/SpeedProfile';
 
 import { getCargo, getCargoCapacity } from './stats/Cargo';
 import { getCost, getRefuelCost } from './stats/Cost';
-import { getFuel, getFuelCapacity } from './stats/Fuel';
-import { getLadenMass, getMaximumMass, getUnladenMass } from './stats/Mass';
+import { getFuel, getFuelCapacity, getMaxFuel } from './stats/Fuel';
+import { getCurrentMass, getLadenMass, getMinimumMass, getUnladenMass } from './stats/Mass';
 import { getPassengerCapacity } from './stats/PassengerCapacity';
 
 export type ShipPropertyCalculator = (ship: Ship, modified?: boolean) => number;
 
 export type ShipMetricsCalculator<T> = (ship: Ship, modified?: boolean) => T;
 
+export const MINIMUM_MASS: ShipPropertyCalculator = getMinimumMass;
+export const CURRENT_MASS: ShipPropertyCalculator = getCurrentMass;
 export const LADEN_MASS: ShipPropertyCalculator = getLadenMass;
-export const MAXIMUM_MASS: ShipPropertyCalculator = getMaximumMass;
 export const UNLADEN_MASS: ShipPropertyCalculator = getUnladenMass;
 
 export const CARGO: ShipPropertyCalculator = getCargo;
@@ -38,6 +39,7 @@ export const COST: ShipPropertyCalculator = getCost;
 export const REFUEL_COST: ShipPropertyCalculator = getRefuelCost;
 
 export const FUEL: ShipPropertyCalculator = getFuel;
+export const FUEL_MAX: ShipPropertyCalculator = getMaxFuel;
 export const FUEL_CAPACITY: ShipPropertyCalculator = getFuelCapacity;
 
 export const JUMP_METRICS: ShipMetricsCalculator<JumpRange.IJumpRangeMetrics> =
