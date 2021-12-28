@@ -568,9 +568,9 @@ export default class Module extends DiffEmitter {
         }
 
         const blueprint = Factory.newBlueprint(name, grade, experimental);
-        if (!canApplyBlueprint(this.object.Item, name.toLowerCase())) {
+        if (!canApplyBlueprint(this.object.Item, blueprint.BlueprintName)) {
             throw new IllegalChangeError(
-                `Can't apply ${name} to ${this.object.Item}`,
+                `Can't apply ${blueprint.BlueprintName} to ${this.object.Item}`,
             );
         }
 

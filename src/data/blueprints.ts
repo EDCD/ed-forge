@@ -14,7 +14,7 @@ import {
     FeatureObject,
     ModuleInformation,
 } from '../types';
-import { getModuleInfo, getModuleProperty, getModuleTypeInfo } from './items';
+import { getModuleInfo, getModuleTypeInfo } from './items';
 
 import BLUEPRINTS from './blueprints.json';
 import EXPERIMENTALS from './experimentals.json';
@@ -33,6 +33,10 @@ const BLUEPRINT_EXTRAS = {
     },
 };
 
+const LEGACY_NAMES = {
+    'heatsinklauncher_heatsinkcapacity': 'misc_heatsinkcapacity',
+};
+
 /**
  * Maps property names to IModifierObject for a blueprint.
  */
@@ -48,6 +52,9 @@ export interface IPropertyMap {
  */
 export function assertValidBlueprint(blueprint: string): string {
     blueprint = blueprint.toLowerCase();
+    if (LEGACY_NAMES[blueprint]) {
+        blueprint = LEGACY_NAMES[blueprint];
+    }
     if (!BLUEPRINTS[blueprint]) {
         throw new UnknownRestrictedError(`Don't know blueprint ${blueprint}`);
     }

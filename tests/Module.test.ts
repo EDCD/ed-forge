@@ -51,18 +51,18 @@ for (let { name, build } of (global as any).TEST_SUITES as TestSuites) {
                 BlueprintName, Level, Quality, ExperimentalEffect, Modifiers
             } = Engineering;
 
-            describe('Could apply blueprint', () => {
-                test(`${BlueprintName} is listed`, () => {
-                    expect(module.getApplicableBlueprints()).toContain(
-                        BlueprintName.toLowerCase(),
-                    );
+            describe('Could apply engineering', () => {
+                test(`Apply blueprint: ${BlueprintName}`, () => {
+                    expect(() => {
+                        module.setBlueprint(BlueprintName, 1, 1);
+                    }).not.toThrow();
                 });
 
                 if (ExperimentalEffect) {
-                    test(`${ExperimentalEffect} is listed`, () => {
-                        expect(module.getApplicableExperimentals()).toContain(
-                            ExperimentalEffect.toLowerCase(),
-                        );
+                    test(`Apply experimental: ${ExperimentalEffect}`, () => {
+                        expect(() => {
+                            module.setBlueprint(BlueprintName, 1, 1, ExperimentalEffect);
+                        }).not.toThrow();
                     });
                 }
             });
