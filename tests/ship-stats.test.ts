@@ -48,6 +48,7 @@ for (let { name, build } of (global as any).TEST_SUITES as TestSuites) {
             const {
                 SPEED, YAW, ROLL, PITCH,
                 BOOST_SPEED, BOOST_YAW, BOOST_ROLL, BOOST_PITCH,
+                BOOST_INTERVAL,
             } = ShipProps;
             expect(ship.get(SPEED)).not.toBeNaN();
             expect(ship.get(YAW)).not.toBeNaN();
@@ -57,6 +58,7 @@ for (let { name, build } of (global as any).TEST_SUITES as TestSuites) {
             expect(ship.get(BOOST_YAW)).not.toBeNaN();
             expect(ship.get(BOOST_ROLL)).not.toBeNaN();
             expect(ship.get(BOOST_PITCH)).not.toBeNaN();
+            expect(ship.get(BOOST_INTERVAL)).not.toBeNaN();
         });
 
         test('can calcuate shield metrics (individually)', () => {

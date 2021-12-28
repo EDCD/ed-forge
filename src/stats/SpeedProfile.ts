@@ -31,6 +31,8 @@ export interface IManeuverabilityMetrics {
 export interface ISpeedMetrics {
     /** Manuverability metrics when boosting */
     boost: IManeuverabilityMetrics;
+    /** Seconds between boosts with 4 pips to ENG. */
+    boostInterval: number;
     /**
      * Manuverability metrics for different ENG-pips settings; if `x` pips are
      * set to ENG, `pipped[x / 0.5]` holds the respective maneuverability
@@ -122,23 +124,25 @@ export function getSpeedMetrics(
         modified,
     );
 
-    let boost;
-    const canBoost =
-        ship.readProp('boostenergy') <
-        ship.getPowerDistributor().get('enginescapacity', modified);
+    let boost, boostInterval;
+    const pd = ship.getPowerDistributor();
+    const boostEnergy = ship.readProp('boostenergy');
+    const canBoost = boostEnergy < pd.get('enginescapacity', modified);
     if (canBoost) {
         boost = getManeuverabilityMetrics(
             ship,
             multipliers[8] * getBoostMultiplier(ship),
         );
+        boostInterval = boostEnergy / pd.get('enginesrecharge', modified);
     } else {
         boost = { pitch: NaN, roll: NaN, speed: NaN, yaw: NaN };
+        boostInterval = Infinity;
     }
     const pipped = multipliers.map((mult) =>
         getManeuverabilityMetrics(ship, mult),
     );
 
-    return { boost, pipped };
+    return { boost, boostInterval, pipped };
 }
 
 function getEngIndex(ship: Ship): number {
@@ -158,6 +162,10 @@ export function getSpeed(ship: Ship, modified?: boolean): number {
 
 export function getBoostSpeed(ship: Ship, modified?: boolean): number {
     return getSpeedMetrics(ship, modified).boost.speed;
+}
+
+export function getBoostInterval(ship: Ship, modified?: boolean): number {
+    return getSpeedMetrics(ship, modified).boostInterval;
 }
 
 /**

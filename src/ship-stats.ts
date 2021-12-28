@@ -51,6 +51,7 @@ export const SPEED_METRICS: ShipMetricsCalculator<Speed.ISpeedMetrics> =
     Speed.getSpeedMetrics;
 export const SPEED: ShipPropertyCalculator = Speed.getSpeed;
 export const BOOST_SPEED: ShipPropertyCalculator = Speed.getBoostSpeed;
+export const BOOST_INTERVAL: ShipPropertyCalculator = Speed.getBoostInterval;
 export const YAW: ShipPropertyCalculator = Speed.getYaw;
 export const BOOST_YAW: ShipPropertyCalculator = Speed.getBoostYaw;
 export const ROLL: ShipPropertyCalculator = Speed.getRoll;
