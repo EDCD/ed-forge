@@ -188,8 +188,9 @@ export default class Ship extends DiffEmitter implements IOpponent {
             }
         });
 
-        if (!checkInvariants(this)) {
-            throw new ImportExportError('Invalid build');
+        const invariantErr = checkInvariants(this);
+        if (invariantErr) {
+            throw invariantErr;
         }
 
         this._trackFor(this.object, OBJECT_EVENT);
@@ -823,11 +824,11 @@ export default class Ship extends DiffEmitter implements IOpponent {
         for (const diff of diffs) {
             const { path } = diff;
             if (path === 'Item') {
-                const valid = checkInvariants(this, m);
-                if (!valid) {
+                const invariantErr = checkInvariants(this, m);
+                if (invariantErr) {
                     m.revert();
                     m.clearHistory();
-                    throw new IllegalChangeError();
+                    throw invariantErr;
                 } else {
                     // If this change is alright we can also clear the history
                     m.clearHistory();

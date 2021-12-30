@@ -1,3 +1,4 @@
+import { IllegalChangeError } from '../errors';
 import Module from '../Module';
 import Ship from '../Ship';
 
@@ -9,9 +10,9 @@ import Ship from '../Ship';
  * by the change only.
  * @param ship Ship to check the invariant for
  * @param [module] Module that changed (if any)
- * @returns Does the invariant still hold?
+ * @throws `IllegalChangeError` if the property is violated.
  */
-export type Invariant = (ship: Ship, module?: Module) => boolean;
+export type Invariant = (ship: Ship, module?: Module) => void;
 
 /**
  * Returns an invariant that checks that the number of a given type of modules
@@ -27,9 +28,11 @@ function maxChecker(type: RegExp, max: number): Invariant {
         // as this module has no additional item of the constrained type the
         // number of max items is ensured.
         if (moduleChanged && !moduleChanged.itemIsOfType(type)) {
-            return true;
+            return;
         }
-        return ship.getModules(undefined, type).length <= max;
+        if (ship.getModules(undefined, type).length > max) {
+            throw new IllegalChangeError(`Too many modules of type ${type}`);
+        }
     };
 }
 
@@ -43,14 +46,13 @@ function maxChecker(type: RegExp, max: number): Invariant {
 function maxMassChecker(type: RegExp, maxMassKey: string) {
     return (ship: Ship, module: Module) => {
         if (module && !module.itemIsOfType(type)) {
-            return true;
+            return;
         }
         for (const matching of ship.getModules(undefined, type)) {
             if (matching.get(maxMassKey, true) < ship.readMeta('hullmass')) {
-                return false;
+                throw new IllegalChangeError(`Ship's hull mass exceeds ${matching.getItem()} maximum mass`);
             }
         }
-        return true;
     };
 }
 
@@ -86,17 +88,14 @@ export const INVARIANTS: Invariant[] = [
     // Check that a ship has not more than four experimental weapons
     (ship, module) => {
         if (module && !module.readMeta('experimental')) {
-            return true;
+            return;
         }
-        return (
-            4 >=
-            ship
-                .getHardpoints()
-                .reduce(
-                    (sum, m) => sum + (m.readMeta('experimental') ? 1 : 0),
-                    0,
-                )
-        );
+        if (4 < ship.getHardpoints().reduce(
+            (sum, m) => sum + (m.readMeta('experimental') ? 1 : 0),
+            0,
+        )) {
+            throw new IllegalChangeError(`Too many experimental weapons`);
+        }
     },
     // Hull mass must not exceed what thrusters are capable to handle
     maxMassChecker(/Int_Engine/i, 'enginemaximalmass'),
@@ -108,13 +107,17 @@ export const INVARIANTS: Invariant[] = [
  * Checks whether all invariants hold for the given ship.
  * @param ship Ship to check the invariant for
  * @param [module] Module that changed (if any)
- * @returns Do all invariants hold?
+ * @returns Do all invariants hold? If not, return the error.
  */
-export function checkInvariants(ship: Ship, module?: Module): boolean {
+export function checkInvariants(ship: Ship, module?: Module): IllegalChangeError {
     for (const invariant of INVARIANTS) {
-        if (!invariant(ship, module)) {
-            return false;
+        try {
+            invariant(ship, module);
+        } catch (err) {
+            if (err instanceof IllegalChangeError) {
+                return err;
+            }
         }
     }
-    return true;
+    return undefined;
 }
