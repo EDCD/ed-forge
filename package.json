@@ -17,7 +17,10 @@
   },
   "jest": {
     "testEnvironment": "./tests/environment.ts",
-    "testPathIgnorePatterns": ["/lib/", "/node_modules/"],
+    "testPathIgnorePatterns": [
+      "/lib/",
+      "/node_modules/"
+    ],
     "testEnvironmentOptions": {
       "suites": [
         {
@@ -56,6 +59,7 @@
     "i18next": "^13.0.0",
     "jsdoc": "^3.5.5",
     "lodash": "^4.17.11",
+    "lz-string": "^1.4.4",
     "pako": "^1.0.6"
   },
   "devDependencies": {

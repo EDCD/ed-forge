@@ -241,6 +241,11 @@ const MODULES = {
         },
     },
 };
+const ID_CORIOLIS_TO_FD = {
+    Core: {},
+    Internal: {},
+    Hardpoint: {},
+};
 
 const META_KEYS = [ 'eddbID', 'edID', 'class', 'rating', 'fighterHangars',
     'manufacturer', 'crew', 'retailCost', 'ukName', 'ukDiscript', 'pp',
@@ -256,7 +261,7 @@ function modulePropsPicker(value, key) {
     return !NOT_PROPS_KEYS.includes(key);
 }
 
-function consumeModule(module) {
+function consumeModule(module, group) {
     const moduleKey = module.symbol.toLowerCase();
     let path = _.chain(_.entries(MODULES_REGEX)).map(entry => {
             let [type, reg] = entry;
@@ -341,6 +346,11 @@ function consumeModule(module) {
         }
     }
 
+    // Cargo hatch has no id - it's not a module in coriolis
+    const { id } = module;
+    if (id) {
+        ID_CORIOLIS_TO_FD[group][id] = moduleKey;
+    }
     MODULES[moduleKey] = j;
     (module.symbol.match(/Hpt_/i) ? ID_TO_MODULE_HP : ID_TO_MODULE)[module.id] = j;
 }
@@ -359,16 +369,24 @@ _.chain(_.keys(Ships))
             })
             .value();
     })
-    .forEach(consumeModule)
+    .forEach((module) => consumeModule(module, 'Core'))
     .commit();
 
-_.chain([ Modules.internal, Modules.standard, Modules.hardpoints ])
-    .flatMap(_.values)  // to module groups
-    .flatMap()          // to modules
-    .forEach(consumeModule)
+_.chain(Modules.standard)
+    .flatMap(_.values)
+    .forEach((module) => consumeModule(module, 'Core'))
+    .commit();
+_.chain(Modules.internal)
+    .flatMap(_.values)
+    .forEach((module) => consumeModule(module, 'Internal'))
+    .commit();
+_.chain(Modules.hardpoints)
+    .flatMap(_.values)
+    .forEach((module) => consumeModule(module, 'Hardpoint'))
     .commit();
 
-CARGO_HATCHES.forEach(consumeModule);
+// Cargo hatch does not need a group because it is not a module in coriolis
+CARGO_HATCHES.forEach((module) => consumeModule(module));
 
 writeDataJSON('modules.json', MODULES);
 writeDataJSON('module_registry.json', MODULE_REGISTRY);
@@ -515,6 +533,8 @@ const BLUEPRINTS_TO_MODULES = _.chain(TYPES_TO_CORIOLIS_BLUEPRINTS).entries()
     .mapValues(vals => _.flatMap(vals, val => val[1]))
     .value();
 const BLUEPRINTS = {};
+const BLUEPRINT_CORIOLIS_TO_FD = {};
+const BLUEPRINT_ID_CORIOLIS_TO_FD = {};
 
 let exceptions = [];
 
@@ -567,15 +587,17 @@ function consumeBlueprint(head) {
     if (key !== name) {
         // Some blueprints are special because they implement an exception in
         // coriolis; we handle those differently
+        BLUEPRINT_CORIOLIS_TO_FD[key] = name;
         exceptions.push({ key, name, features, appliesTo });
     } else {
         // ED Engineer uuid; we assume that exceptions share their uuid with the
         // "base" blueprint. Hence, we only include them in this branch.
         BLUEPRINTS[name] = { features, appliesTo, uuids };
     }
+    BLUEPRINT_ID_CORIOLIS_TO_FD[blueprintObject.id] = name;
 }
 
-_.toPairs(Modifications.blueprints).map(consumeBlueprint);
+_.toPairs(Modifications.blueprints).forEach(consumeBlueprint);
 
 // Merge an array of exceptions into normal blueprints. Coriolis can not handle
 // exceptions in blueprints, i.e. features that only apply to a specific class
@@ -632,6 +654,8 @@ const SPECIALS_TO_MODULES = _.chain(TYPES_TO_CORIOLIS_SPECIALS).entries()
     .mapValues(vals => _.flatMap(vals, val => val[1]))
     .value();
 const EXPERIMENTALS = {};
+const EXPERIMENTAL_CORIOLIS_TO_FD = {};
+const EXPERIMENTAL_ID_CORIOLIS_TO_FD = {};
 
 let experimentalExceptions = [];
 
@@ -688,14 +712,16 @@ function consumeExperimental(head) {
     }
 
     features = _.mapValues(features, val => { return { 'min': val, 'max': val } } );
-    const { fdname, uuid } = Modifications.specials[key];
+    const { fdname, id, uuid } = Modifications.specials[key];
     if (key !== fdname) {
+        EXPERIMENTAL_CORIOLIS_TO_FD[key] = fdname;
         experimentalExceptions.push({ key, fdname, features, appliesTo })
     } else {
         // ED Engineer uuid; we assume that exceptions share their uuid with the
         // "base" blueprint. Hence, we only include them in this branch.
         EXPERIMENTALS[name] = { features, appliesTo, uuid };
     }
+    EXPERIMENTAL_ID_CORIOLIS_TO_FD[id] = fdname;
 }
 
 // Coriolis also keeps track of the legacy version of plasma slug which is not
@@ -743,3 +769,29 @@ for (let { key, fdname, features, appliesTo } of experimentalExceptions) {
 }
 
 writeDataJSON('experimentals.json', EXPERIMENTALS);
+
+// -------------------------------
+//  Create src/data/coriolis.json
+// -------------------------------
+
+const CORIOLIS = {
+    Ships: SHIP_CORIOLIS_TO_FD,
+    Modules: ID_CORIOLIS_TO_FD,
+    Blueprints: BLUEPRINT_CORIOLIS_TO_FD,
+    BlueprintIds: BLUEPRINT_ID_CORIOLIS_TO_FD,
+    Experimentals: EXPERIMENTAL_CORIOLIS_TO_FD,
+    ExperimentalIds: EXPERIMENTAL_ID_CORIOLIS_TO_FD,
+    Properties: _.mapValues(PROP_CORIOLIS_TO_FD, (exceptions) => {
+        return _.isArray(exceptions) ?
+            exceptions.map((specifier) => {
+                const { source, flags } = specifier.for;
+                return {
+                    for: [source, flags],
+                    val: specifier.val,
+                };
+            }) :
+            exceptions;
+    }),
+};
+
+writeDataJSON('coriolis.json', CORIOLIS);
