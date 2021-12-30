@@ -8,14 +8,21 @@
 import { get } from 'lodash';
 
 import { UnknownRestrictedError } from '../errors';
-import Module, { IBlueprintObjectHandler } from '../Module';
+import { IBlueprintObjectHandler } from '../Module';
 import Ship from '../Ship';
 import { assertValidBlueprint, assertValidExperimental } from './blueprints';
-import { assertValidModule, getModuleInfo } from './items';
 import { assertValidShip, getShipInfo } from './ships';
 
 import MODULE_REGISTRY from './module_registry.json';
 import SHIPS from './ships.json';
+
+const RATING_TO_NUMBER = {
+    'a': 5,
+    'b': 4,
+    'c': 3,
+    'd': 2,
+    'e': 1,
+}
 
 /**
  * Fetches a module ID from the cache. If the module does not have `clazz` or
@@ -33,7 +40,7 @@ function readModuleCache(
     rating: string = '',
 ): string {
     const path = [];
-    const rest = [type, 'items', clazz, rating];
+    const rest = [type, 'items', clazz, RATING_TO_NUMBER[rating] || rating];
     let item = {};
     while (item && rest.length) {
         path.push(rest.shift());
