@@ -26,7 +26,7 @@ function mergeDiff(olds: IDiffEvent[], change: IDiffEvent): IDiffEvent[] {
             return olds;
             // Merge and pop already existing information into a single object
         } else if (event.path.startsWith(path)) {
-            set(old, event.path.substr(path.length + 1), event.old);
+            set(old, event.path.slice(path.length + 1), event.old);
             olds.splice(i, i + 1);
         } else {
             i++;
